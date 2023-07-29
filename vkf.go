@@ -84,7 +84,11 @@ func PRINT_STATISTICS() {
 	DayMaxSpending := TWO_DECIMAL_POINTS(MONEY/float64(Days))
 	NET_WORTH := 1300
 	fmt.Println("NET WORTH: ", NET_WORTH)
-	fmt.Println("NET WORTH: ", NET_WORTH)
+
+	now := time.Now()
+	asd := now.Weekday().String()
+	fmt.Println("here: ", asd)
+	
 	fmt.Println("Avalable money: " + Yellow + TWO_DECIMAL_POINTS(MONEY) + Reset + " EUR")
 	fmt.Println("Expences: ", SPENT)
 	fmt.Println("Days left: ", Days)
@@ -95,12 +99,31 @@ func CalculateDaysLeft() int {
 	now := time.Now()
 	currentYear, currentMonth, _ := now.Date()
 	currentLocation := now.Location()
-
 	firstDayOfMonth := time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, currentLocation)
 	lastDayOfMonth := firstDayOfMonth.AddDate(0, 1, -1)
-	diff := lastDayOfMonth.Day() - now.Day()
+	DaysLeftBeforeEndOfMonth := lastDayOfMonth.Day() - now.Day()
+	DaysLeftBeforePayday := DaysLeftBeforeEndOfMonth + 6
+	DaysLeftBeforePayday = CheckWeekend(DaysLeftBeforePayday)
 
-	return diff + 6
+	fmt.Println(DaysLeftBeforePayday)
+
+	return DaysLeftBeforePayday
+}
+
+func CheckWeekend(DaysLeftBeforePayday int) int {
+	var AddDays = DaysLeftBeforePayday
+	NextPayDayDate := time.Now().AddDate(0, 0, DaysLeftBeforePayday)
+	GetWeekDay := NextPayDayDate.Weekday()
+
+	if GetWeekDay == time.Saturday {
+		AddDays += 2
+	}
+
+	if GetWeekDay == time.Sunday {
+		AddDays += 1
+	}
+
+	return AddDays
 }
 
 func Question(question string) float64 {
