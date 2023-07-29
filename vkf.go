@@ -84,6 +84,7 @@ func PRINT_STATISTICS() {
 	DayMaxSpending := TWO_DECIMAL_POINTS(MONEY/float64(Days))
 	NET_WORTH := 1300
 	fmt.Println("NET WORTH: ", NET_WORTH)
+	fmt.Println("NET WORTH: ", NET_WORTH)
 	fmt.Println("Avalable money: " + Yellow + TWO_DECIMAL_POINTS(MONEY) + Reset + " EUR")
 	fmt.Println("Expences: ", SPENT)
 	fmt.Println("Days left: ", Days)
