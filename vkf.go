@@ -33,7 +33,7 @@ func CL() {
 
 	PRINT_STATISTICS()
 
-	fmt.Println(Cyan + "\n<< COMMANDS: add | q >>" + Reset)
+	fmt.Println(Cyan + "\n<< COMMANDS: add | spent | grow | q >>" + Reset)
 	fmt.Print("=> ")
 
 	reader := bufio.NewReader(os.Stdin)
@@ -47,6 +47,8 @@ func CL() {
 			Add()
 		case "spent":
 			Spent()
+		case "grow":
+			Grow()
 		case "q":
 			Quit("clear")
 		default:
@@ -56,21 +58,26 @@ func CL() {
 	}
 }
 
+
+/* Main Commands */
 var MONEY float64 = 0
 var SPENT float64 = 0
 
 func Add() {
-
 	MONEY = Question("Money: ")
 	Clear_Screen()
-
 	CL()
 }
 
 func Spent() {
-	SPENT = Question("How much did you spent? ")
+	SPENT = Question("How much did you spend? ")
 	Clear_Screen()
+	CL()
+}
 
+func Grow() {
+	
+	Clear_Screen()
 	CL()
 }
 
@@ -80,19 +87,21 @@ func PRINT_STATISTICS() {
 	fmt.Println(Cyan + "<<___________ VK FINANCE v1 ___________>>" + Reset)
 	fmt.Println()
 
-	Days := CalculateDaysLeft()
-	DayMaxSpending := TWO_DECIMAL_POINTS(MONEY/float64(Days))
-	NET_WORTH := 1300
-	fmt.Println("NET WORTH: ", NET_WORTH)
+	// DONE
+	CalculateDaylySpending()
+}
 
-	now := time.Now()
-	asd := now.Weekday().String()
-	fmt.Println("here: ", asd)
+
+/* Constructors */
+
+func CalculateDaylySpending() {
+	DaysLeft := CalculateDaysLeft()
+	DayMaxSpending := TWO_DECIMAL_POINTS(MONEY/float64(DaysLeft))
+
+	// Convert to string
+	DaysLeftString := strconv.Itoa(DaysLeft)
 	
-	fmt.Println("Avalable money: " + Yellow + TWO_DECIMAL_POINTS(MONEY) + Reset + " EUR")
-	fmt.Println("Expences: ", SPENT)
-	fmt.Println("Days left: ", Days)
-	fmt.Println("You can spend daily: ", DayMaxSpending, " EUR")
+	fmt.Println("Max Dayly Spending" + "(" + Yellow + DaysLeftString + Reset + ")" + " -> " + Yellow + DayMaxSpending + Reset + " EUR")
 }
 
 func CalculateDaysLeft() int {
@@ -104,8 +113,6 @@ func CalculateDaysLeft() int {
 	DaysLeftBeforeEndOfMonth := lastDayOfMonth.Day() - now.Day()
 	DaysLeftBeforePayday := DaysLeftBeforeEndOfMonth + 6
 	DaysLeftBeforePayday = CheckWeekend(DaysLeftBeforePayday)
-
-	fmt.Println(DaysLeftBeforePayday)
 
 	return DaysLeftBeforePayday
 }
@@ -125,6 +132,8 @@ func CheckWeekend(DaysLeftBeforePayday int) int {
 
 	return AddDays
 }
+
+/* Other */
 
 func Question(question string) float64 {
 start:
