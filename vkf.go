@@ -108,20 +108,20 @@ func PRINT_STATISTICS() {
 	fmt.Println()
 
 	fmt.Print(Cyan + "NET WORTH: " + Reset)
-	fmt.Println(Green, NET_WORTH, "EUR" + Reset)
+	fmt.Println(Green, TWO_DECIMAL_POINTS(NET_WORTH), "EUR" + Reset)
 	fmt.Println()
 
 	fmt.Print(Cyan + "BALANCE: " + Reset)
-	fmt.Println(Yellow, BALANCE, "EUR" + Reset)
+	fmt.Println(Yellow, TWO_DECIMAL_POINTS(BALANCE), "EUR" + Reset)
 
 	fmt.Print(Cyan + "EXPENSES: " + Reset)
-	fmt.Println(Red, EXPENSES, "EUR" + Reset)
+	fmt.Println(Red, TWO_DECIMAL_POINTS(EXPENSES), "EUR" + Reset)
 
-	CalculateDaylySpending()
+	DaylySpending()
 	MONEY_SAVER()
 }
 
-func CalculateDaylySpending() {
+func DaylySpending() {
 	now := time.Now()
 	currentYear, currentMonth, _ := now.Date()
 	currentLocation := now.Location()
@@ -134,17 +134,24 @@ func CalculateDaylySpending() {
 	DaysLeftString := strconv.Itoa(DaysLeftBeforePayday)
 
 	fmt.Println()
-	fmt.Print(Cyan + "Max Dayly Spending (" + Reset)
-	fmt.Print(Yellow, DaysLeftString + Reset)
+	fmt.Print(Cyan + "Day Max: (" + Reset)
+	fmt.Print(Yellow + DaysLeftString + Reset)
 	fmt.Print(Cyan + "): " + Reset)
 	fmt.Println(Yellow + DayMaxSpending + " EUR" + Reset)
+
+	WeekMaxSpending := TWO_DECIMAL_POINTS((BALANCE / float64(DaysLeftBeforePayday)) * 7)
+	fmt.Print(Cyan + "Week Max: " + Reset)
+	fmt.Println(Yellow + WeekMaxSpending + " EUR" + Reset)
+	fmt.Println()
 }
+
 
 func MONEY_SAVER() {
 	Savings := BALANCE * 0.25
 	fmt.Print(Cyan + "SAVING (25%): " + Reset)
 	fmt.Println(Green + TWO_DECIMAL_POINTS(Savings) + " EUR" + Reset)
 }
+
 
 /* Other */
 
