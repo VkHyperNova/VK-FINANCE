@@ -12,6 +12,8 @@ import (
 	"time"
 )
 
+//go:generate goversioninfo
+
 type finance struct {
 	NET_WORTH float64 `json:"net_worth"`
 	BALANCE   float64 `json:"balance"`
@@ -144,7 +146,6 @@ func DaylySpending() {
 	fmt.Println(Yellow + WeekMaxSpending + " EUR" + Reset)
 	fmt.Println()
 }
-
 
 func MONEY_SAVER() {
 	Savings := BALANCE * 0.25
