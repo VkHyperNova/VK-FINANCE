@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-//go:generate goversioninfo
+//go:generate goversioninfo 
 
 type finance struct {
 	NET_WORTH float64 `json:"net_worth"`
