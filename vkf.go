@@ -83,6 +83,7 @@ func Add() {
 
 func EXP() {
 	EXP := Question("How much did you spend? ")
+	BALANCE = BALANCE - EXP
 	EXPENSES = EXPENSES - EXP
 	SAVE()
 	Clear_Screen()
