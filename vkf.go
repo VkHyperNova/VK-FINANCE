@@ -90,7 +90,6 @@ func EXP() {
 	CL()
 }
 
-/* UNDER CONSTRUCTION */
 func Grow() {
 	NET_WORTH = NET_WORTH + BALANCE
 	BALANCE = 0
@@ -120,11 +119,10 @@ func PRINT_STATISTICS() {
 	fmt.Print(Cyan + "EXPENSES: " + Reset)
 	fmt.Println(Red, TWO_DECIMAL_POINTS(EXPENSES), "EUR" + Reset)
 
-	DaylySpending()
-	MONEY_SAVER()
+	MaxSpending()
 }
 
-func DaylySpending() {
+func MaxSpending() {
 	now := time.Now()
 	currentYear, currentMonth, _ := now.Date()
 	currentLocation := now.Location()
@@ -135,20 +133,36 @@ func DaylySpending() {
 	DaysLeftBeforePayday = CheckWeekend(DaysLeftBeforePayday)
 	DayMaxSpending := TWO_DECIMAL_POINTS(BALANCE / float64(DaysLeftBeforePayday))
 	DaysLeftString := strconv.Itoa(DaysLeftBeforePayday)
-
 	fmt.Println()
 	fmt.Print(Cyan + "Day Max: (" + Reset)
 	fmt.Print(Yellow + DaysLeftString + Reset)
 	fmt.Print(Cyan + "): " + Reset)
-	fmt.Println(Yellow + DayMaxSpending + " EUR" + Reset)
+	fmt.Print(Yellow + DayMaxSpending + " EUR" + Reset)
 
-	WeekMaxSpending := TWO_DECIMAL_POINTS((BALANCE / float64(DaysLeftBeforePayday)) * 7)
-	fmt.Print(Cyan + "Week Max: " + Reset)
-	fmt.Println(Yellow + WeekMaxSpending + " EUR" + Reset)
+	/* Day max if save 25% */
+	SaveAmountPerDay := BALANCE / float64(DaysLeftBeforePayday) * 0.25
+	SaverMaxDay := TWO_DECIMAL_POINTS(BALANCE / float64(DaysLeftBeforePayday) - SaveAmountPerDay)
+	fmt.Println(Green + " (" + SaverMaxDay + " EUR)" + Reset)
+
+	/* Current week max spending (with today) */
+	daysUntilSunday := time.Sunday - now.Weekday()
+	if daysUntilSunday <= 0 {
+		daysUntilSunday += 8
+	}
+
+	/* Calculate sum */
+	ThisWeekMaxSpending := TWO_DECIMAL_POINTS((BALANCE / float64(DaysLeftBeforePayday)) * float64(daysUntilSunday))
+	fmt.Print(Cyan + "Current Week Max: " + Reset)
+	fmt.Print(Yellow + ThisWeekMaxSpending + " EUR" + Reset)
+
+	/* Week max if save 25% */
+	SaveAmountPerWeek := (BALANCE / float64(DaysLeftBeforePayday)) * float64(daysUntilSunday) * 0.25
+	SaverMaxCurrentWeek := TWO_DECIMAL_POINTS((BALANCE / float64(DaysLeftBeforePayday)) * float64(daysUntilSunday) - SaveAmountPerWeek)
+	fmt.Println(Green + " (" + SaverMaxCurrentWeek + " EUR)" + Reset)
+
 	fmt.Println()
-}
 
-func MONEY_SAVER() {
+	/* 25% SAVING */
 	Savings := BALANCE * 0.25
 	fmt.Print(Cyan + "SAVING (25%): " + Reset)
 	fmt.Println(Green + TWO_DECIMAL_POINTS(Savings) + " EUR" + Reset)
