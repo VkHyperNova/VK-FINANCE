@@ -136,7 +136,7 @@ func MaxSpending() {
 	fmt.Println()
 	fmt.Print(Cyan + "Day Max: (" + Reset)
 	fmt.Print(Yellow + DaysLeftString + Reset)
-	fmt.Print(Cyan + "): " + Reset)
+	fmt.Print(Cyan + " Days): " + Reset)
 	fmt.Print(Yellow + DayMaxSpending + " EUR" + Reset)
 
 	/* Day max if save 25% */
@@ -152,7 +152,9 @@ func MaxSpending() {
 
 	/* Calculate sum */
 	ThisWeekMaxSpending := TWO_DECIMAL_POINTS((BALANCE / float64(DaysLeftBeforePayday)) * float64(daysUntilSunday))
-	fmt.Print(Cyan + "Current Week Max: " + Reset)
+	fmt.Print(Cyan + "Current Week Max: (" + Reset)
+	fmt.Print(Yellow, int(daysUntilSunday), Reset)
+	fmt.Print(Cyan + " Days): " + Reset)
 	fmt.Print(Yellow + ThisWeekMaxSpending + " EUR" + Reset)
 
 	/* Week max if save 25% */
