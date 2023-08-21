@@ -12,19 +12,32 @@ import (
 	"time"
 )
 
-//go:generate goversioninfo 
+//go:generate goversioninfo
 
 type finance struct {
-	NET_WORTH float64 `json:"net_worth"`
-	BALANCE   float64 `json:"balance"`
-	EXPENSES  float64 `json:"expences"`
-	DATE      string `json:"date"`
+	NET_WORTH float64    `json:"net_worth"`
+	BALANCE   float64    `json:"balance"`
+	EXPENSES  float64    `json:"expences"`
+	MONTH     time.Month `json:"month"`
 }
 
+/* DATABASE */
+var NET_WORTH float64 = 0
 var BALANCE float64 = 0
 var EXPENSES float64 = 0
-var NET_WORTH float64 = 0
-var DATE string 
+
+/* CURRENT TIME */
+var CURRENT time.Time
+var CURRENT_MONTH time.Month
+var DAYS_UNTIL_SUNDAY time.Weekday
+
+/* CALCULATIONS */
+var DAYSLEFT int = 0
+var DAYMAX float64
+var WEEKMAX float64
+var SAVINGS float64
+var SAVER_DAYMAX float64
+var SAVER_WEEKMAX float64
 
 const (
 	Reset  = "\033[0m"
@@ -38,14 +51,17 @@ const (
 )
 
 func main() {
-	CHECK_DB()
+	CLEAR_SCREEN()
 	CL()
 }
 
+/* MAIN CMD */
 func CL() {
+	CHECK_DB()
+	GET_DATA()
+	CALCULATE()
+	PRINT()
 
-	PRINT_STATISTICS()
-	
 	fmt.Println(Cyan + "\n<< COMMANDS: add | exp | grow | q >>" + Reset)
 	fmt.Print("=> ")
 
@@ -53,127 +69,271 @@ func CL() {
 
 	for {
 
-		command := Convert_CRLF_To_LF(reader)
+		command := CONVERT_CRLF_TO_LF(reader)
 
 		switch command {
 		case "add":
-			Add()
+			ADD()
 		case "exp":
 			EXP()
 		case "grow":
-			Grow()
+			GROW()
 		case "q":
-			Quit("clear")
+			QUIT("clear")
 		default:
-			Clear_Screen()
+			CLEAR_SCREEN()
 			CL()
 		}
 	}
 }
 
-/* Main Commands */
-
-func Add() {
-	BAL := Question("Money: ")
+func ADD() {
+	BAL := PROMPT("Money: ")
 	BALANCE = BALANCE + BAL
-	SAVE()
-	Clear_Screen()
+	SAVE_DB()
+	CLEAR_SCREEN()
 	CL()
 }
 
 func EXP() {
-	EXP := Question("How much did you spend? ")
+	EXP := PROMPT("How much did you spend? ")
 	BALANCE = BALANCE - EXP
 	EXPENSES = EXPENSES - EXP
-	SAVE()
-	Clear_Screen()
+	SAVE_DB()
+	CLEAR_SCREEN()
 	CL()
 }
 
-func Grow() {
+func GROW() {
 	NET_WORTH = NET_WORTH + BALANCE
 	BALANCE = 0
-	SAVE()
-	Clear_Screen()
+	EXPENSES = 0
+	SAVE_DB()
+	CLEAR_SCREEN()
 	CL()
 }
 
-func PRINT_STATISTICS() {
-
-	SETUP()
-
-	fmt.Println()
-	fmt.Println(Cyan + "<<___________ VK FINANCE v1 ___________>>" + Reset)
-	fmt.Println(Cyan + "<<_____________________________________>>" + Reset)
-	fmt.Println()
-	fmt.Println(Cyan + "<< ", DATE, " >>" + Reset)
-	fmt.Println()
-
-	fmt.Print(Cyan + "NET WORTH: " + Reset)
-	fmt.Println(Green, TWO_DECIMAL_POINTS(NET_WORTH), "EUR" + Reset)
-	fmt.Println()
-
-	fmt.Print(Cyan + "BALANCE: " + Reset)
-	fmt.Println(Yellow, TWO_DECIMAL_POINTS(BALANCE), "EUR" + Reset)
-
-	fmt.Print(Cyan + "EXPENSES: " + Reset)
-	fmt.Println(Red, TWO_DECIMAL_POINTS(EXPENSES), "EUR" + Reset)
-
-	MaxSpending()
+/* CALCULATORS */
+func CALCULATE() {
+	CALCULATE_DAYSLEFT()
+	CALCULATE_DAYMAX()
+	CALCULATE_WEEKMAX()
+	CALCULATE_SAVER_DAYMAX()
+	CALCULATE_SAVER_WEEKMAX()
+	CALCULATE_SAVINGS()
 }
 
-func MaxSpending() {
-	now := time.Now()
-	currentYear, currentMonth, _ := now.Date()
-	currentLocation := now.Location()
-	firstDayOfMonth := time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, currentLocation)
-	lastDayOfMonth := firstDayOfMonth.AddDate(0, 1, -1)
-	DaysLeftBeforeEndOfMonth := lastDayOfMonth.Day() - now.Day()
-	DaysLeftBeforePayday := DaysLeftBeforeEndOfMonth + 5
-	DaysLeftBeforePayday = CheckWeekend(DaysLeftBeforePayday)
-	DayMaxSpending := TWO_DECIMAL_POINTS(BALANCE / float64(DaysLeftBeforePayday))
-	DaysLeftString := strconv.Itoa(DaysLeftBeforePayday)
-	fmt.Println()
-	fmt.Print(Cyan + "Day Max: (" + Reset)
-	fmt.Print(Yellow + DaysLeftString + Reset)
-	fmt.Print(Cyan + " Days): " + Reset)
-	fmt.Print(Yellow + DayMaxSpending + " EUR" + Reset)
+func CALCULATE_DAYSLEFT() {
+	Year, Month, _ := CURRENT.Date()
+	Location := CURRENT.Location()
+	FIRST_DAY_OF_MONTH := time.Date(Year, Month, 1, 0, 0, 0, 0, Location)
+	LAST_DAY_OF_MONTH := FIRST_DAY_OF_MONTH.AddDate(0, 1, -1)
 
-	/* Day max if save 25% */
-	SaveAmountPerDay := BALANCE / float64(DaysLeftBeforePayday) * 0.25
-	SaverMaxDay := TWO_DECIMAL_POINTS(BALANCE / float64(DaysLeftBeforePayday) - SaveAmountPerDay)
-	fmt.Println(Green + " (" + SaverMaxDay + " EUR)" + Reset)
+	DAYSLEFT = CHECK_WEEKEND((LAST_DAY_OF_MONTH.Day() - CURRENT.Day()) + 5)
+}
 
-	/* Current week max spending (with today) */
-	daysUntilSunday := time.Sunday - now.Weekday()
-	if daysUntilSunday <= 0 {
-		daysUntilSunday += 8
+func CALCULATE_DAYMAX() {
+	DAYMAX = BALANCE / float64(DAYSLEFT)
+}
+
+func CALCULATE_WEEKMAX() {
+	DAYS_UNTIL_SUNDAY = time.Sunday - CURRENT.Weekday()
+
+	if CURRENT.Weekday() == time.Sunday {
+		DAYS_UNTIL_SUNDAY += 7
+	} else {
+		DAYS_UNTIL_SUNDAY += 8
 	}
 
-	/* Calculate sum */
-	ThisWeekMaxSpending := TWO_DECIMAL_POINTS((BALANCE / float64(DaysLeftBeforePayday)) * float64(daysUntilSunday))
-	fmt.Print(Cyan + "Current Week Max: (" + Reset)
-	fmt.Print(Yellow, int(daysUntilSunday), Reset)
-	fmt.Print(Cyan + " Days): " + Reset)
-	fmt.Print(Yellow + ThisWeekMaxSpending + " EUR" + Reset)
-
-	/* Week max if save 25% */
-	SaveAmountPerWeek := (BALANCE / float64(DaysLeftBeforePayday)) * float64(daysUntilSunday) * 0.25
-	SaverMaxCurrentWeek := TWO_DECIMAL_POINTS((BALANCE / float64(DaysLeftBeforePayday)) * float64(daysUntilSunday) - SaveAmountPerWeek)
-	fmt.Println(Green + " (" + SaverMaxCurrentWeek + " EUR)" + Reset)
-
-	fmt.Println()
-
-	/* 25% SAVING */
-	Savings := BALANCE * 0.25
-	fmt.Print(Cyan + "SAVING (25%): " + Reset)
-	fmt.Println(Green + TWO_DECIMAL_POINTS(Savings) + " EUR" + Reset)
+	WEEKMAX = DAYMAX * float64(DAYS_UNTIL_SUNDAY)
 }
 
+func CALCULATE_SAVINGS() {
+	SAVINGS = BALANCE * 0.25 /* 25% SAVING */
+}
+
+func CALCULATE_SAVER_DAYMAX() {
+	SAVER_DAYMAX = DAYMAX - (DAYMAX * 0.25)
+}
+
+func CALCULATE_SAVER_WEEKMAX() {
+	SAVER_WEEKMAX = WEEKMAX - ((DAYMAX * float64(DAYS_UNTIL_SUNDAY)) * 0.25)
+}
+
+/* PRINTS */
+func PRINT() {
+	PRINT_PROGRAM_INFO()
+	PRINT_MONTH()
+	PRINT_NET_WORTH()
+	PRINT_BALANCE()
+	PRINT_EXPENCES()
+	PRINT_DAYMAX()
+	PRINT_WEEKMAX()
+	PRINT_SAVER_DAYMAX()
+	PRINT_SAVER_WEEKMAX()
+	PRINT_SAVINGS()
+}
+
+func PRINT_PROGRAM_INFO() {
+	fmt.Print("\n" + Cyan + "<<___________ VK FINANCE v1 ___________>>\n")
+}
+
+func PRINT_MONTH() {
+	fmt.Print(Yellow+"\n", CURRENT_MONTH, Reset+"\n")
+}
+
+func PRINT_NET_WORTH() {
+	fmt.Print("\n" + Cyan + "NET WORTH: " + Reset + Green + CONVERT_TO_TWO_DECIMAL_POINTS_STRING(NET_WORTH) + " EUR" + Reset + "\n\n")
+}
+
+func PRINT_BALANCE() {
+	fmt.Println(Cyan + "BALANCE: " + Reset + Yellow + CONVERT_TO_TWO_DECIMAL_POINTS_STRING(BALANCE) + " EUR" + Reset)
+}
+
+func PRINT_EXPENCES() {
+	fmt.Println(Cyan + "EXPENSES: " + Reset + Red + CONVERT_TO_TWO_DECIMAL_POINTS_STRING(EXPENSES) + " EUR" + Reset)
+}
+
+func PRINT_DAYMAX() {
+	fmt.Print("\n"+Cyan+"Day Max: (", DAYSLEFT, " Days): "+Reset+Yellow+CONVERT_TO_TWO_DECIMAL_POINTS_STRING(DAYMAX)+" EUR"+Reset+"\n")
+}
+
+func PRINT_WEEKMAX() {
+	fmt.Print(Cyan+"Week Max: (", int(DAYS_UNTIL_SUNDAY), " Days): "+Reset+Yellow+CONVERT_TO_TWO_DECIMAL_POINTS_STRING(WEEKMAX)+" EUR"+Reset)
+}
+
+func PRINT_SAVINGS() {
+	fmt.Print("\n" + Cyan + "SAVING (25%): " + Reset + Green + CONVERT_TO_TWO_DECIMAL_POINTS_STRING(SAVINGS) + " EUR" + Reset + "\n")
+}
+
+func PRINT_SAVER_DAYMAX() {
+	fmt.Print("\n\n" + Cyan + "Day Max (25%): " + Reset + Green + CONVERT_TO_TWO_DECIMAL_POINTS_STRING(SAVER_DAYMAX) + " EUR" + Reset + "\n")
+}
+
+func PRINT_SAVER_WEEKMAX() {
+	fmt.Print(Cyan + "Week Max (25%): " + Reset + Green + CONVERT_TO_TWO_DECIMAL_POINTS_STRING(SAVER_WEEKMAX) + " EUR" + Reset + "\n")
+}
+
+/* DATABASE */
+func CONCSTRUCT_FINANCE_JSON() finance {
+
+	return finance{
+		NET_WORTH: NET_WORTH,
+		BALANCE:   BALANCE,
+		EXPENSES:  EXPENSES,
+		MONTH:     CURRENT_MONTH,
+	}
+}
+
+func CONVERT_TO_FINANCE(body []byte) finance {
+
+	data := finance{}
+
+	err := json.Unmarshal(body, &data)
+	ERROR(err, "CONVERT_TO_FINANCE")
+
+	return data
+}
+
+func OPEN_DB() finance {
+	data := READ_FILE("./finance.json")
+	return CONVERT_TO_FINANCE(data)
+}
+
+func CREATE_DB() {
+	NET_WORTH = PROMPT("NET_WORTH: ")
+	CLEAR_SCREEN()
+	SAVE_DB()
+}
+
+func SAVE_DB() {
+	data := CONCSTRUCT_FINANCE_JSON()
+	dataBytes := CONVERT_TO_BYTE(data)
+	WRITE_FILE("./finance.json", dataBytes)
+}
+
+func GET_DATA() {
+	DB := OPEN_DB()
+	NET_WORTH = DB.NET_WORTH
+	BALANCE = DB.BALANCE
+	EXPENSES = DB.EXPENSES
+	CURRENT = time.Now()
+	CURRENT_MONTH = CURRENT.Month()
+}
+
+/* CHECKERS */
+func CHECK_DB() {
+	if !DIR_CHECK("./finance.json") {
+		CREATE_DB()
+	}
+}
+
+func CHECK_WEEKEND(DaysLeftBeforePayday int) int {
+	AddDays := DaysLeftBeforePayday
+	NextPayDayDate := time.Now().AddDate(0, 0, DaysLeftBeforePayday)
+
+	if NextPayDayDate.Weekday() == time.Saturday {
+		AddDays += 2
+	}
+
+	if NextPayDayDate.Weekday() == time.Sunday {
+		AddDays += 1
+	}
+
+	return AddDays
+}
+
+/* DIR */
+func MAKE_DIR(dir_name string) {
+	_ = os.Mkdir(dir_name, 0700)
+}
+
+func READ_FILE(filename string) []byte {
+	file, err := os.ReadFile(filename)
+	ERROR(err, "ReadFile")
+	return file
+}
+
+func WRITE_FILE(filename string, dataBytes []byte) {
+
+	var err = os.WriteFile(filename, dataBytes, 0644)
+	ERROR(err, "WRITE_FILE FUNCTION")
+}
+
+func DIR_CHECK(dir_name string) bool {
+
+	if _, err := os.Stat(dir_name); os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
+
+/* CONVERTERS */
+func CONVERT_TO_BYTE(data interface{}) []byte {
+	dataBytes, err := json.MarshalIndent(data, "", "  ")
+	ERROR(err, "Convert_To_Byte")
+
+	return dataBytes
+}
+
+func CONVERT_TO_TWO_DECIMAL_POINTS_STRING(number float64) string {
+	return fmt.Sprintf("%.2f", number)
+}
+
+func CONVERT_CRLF_TO_LF(reader *bufio.Reader) string {
+
+	// Read the answer
+	input, _ := reader.ReadString('\n')
+
+	// Convert CRLF to LF
+	input = strings.Replace(input, "\r\n", "", -1) /* "\r\n" was before.  */
+
+	return input
+}
 
 /* Other */
 
-func Question(question string) float64 {
+func PROMPT(question string) float64 {
 start:
 	var answer string
 	fmt.Print("\n", question)
@@ -192,7 +352,7 @@ start:
 	return floatValue
 }
 
-func Clear_Screen() {
+func CLEAR_SCREEN() {
 
 	if runtime.GOOS == "linux" {
 		cmd := exec.Command("clear")
@@ -205,131 +365,19 @@ func Clear_Screen() {
 	}
 }
 
-func Convert_CRLF_To_LF(reader *bufio.Reader) string {
-
-	// Read the answer
-	input, _ := reader.ReadString('\n')
-
-	// Convert CRLF to LF
-	input = strings.Replace(input, "\r\n", "", -1) /* "\r\n" was before.  */
-
-	return input
-}
-
-func TWO_DECIMAL_POINTS(number float64) string {
-	return fmt.Sprintf("%.2f", number)
-}
-
-func Quit(clear string) {
+func QUIT(clear string) {
 
 	if clear == "clear" {
-		Clear_Screen()
+		CLEAR_SCREEN()
 	}
 
 	os.Exit(0)
 }
 
-func Error(err error, location string) {
+func ERROR(err error, location string) {
 	if err != nil {
 		fmt.Println(" << Function name: ", location+" >>")
 		fmt.Println(err.Error())
 
-	}
-}
-
-func READ_FILE(filename string) []byte {
-	file, err := os.ReadFile(filename)
-	Error(err, "ReadFile")
-	return file
-}
-
-func WRITE_FILE(filename string, dataBytes []byte) {
-
-	var err = os.WriteFile(filename, dataBytes, 0644)
-	Error(err, "WRITE_FILE FUNCTION")
-}
-
-func DIR_CHECK(dir_name string) bool {
-
-	if _, err := os.Stat(dir_name); os.IsNotExist(err) {
-		return false
-	}
-	return true
-}
-
-func MAKE_DIR(dir_name string) {
-	_ = os.Mkdir(dir_name, 0700)
-}
-
-func CONVERT_TO_BYTE(data interface{}) []byte {
-	dataBytes, err := json.MarshalIndent(data, "", "  ")
-	Error(err, "Convert_To_Byte")
-
-	return dataBytes
-}
-
-func SAVE() {
-	data := CONCSTRUCT_FINANCE_JSON()
-	dataBytes := CONVERT_TO_BYTE(data)
-	WRITE_FILE("./finance.json", dataBytes)
-}
-
-func CONVERT_TO_FINANCE(body []byte) finance {
-
-	data := finance{}
-
-	err := json.Unmarshal(body, &data)
-	Error(err, "CONVERT_TO_FINANCE")
-
-	return data
-}
-
-func OPEN_DB() finance {
-	data := READ_FILE("./finance.json")
-	return CONVERT_TO_FINANCE(data)
-}
-
-func CHECK_DB() {
-	if !DIR_CHECK("./finance.json") {
-		NET_WORTH = Question("NET_WORTH? ")
-		BALANCE = Question("BALANCE? ")
-		SAVE()
-		CL()
-	}
-}
-
-func CheckWeekend(DaysLeftBeforePayday int) int {
-	var AddDays = DaysLeftBeforePayday
-	NextPayDayDate := time.Now().AddDate(0, 0, DaysLeftBeforePayday)
-	GetWeekDay := NextPayDayDate.Weekday()
-
-	if GetWeekDay == time.Saturday {
-		AddDays += 2
-	}
-
-	if GetWeekDay == time.Sunday {
-		AddDays += 1
-	}
-
-	return AddDays
-}
-
-func SETUP() {
-	DB := OPEN_DB()
-	NET_WORTH = DB.NET_WORTH
-	BALANCE = DB.BALANCE
-	EXPENSES = DB.EXPENSES
-	DATE = DB.DATE
-}
-
-func CONCSTRUCT_FINANCE_JSON() finance {
-	currentTime := time.Now()
-	timeString := currentTime.Format("2006-01-02 15:04:05")
-
-	return finance {
-		NET_WORTH: NET_WORTH,
-		BALANCE: BALANCE,
-		EXPENSES: EXPENSES,
-		DATE: timeString,
 	}
 }
