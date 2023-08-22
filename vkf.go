@@ -14,39 +14,6 @@ import (
 
 //go:generate goversioninfo
 
-type finance struct {
-	NET_WORTH float64    `json:"net_worth"`
-	BALANCE   float64    `json:"balance"`
-	EXPENSES  float64    `json:"expences"`
-	MONTH     time.Month `json:"month"`
-}
-
-/* DATABASE */
-var NET_WORTH float64 = 0
-var BALANCE float64 = 0
-var EXPENCES float64 = 0
-
-/* CURRENT TIME */
-var CURRENT time.Time
-var CURRENT_MONTH time.Month
-var DAYS_UNTIL_SUNDAY time.Weekday
-
-/* CALCULATIONS */
-var DAYSLEFT int = 0
-var DAYMAX_MONTH float64 = 0
-var DAYMAX float64 = 0
-var WEEKMAX float64 = 0
-var SAVINGS float64 = 0
-var EXP_DAYMAX_MONTH float64 = 0
-var EXP_WEEKMAX float64 = 0
-var EXP_SAVER_WEEKMAX_MONTH float64 = 0
-var EXP_SAVER_DAYMAX_MONTH float64 = 0
-var SAVER_DAYMAX_MONTH float64 = 0
-var SAVER_DAYMAX float64 = 0
-var SAVER_WEEKMAX float64 = 0
-var SAVER_BALANCE float64 = 0
-
-
 func main() {
 	CLEAR_SCREEN()
 	CL()
@@ -55,9 +22,8 @@ func main() {
 /* MAIN CMD */
 func CL() {
 	CHECK_DB()
-	GET_DATA()
-	CALCULATE()
-	PRINT()
+	SETUP()
+	PRINT_ALL()
 
 	fmt.Println(Cyan + "\n<< COMMANDS: add | exp | grow | q >>" + Reset)
 	fmt.Print("=> ")
@@ -95,7 +61,7 @@ func ADD() {
 func EXP() {
 	EXP := PROMPT("How much did you spend? ")
 	BALANCE = BALANCE - EXP
-	EXPENCES = EXPENCES - EXP
+	EXPENSES = EXPENSES - EXP
 	SAVE_DB()
 	CLEAR_SCREEN()
 	CL()
@@ -104,175 +70,81 @@ func EXP() {
 func GROW() {
 	NET_WORTH = NET_WORTH + BALANCE
 	BALANCE = 0
-	EXPENCES = 0
+	EXPENSES = 0
 	SAVE_DB()
 	CLEAR_SCREEN()
 	CL()
 }
 
-/* CALCULATORS */
-func CALCULATE() {
-	CALCULATE_DAYSLEFT()
-	CALCULATE_DAYMAX_DAYSLEFT()
-	CALCULATE_SAVINGS()
-	CALCULATE_SAVER_BALANCE()
-	CALCULATE_SAVER_MONTHMAX()
-	CALCULATE_EXP_SAVER_DAYMAX_MONTH()
-	CALCULATE_MONTHMAX()
-	CALCULATE_WEEKMAX()
-	CALCULATE_EXP_DAYMAX_MONTH()
-	CALCULATE_EXP_WEEKMAX()
-	CALCULATE_EXP_SAVER_WEEKMAX_MONTH()
-	CALCULATE_SAVER_DAYMAX()
-	CALCULATE_SAVER_WEEKMAX()
+/* MAIN FINANCE VARIABLES */
+var DATABASE finance
+var NET_WORTH float64
+var BALANCE float64
+var EXPENSES float64
+var INCOME float64
+var SAVE float64
 
-}
-
-func CALCULATE_DAYSLEFT() {
-	Year, Month, _ := CURRENT.Date()
-	Location := CURRENT.Location()
-	FIRST_DAY_OF_MONTH := time.Date(Year, Month, 1, 0, 0, 0, 0, Location)
-	LAST_DAY_OF_MONTH := FIRST_DAY_OF_MONTH.AddDate(0, 1, -1)
-
-	DAYSLEFT = CHECK_WEEKEND((LAST_DAY_OF_MONTH.Day() - CURRENT.Day()) + 5)
-}
-
-func CALCULATE_MONTHMAX() {
-	DAYMAX_MONTH = BALANCE / 31
-}
-
-func CALCULATE_SAVER_MONTHMAX() {
-	SAVER_DAYMAX_MONTH = SAVER_BALANCE / 31
-}
-
-func CALCULATE_DAYMAX_DAYSLEFT() {
-	DAYMAX = BALANCE / float64(DAYSLEFT)
-}
-
-func CALCULATE_WEEKMAX() {
-	DAYS_UNTIL_SUNDAY = time.Sunday - CURRENT.Weekday()
-
-	if CURRENT.Weekday() == time.Sunday {
-		DAYS_UNTIL_SUNDAY += 7
-	} else {
-		DAYS_UNTIL_SUNDAY += 8
-	}
-
-	WEEKMAX = DAYMAX * float64(DAYS_UNTIL_SUNDAY)
-}
-
-func CALCULATE_EXP_DAYMAX_MONTH() {
-	EXP_DAYMAX_MONTH = EXPENCES / 31
-}
-
-func CALCULATE_EXP_SAVER_DAYMAX_MONTH() {
-	EXP_SAVER_DAYMAX_MONTH = EXPENCES/float64(DAYSLEFT)
-}
-
-func CALCULATE_EXP_SAVER_WEEKMAX_MONTH(){
-	EXP_SAVER_WEEKMAX_MONTH = EXP_DAYMAX_MONTH * float64(int(DAYS_UNTIL_SUNDAY))
-}
-
-func CALCULATE_EXP_WEEKMAX() {
-	EXP_WEEKMAX = EXP_DAYMAX_MONTH * 7
-}
-
-func CALCULATE_SAVINGS() {
-	SAVINGS = BALANCE * 0.25 /* 25% SAVING */
-}
-
-func CALCULATE_SAVER_BALANCE() {
-	SAVER_BALANCE = BALANCE - SAVINGS
-}
-
-func CALCULATE_SAVER_DAYMAX() {
-	SAVER_DAYMAX = DAYMAX - (DAYMAX * 0.25)
-}
-
-func CALCULATE_SAVER_WEEKMAX() {
-	SAVER_WEEKMAX = WEEKMAX - ((DAYMAX * float64(DAYS_UNTIL_SUNDAY)) * 0.25)
-}
-
-/* PRINTS */
-func PRINT() {
-	PRINT_PROGRAM_INFO()
-	PRINT_CURRENT_MONTH()
-
-	PRINT_NET_WORTH()
-	PRINT_BALANCE()
-	PRINT_EXPENCES()
-
-	PRINT_MONTH_DATA()
-	PRINT_MONTHLEFT_DATA()
-	PRINT_WEEK_DATA()
-
-	PRINT_SAVINGS()
+func SETUP() {
+	data := READ_FILE("./finance.json")
+	DATABASE = CONVERT_TO_FINANCE(data)
+	NET_WORTH = DATABASE.NET_WORTH
+	BALANCE = DATABASE.BALANCE
+	EXPENSES = DATABASE.EXPENSES
+	INCOME = BALANCE + (-1 * EXPENSES)
+	SAVE = INCOME * 0.25
 }
 
 func PRINT_PROGRAM_INFO() {
-	fmt.Print("\n" + Cyan + "<<___________ VK FINANCE v1 ___________>>\n")
-}
-
-func PRINT_CURRENT_MONTH() {
-	fmt.Print(Yellow+"\n", CURRENT_MONTH, Reset+"\n")
+	PRINT_CYAN("<<___________ VK FINANCE v1 ___________>>\n\n")
+	PRINT_YELLOW(DATABASE.MONTH.String() + "\n")
 }
 
 func PRINT_NET_WORTH() {
-	fmt.Print("\n" + Cyan + "NET WORTH: " + Reset + Green + CONVERT_TO_TWO_DECIMAL_POINTS_STRING(NET_WORTH) + " EUR" + Reset + "\n\n")
+	PRINT_CYAN("NET WORTH: ")
+	PRINT_GREEN(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(NET_WORTH)+ " EUR\n\n")
+}
+
+func PRINT_INCOME()	{
+	PRINT_CYAN("INCOME: ")
+	PRINT_GREEN("+" + CONVERT_TO_TWO_DECIMAL_POINTS_STRING(INCOME)+ " EUR\n")
 }
 
 func PRINT_BALANCE() {
-	fmt.Println(Cyan + "BALANCE: " + Reset + Yellow + CONVERT_TO_TWO_DECIMAL_POINTS_STRING(BALANCE) + " EUR" + Reset)
+	PRINT_CYAN("BALANCE: ")
+	PRINT_YELLOW(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(BALANCE)+ " EUR\n")
 }
 
 func PRINT_EXPENCES() {
-	fmt.Println(Cyan + "EXPENSES: " + Reset + Red + CONVERT_TO_TWO_DECIMAL_POINTS_STRING(EXPENCES) + " EUR" + Reset)
+	PRINT_CYAN("EXPENCES: ")
+	PRINT_RED(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(EXPENSES)+ " EUR\n\n")
 }
 
-func PRINT_MONTH_DATA() {
-	PRINT_CYAN("MONTH (")
-	PRINT_YELLOW("31")
-	PRINT_CYAN(") -> ")
-	PRINT_GRAY(" | ")
-	PRINT_YELLOW(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(DAYMAX_MONTH))
-	PRINT_GRAY(" | ")
-	PRINT_GREEN(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(SAVER_DAYMAX_MONTH))
-	PRINT_GRAY(" | ")
-	PRINT_RED(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(EXP_DAYMAX_MONTH))
-	PRINT_GRAY(" | ")
+func PRINT_ESTIMATED_DAY() {
+	DAY := (INCOME - SAVE)/31 
+	PRINT_CYAN("ESTIMATED DAY: ")
+	PRINT_GREEN(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(DAY)+ " EUR\n")
 }
 
-func PRINT_MONTHLEFT_DATA() {
-	fmt.Println()
-	PRINT_CYAN("MONTH (")
-	PRINT_YELLOW(strconv.Itoa(DAYSLEFT))
-	PRINT_CYAN(") -> ")
-	PRINT_GRAY(" | ")
-	PRINT_YELLOW(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(DAYMAX))
-	PRINT_GRAY(" | ")
-	PRINT_GREEN(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(SAVER_DAYMAX))
-	PRINT_GRAY(" | ")
-	PRINT_RED(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(EXP_SAVER_DAYMAX_MONTH))
-	PRINT_GRAY(" | ")
-
+func PRINT_ESTIMATED_WEEK() {
+	WEEK := ((INCOME - SAVE)/31) * 7
+	PRINT_CYAN("ESTIMATED WEEK: ")
+	PRINT_GREEN(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(WEEK)+ " EUR\n")
 }
 
-func PRINT_WEEK_DATA() {
-	fmt.Println()
-	PRINT_CYAN("WEEK (")
-	PRINT_YELLOW(strconv.Itoa(int(DAYS_UNTIL_SUNDAY)))
-	PRINT_CYAN(") -> ")
-	PRINT_GRAY(" | ")
-	PRINT_YELLOW(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(WEEKMAX))
-	PRINT_GRAY(" | ")
-	PRINT_GREEN(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(SAVER_WEEKMAX))
-	PRINT_GRAY(" | ")
-	PRINT_RED(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(EXP_SAVER_WEEKMAX_MONTH))
-	PRINT_GRAY(" | ")
+func PRINT_SAVINGS(){
+	PRINT_CYAN("ESTIMATED SAVING (25%): ")
+	PRINT_GREEN(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(SAVE)+ " EUR\n")
 }
-
-func PRINT_SAVINGS() {
-	fmt.Print("\n\n" + Cyan + "ESTIMATED SAVING (25%): " + Reset + Green + CONVERT_TO_TWO_DECIMAL_POINTS_STRING(SAVINGS) + " EUR" + Reset + "\n")
+	
+func PRINT_ALL() {
+	PRINT_PROGRAM_INFO()	
+	PRINT_NET_WORTH()
+	PRINT_INCOME()
+	PRINT_BALANCE()
+	PRINT_EXPENCES()
+	PRINT_ESTIMATED_DAY()
+	PRINT_ESTIMATED_WEEK()
+	PRINT_SAVINGS()
 }
 
 /* COLORS */
@@ -316,13 +188,22 @@ func PRINT_GRAY(a string) {
 }
 
 /* DATABASE */
+type finance struct {
+	NET_WORTH float64    `json:"net_worth"`
+	BALANCE   float64    `json:"balance"`
+	EXPENSES  float64    `json:"expences"`
+	MONTH     time.Month `json:"month"`
+}
+
 func CONCSTRUCT_FINANCE_JSON() finance {
+
+	now := time.Now()
 
 	return finance{
 		NET_WORTH: NET_WORTH,
 		BALANCE:   BALANCE,
-		EXPENSES:  EXPENCES,
-		MONTH:     CURRENT_MONTH,
+		EXPENSES:  EXPENSES,
+		MONTH:     now.Month(),
 	}
 }
 
@@ -334,11 +215,6 @@ func CONVERT_TO_FINANCE(body []byte) finance {
 	ERROR(err, "CONVERT_TO_FINANCE")
 
 	return data
-}
-
-func OPEN_DB() finance {
-	data := READ_FILE("./finance.json")
-	return CONVERT_TO_FINANCE(data)
 }
 
 func CREATE_DB() {
@@ -353,35 +229,10 @@ func SAVE_DB() {
 	WRITE_FILE("./finance.json", dataBytes)
 }
 
-func GET_DATA() {
-	DB := OPEN_DB()
-	NET_WORTH = DB.NET_WORTH
-	BALANCE = DB.BALANCE
-	EXPENCES = DB.EXPENSES
-	CURRENT = time.Now()
-	CURRENT_MONTH = CURRENT.Month()
-}
-
-/* CHECKERS */
 func CHECK_DB() {
 	if !DIR_CHECK("./finance.json") {
 		CREATE_DB()
 	}
-}
-
-func CHECK_WEEKEND(DaysLeftBeforePayday int) int {
-	AddDays := DaysLeftBeforePayday
-	NextPayDayDate := time.Now().AddDate(0, 0, DaysLeftBeforePayday)
-
-	if NextPayDayDate.Weekday() == time.Saturday {
-		AddDays += 2
-	}
-
-	if NextPayDayDate.Weekday() == time.Sunday {
-		AddDays += 1
-	}
-
-	return AddDays
 }
 
 /* DIR */
@@ -482,3 +333,42 @@ func ERROR(err error, location string) {
 
 	}
 }
+
+/**************************************************************************************************************************************************/
+
+/* mby useful*/
+// func CALCULATE_DAYSLEFT() {
+// 	Year, Month, _ := CURRENT.Date()
+// 	Location := CURRENT.Location()
+// 	FIRST_DAY_OF_MONTH := time.Date(Year, Month, 1, 0, 0, 0, 0, Location)
+// 	LAST_DAY_OF_MONTH := FIRST_DAY_OF_MONTH.AddDate(0, 1, -1)
+
+// 	DAYSLEFT = CHECK_WEEKEND((LAST_DAY_OF_MONTH.Day() - CURRENT.Day()) + 5)
+// }
+
+// func CALCULATE_WEEKMAX() {
+// 	DAYS_UNTIL_SUNDAY = time.Sunday - CURRENT.Weekday()
+
+// 	if CURRENT.Weekday() == time.Sunday {
+// 		DAYS_UNTIL_SUNDAY += 7
+// 	} else {
+// 		DAYS_UNTIL_SUNDAY += 8
+// 	}
+
+// 	WEEKMAX = DAYMAX * float64(DAYS_UNTIL_SUNDAY)
+// }
+
+// func CHECK_WEEKEND(DaysLeftBeforePayday int) int {
+// 	AddDays := DaysLeftBeforePayday
+// 	NextPayDayDate := time.Now().AddDate(0, 0, DaysLeftBeforePayday)
+
+// 	if NextPayDayDate.Weekday() == time.Saturday {
+// 		AddDays += 2
+// 	}
+
+// 	if NextPayDayDate.Weekday() == time.Sunday {
+// 		AddDays += 1
+// 	}
+
+// 	return AddDays
+// }
