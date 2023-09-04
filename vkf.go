@@ -34,6 +34,8 @@ func CL() {
 	PRINT_CYAN(" | ")
 	PRINT_RED("reset")
 	PRINT_CYAN(" | ")
+	PRINT_CYAN("history")
+	PRINT_CYAN(" | ")
 	PRINT_GRAY("q")
 	PRINT_CYAN(" >>\n")
 	PRINT_GRAY("=> ")
@@ -52,7 +54,9 @@ func CL() {
 		case "grow":
 			GROW()
 		case "reset":
-			RESET_EXPENSES()
+			RESET()
+		case "history":
+			PRINT_HISTORY()
 		case "q":
 			QUIT("clear")
 		default:
@@ -63,18 +67,20 @@ func CL() {
 }
 
 func ADD() {
-	BAL := PROMPT("Money: ")
-	BALANCE = BALANCE + BAL
+	ADD := PROMPT("Add Money: ")
+	BALANCE = BALANCE + ADD
 	SAVE_DB()
+	SAVE_HISTORY("ADD", ADD)
 	CLEAR_SCREEN()
 	CL()
 }
 
 func EXP() {
-	EXP := PROMPT("How much did you spend? ")
+	EXP := PROMPT("EXP: ")
 	BALANCE = BALANCE - EXP
 	EXPENSES = EXPENSES - EXP
 	SAVE_DB()
+	SAVE_HISTORY("EXP", EXP)
 	CLEAR_SCREEN()
 	CL()
 }
@@ -84,14 +90,38 @@ func GROW() {
 	BALANCE = 0
 	EXPENSES = 0
 	SAVE_DB()
+	SAVE_HISTORY("GROW", BALANCE)
 	CLEAR_SCREEN()
 	CL()
 }
 
-func RESET_EXPENSES() {
+func RESET() {
 	EXPENSES = 0
 	SAVE_DB()
+	SAVE_HISTORY("RESET", EXPENSES)
+	REMOVE_FILE("./history.json")
 	CLEAR_SCREEN()
+	CL()
+}
+
+func PRINT_HISTORY() {
+	now := time.Now()
+	formattedDate := now.Format("02-01-2006")
+
+
+	file := READ_FILE("./history.json")
+	hdata := CONVERT_TO_HISTORY(file)
+
+	CLEAR_SCREEN()
+
+	PRINT_CYAN("History: \n")
+
+	for _, value := range hdata {
+		if strings.Contains(value.DATE, formattedDate) {
+			fmt.Println(value)
+		}
+	}
+
 	CL()
 }
 
@@ -111,11 +141,10 @@ func SETUP() {
 	EXPENSES = DATABASE.EXPENSES
 	INCOME = BALANCE + (-1 * EXPENSES)
 	PERFECT_SAVE = INCOME * 0.25
-
 }
 
 func PRINT_PROGRAM_INFO() {
-	PRINT_CYAN("<<___________ VK FINANCE v1 ___________>>\n\n")
+	PRINT_CYAN("\n<<___________ VK FINANCE v1 ___________>>\n\n")
 	PRINT_GRAY(DATABASE.MONTH.String() + "\n")
 }
 
@@ -170,7 +199,6 @@ func PRINT_MONEY() {
 	} else {
 		PRINT_GREEN(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(MONEY) + " EUR\n")
 	}
-	
 }
 
 func PRINT_ALL() {
@@ -180,7 +208,6 @@ func PRINT_ALL() {
 	PRINT_INCOME()
 	PRINT_EXPENCES()
 	PRINT_BALANCE()
-	
 
 	PRINT_DAY()
 	PRINT_WEEK()
@@ -249,6 +276,48 @@ func CONCSTRUCT_FINANCE_JSON() finance {
 	}
 }
 
+type history struct {
+	DATE   string  `json:"date"`
+	TIME   string  `json:"time"`
+	ACTION string  `json:"action"`
+	VALUE  float64 `json:"value"`
+}
+
+func CONCSTRUCT_HISTORY_JSON(LAST_ACTION string, VALUE float64) history {
+
+	now := time.Now()
+	formattedTime := now.Format("15:04:05")
+	formattedDate := now.Format("02-01-2006")
+
+	return history{
+		DATE:   formattedDate,
+		TIME:   formattedTime,
+		ACTION: LAST_ACTION,
+		VALUE:  VALUE,
+	}
+}
+
+func CONVERT_TO_HISTORY(body []byte) []history {
+
+	data := []history{}
+
+	err := json.Unmarshal(body, &data)
+	ERROR(err, "CONVERT_TO_FINANCE")
+
+	return data
+}
+
+func SAVE_HISTORY(LAST_ACTION string, VALUE float64) {
+
+	file := READ_FILE("./history.json")
+	hdata := CONVERT_TO_HISTORY(file)
+
+	newdata := CONCSTRUCT_HISTORY_JSON(LAST_ACTION, VALUE)
+	hdata = append(hdata, newdata)
+	dataBytes := CONVERT_TO_BYTE(hdata)
+	WRITE_FILE("./history.json", dataBytes)
+}
+
 func CONVERT_TO_FINANCE(body []byte) finance {
 
 	data := finance{}
@@ -271,9 +340,17 @@ func SAVE_DB() {
 	WRITE_FILE("./finance.json", dataBytes)
 }
 
+func CREATE_HISTROY_DB() {
+	WRITE_FILE("./history.json", []byte("[]"))
+}
+
 func CHECK_DB() {
 	if !DIR_CHECK("./finance.json") {
 		CREATE_DB()
+	}
+
+	if !DIR_CHECK("./history.json") {
+		CREATE_HISTROY_DB()
 	}
 }
 
@@ -344,6 +421,14 @@ start:
 	}
 
 	return floatValue
+}
+
+func REMOVE_FILE(file string) {
+
+	err := os.Remove(file)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func CLEAR_SCREEN() {
