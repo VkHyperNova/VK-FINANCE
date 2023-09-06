@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"os/exec"
 	"runtime"
@@ -269,9 +270,9 @@ func CONCSTRUCT_FINANCE_JSON() finance {
 	now := time.Now()
 
 	return finance{
-		NET_WORTH: NET_WORTH,
-		BALANCE:   BALANCE,
-		EXPENSES:  EXPENSES,
+		NET_WORTH: math.Round(NET_WORTH*100)/100,
+		BALANCE:   math.Round(BALANCE*100)/100,
+		EXPENSES:  math.Round(EXPENSES*100)/100,
 		MONTH:     now.Month(),
 	}
 }
