@@ -26,20 +26,20 @@ func CL() {
 	SETUP()
 	PRINT_ALL()
 
-	PRINT_CYAN("\n<< COMMANDS: ")
-	PRINT_YELLOW("add")
-	PRINT_CYAN(" | ")
-	PRINT_RED("exp")
-	PRINT_CYAN(" | ")
-	PRINT_GREEN("grow")
-	PRINT_CYAN(" | ")
-	PRINT_RED("reset")
-	PRINT_CYAN(" | ")
-	PRINT_CYAN("history")
-	PRINT_CYAN(" | ")
-	PRINT_GRAY("q")
-	PRINT_CYAN(" >>\n")
-	PRINT_GRAY("=> ")
+	PRINT_SEPARATOR_TWO()
+	PRINT_CYAN("Program Options: \n\n")
+	PRINT_COMMAND("add")
+	PRINT_COMMAND("bills")
+	PRINT_COMMAND("gas")
+	PRINT_COMMAND("food")
+	PRINT_COMMAND("other")
+	PRINT_COMMAND("grow")
+	PRINT_COMMAND("reset")
+	PRINT_COMMAND("history")
+	PRINT_COMMAND("q")
+
+
+	PRINT_GRAY("\n\n=> ")
 
 	reader := bufio.NewReader(os.Stdin)
 
@@ -48,15 +48,21 @@ func CL() {
 		command := CONVERT_CRLF_TO_LF(reader)
 
 		switch command {
-		case "add":
+		case "1", "add":
 			ADD()
-		case "exp":
-			EXP()
-		case "grow":
+		case "2", "bills":
+			BILLS_EXP()
+		case "3", "gas":
+			GAS_EXP()
+		case "4", "food":
+			FOOD_EXP()
+		case "5", "other":
+			OTHER_EXP()
+		case "6", "grow":
 			GROW()
-		case "reset":
+		case "7", "reset":
 			RESET()
-		case "history":
+		case "8", "history":
 			PRINT_HISTORY()
 		case "q":
 			QUIT("clear")
@@ -67,8 +73,10 @@ func CL() {
 	}
 }
 
+
 func ADD() {
 	ADD := PROMPT("Add Money: ")
+	INCOME = INCOME + ADD
 	BALANCE = BALANCE + ADD
 	SAVE_DB()
 	SAVE_HISTORY("ADD", ADD)
@@ -76,12 +84,46 @@ func ADD() {
 	CL()
 }
 
-func EXP() {
-	EXP := PROMPT("EXP: ")
+func BILLS_EXP() {
+	EXP := PROMPT("Bills expenses: ")
+	BILLS = BILLS + EXP
 	BALANCE = BALANCE - EXP
 	EXPENSES = EXPENSES - EXP
 	SAVE_DB()
-	SAVE_HISTORY("EXP", EXP)
+	SAVE_HISTORY("BILLS EXPENSES", EXP)
+	CLEAR_SCREEN()
+	CL()
+}
+
+func GAS_EXP() {
+	EXP := PROMPT("Gas expenses: ")
+	GAS = GAS + EXP
+	BALANCE = BALANCE - EXP
+	EXPENSES = EXPENSES - EXP
+	SAVE_DB()
+	SAVE_HISTORY("GAS EXPENSES", EXP)
+	CLEAR_SCREEN()
+	CL()
+}
+
+func FOOD_EXP() {
+	EXP := PROMPT("Food expenses: ")
+	FOOD = FOOD + EXP
+	BALANCE = BALANCE - EXP
+	EXPENSES = EXPENSES - EXP
+	SAVE_DB()
+	SAVE_HISTORY("FOOD EXPENSES", EXP)
+	CLEAR_SCREEN()
+	CL()
+}
+
+func OTHER_EXP() {
+	EXP := PROMPT("Other expenses: ")
+	OTHER = OTHER + EXP
+	BALANCE = BALANCE - EXP
+	EXPENSES = EXPENSES - EXP
+	SAVE_DB()
+	SAVE_HISTORY("OTHER EXPENSES", EXP)
 	CLEAR_SCREEN()
 	CL()
 }
@@ -97,6 +139,7 @@ func GROW() {
 }
 
 func RESET() {
+	INCOME = 0
 	EXPENSES = 0
 	SAVE_DB()
 	SAVE_HISTORY("RESET", EXPENSES)
@@ -108,7 +151,6 @@ func RESET() {
 func PRINT_HISTORY() {
 	now := time.Now()
 	formattedDate := now.Format("02-01-2006")
-
 
 	file := READ_FILE("./history.json")
 	hdata := CONVERT_TO_HISTORY(file)
@@ -131,6 +173,10 @@ var DATABASE finance
 var NET_WORTH float64
 var BALANCE float64
 var EXPENSES float64
+var BILLS float64
+var GAS float64
+var FOOD float64
+var OTHER float64
 var INCOME float64
 var PERFECT_SAVE float64
 
@@ -140,13 +186,36 @@ func SETUP() {
 	NET_WORTH = DATABASE.NET_WORTH
 	BALANCE = DATABASE.BALANCE
 	EXPENSES = DATABASE.EXPENSES
-	INCOME = BALANCE + (-1 * EXPENSES)
+	BILLS = DATABASE.BILLS
+	GAS = DATABASE.GAS
+	FOOD = DATABASE.FOOD
+	OTHER = DATABASE.OTHER
+	INCOME = DATABASE.INCOME
 	PERFECT_SAVE = INCOME * 0.25
 }
 
 func PRINT_PROGRAM_INFO() {
-	PRINT_CYAN("\n<<___________ VK FINANCE v1 ___________>>\n\n")
+	
+	PRINT_SEPARATOR_ONE()
+	
+	PRINT_GRAY("============== VK FINANCE v1 ===============\n")
+	
+	PRINT_SEPARATOR_ONE()
 	PRINT_GRAY(DATABASE.MONTH.String() + "\n")
+}
+
+func PRINT_COMMAND(name string) {
+	PRINT_CYAN("[")
+	PRINT_YELLOW(name)
+	PRINT_CYAN("] ")
+}
+
+func PRINT_SEPARATOR_ONE() {
+	PRINT_GRAY("============================================\n")
+}
+
+func PRINT_SEPARATOR_TWO() {
+	PRINT_GRAY("--------------------------------------------\n")
 }
 
 func PRINT_NET_WORTH() {
@@ -162,11 +231,20 @@ func PRINT_INCOME() {
 func PRINT_EXPENCES() {
 	PRINT_CYAN("EXPENCES: ")
 	PRINT_RED(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(EXPENSES) + " EUR\n\n")
+
+	PRINT_CYAN("-> Bills: ")
+	PRINT_RED(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(BILLS) + " EUR\n")
+	PRINT_CYAN("-> Gas: ")
+	PRINT_RED(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(GAS) + " EUR\n")
+	PRINT_CYAN("-> Food: ")
+	PRINT_RED(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(FOOD) + " EUR\n")
+	PRINT_CYAN("-> Other: ")
+	PRINT_RED(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(OTHER) + " EUR\n\n")
 }
 
 func PRINT_BALANCE() {
 	PRINT_CYAN("BALANCE: ")
-	PRINT_YELLOW(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(BALANCE) + " EUR\n\n")
+	PRINT_YELLOW(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(BALANCE) + " EUR\n")
 }
 
 func PRINT_DAY() {
@@ -196,9 +274,9 @@ func PRINT_MONEY() {
 	MONEY := BALANCE - PERFECT_SAVE
 	PRINT_CYAN("MONEY: ")
 	if MONEY < 0 {
-		PRINT_RED(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(MONEY) + " EUR\n")
+		PRINT_RED(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(MONEY) + " EUR\n\n")
 	} else {
-		PRINT_GREEN(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(MONEY) + " EUR\n")
+		PRINT_GREEN(CONVERT_TO_TWO_DECIMAL_POINTS_STRING(MONEY) + " EUR\n\n")
 	}
 }
 
@@ -208,12 +286,12 @@ func PRINT_ALL() {
 	PRINT_NET_WORTH()
 	PRINT_INCOME()
 	PRINT_EXPENCES()
-	PRINT_BALANCE()
 
 	PRINT_DAY()
 	PRINT_WEEK()
 	PRINT_SAVING()
 
+	PRINT_BALANCE()
 	PRINT_MONEY()
 }
 
@@ -260,8 +338,13 @@ func PRINT_GRAY(a string) {
 /* DATABASE */
 type finance struct {
 	NET_WORTH float64    `json:"net_worth"`
+	INCOME    float64    `json:"income"`
 	BALANCE   float64    `json:"balance"`
 	EXPENSES  float64    `json:"expences"`
+	BILLS     float64    `json:"bills"`
+	GAS       float64    `json:"gas"`
+	FOOD      float64    `json:"food"`
+	OTHER     float64    `json:"other"`
 	MONTH     time.Month `json:"month"`
 }
 
@@ -270,9 +353,14 @@ func CONCSTRUCT_FINANCE_JSON() finance {
 	now := time.Now()
 
 	return finance{
-		NET_WORTH: math.Round(NET_WORTH*100)/100,
-		BALANCE:   math.Round(BALANCE*100)/100,
-		EXPENSES:  math.Round(EXPENSES*100)/100,
+		NET_WORTH: math.Round(NET_WORTH*100) / 100,
+		INCOME:    math.Round(INCOME*100) / 100,
+		BALANCE:   math.Round(BALANCE*100) / 100,
+		EXPENSES:  math.Round(EXPENSES*100) / 100,
+		BILLS:     math.Round(BILLS*100) / 100,
+		GAS:       math.Round(GAS*100) / 100,
+		FOOD:      math.Round(FOOD*100) / 100,
+		OTHER:     math.Round(OTHER*100) / 100,
 		MONTH:     now.Month(),
 	}
 }
