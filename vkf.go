@@ -37,32 +37,28 @@ func CL() {
 	PRINT_COMMAND("reset")
 	PRINT_COMMAND("history")
 	PRINT_COMMAND("q")
-
-
+	
+	var command string
 	PRINT_GRAY("\n\n=> ")
-
-	reader := bufio.NewReader(os.Stdin)
+	fmt.Scanln(&command)
 
 	for {
-
-		command := CONVERT_CRLF_TO_LF(reader)
-
 		switch command {
-		case "1", "add":
+		case "add":
 			ADD()
-		case "2", "bills":
+		case "bills":
 			BILLS_EXP()
-		case "3", "gas":
+		case "gas":
 			GAS_EXP()
-		case "4", "food":
+		case "food":
 			FOOD_EXP()
-		case "5", "other":
+		case "other":
 			OTHER_EXP()
-		case "6", "grow":
+		case "grow":
 			GROW()
-		case "7", "reset":
+		case "reset":
 			RESET()
-		case "8", "history":
+		case "history":
 			PRINT_HISTORY()
 		case "q":
 			QUIT("clear")
@@ -483,7 +479,12 @@ func CONVERT_TO_TWO_DECIMAL_POINTS_STRING(number float64) string {
 func CONVERT_CRLF_TO_LF(reader *bufio.Reader) string {
 
 	// Read the answer
-	input, _ := reader.ReadString('\n')
+	input, err := reader.ReadString('\n')
+
+	if err != nil {
+		fmt.Println("Error reading input:", err)
+		os.Exit(1)
+	}
 
 	// Convert CRLF to LF
 	input = strings.Replace(input, "\r\n", "", -1) /* "\r\n" was before.  */
@@ -551,41 +552,4 @@ func ERROR(err error, location string) {
 	}
 }
 
-/**************************************************************************************************************************************************/
 
-/* mby useful*/
-// func CALCULATE_DAYSLEFT() {
-// 	Year, Month, _ := CURRENT.Date()
-// 	Location := CURRENT.Location()
-// 	FIRST_DAY_OF_MONTH := time.Date(Year, Month, 1, 0, 0, 0, 0, Location)
-// 	LAST_DAY_OF_MONTH := FIRST_DAY_OF_MONTH.AddDate(0, 1, -1)
-
-// 	DAYSLEFT = CHECK_WEEKEND((LAST_DAY_OF_MONTH.Day() - CURRENT.Day()) + 5)
-// }
-
-// func CALCULATE_WEEKMAX() {
-// 	DAYS_UNTIL_SUNDAY = time.Sunday - CURRENT.Weekday()
-
-// 	if CURRENT.Weekday() == time.Sunday {
-// 		DAYS_UNTIL_SUNDAY += 7
-// 	} else {
-// 		DAYS_UNTIL_SUNDAY += 8
-// 	}
-
-// 	WEEKMAX = DAYMAX * float64(DAYS_UNTIL_SUNDAY)
-// }
-
-// func CHECK_WEEKEND(DaysLeftBeforePayday int) int {
-// 	AddDays := DaysLeftBeforePayday
-// 	NextPayDayDate := time.Now().AddDate(0, 0, DaysLeftBeforePayday)
-
-// 	if NextPayDayDate.Weekday() == time.Saturday {
-// 		AddDays += 2
-// 	}
-
-// 	if NextPayDayDate.Weekday() == time.Sunday {
-// 		AddDays += 1
-// 	}
-
-// 	return AddDays
-// }
