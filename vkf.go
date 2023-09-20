@@ -35,9 +35,8 @@ func CL() {
 	PRINT_COMMAND("other")
 	PRINT_COMMAND("grow")
 	PRINT_COMMAND("reset")
-	PRINT_COMMAND("history")
 	PRINT_COMMAND("q")
-	
+
 	var command string
 	PRINT_GRAY("\n\n=> ")
 	fmt.Scanln(&command)
@@ -45,21 +44,20 @@ func CL() {
 	for {
 		switch command {
 		case "add":
-			ADD()
+			CALCULATE("Add")
 		case "bills":
-			BILLS_EXP()
+			CALCULATE("Bills")
 		case "gas":
-			GAS_EXP()
+			CALCULATE("Gas")
 		case "food":
-			FOOD_EXP()
+			CALCULATE("Food")
 		case "other":
-			OTHER_EXP()
+			CALCULATE("Other")
 		case "grow":
 			GROW()
 		case "reset":
 			RESET()
-		case "history":
-			PRINT_HISTORY()
+			SAVE("Reset", 0)
 		case "q":
 			QUIT("clear")
 		default:
@@ -69,99 +67,54 @@ func CL() {
 	}
 }
 
-
-func ADD() {
-	ADD := PROMPT("Add Money: ")
-	INCOME = INCOME + ADD
-	BALANCE = BALANCE + ADD
-	SAVE_DB()
-	SAVE_HISTORY("ADD", ADD)
-	CLEAR_SCREEN()
-	CL()
+func ADD(amount float64) {
+	INCOME = INCOME + amount
+	BALANCE = BALANCE + amount
 }
 
-func BILLS_EXP() {
-	EXP := PROMPT("Bills expenses: ")
-	BILLS = BILLS + EXP
-	BALANCE = BALANCE - EXP
-	EXPENSES = EXPENSES - EXP
-	SAVE_DB()
-	SAVE_HISTORY("BILLS EXPENSES", EXP)
-	CLEAR_SCREEN()
-	CL()
+func EXP(amount float64) {
+	BALANCE = BALANCE - amount
+	EXPENSES = EXPENSES - amount
 }
 
-func GAS_EXP() {
-	EXP := PROMPT("Gas expenses: ")
-	GAS = GAS + EXP
-	BALANCE = BALANCE - EXP
-	EXPENSES = EXPENSES - EXP
-	SAVE_DB()
-	SAVE_HISTORY("GAS EXPENSES", EXP)
-	CLEAR_SCREEN()
-	CL()
-}
-
-func FOOD_EXP() {
-	EXP := PROMPT("Food expenses: ")
-	FOOD = FOOD + EXP
-	BALANCE = BALANCE - EXP
-	EXPENSES = EXPENSES - EXP
-	SAVE_DB()
-	SAVE_HISTORY("FOOD EXPENSES", EXP)
-	CLEAR_SCREEN()
-	CL()
-}
-
-func OTHER_EXP() {
-	EXP := PROMPT("Other expenses: ")
-	OTHER = OTHER + EXP
-	BALANCE = BALANCE - EXP
-	EXPENSES = EXPENSES - EXP
-	SAVE_DB()
-	SAVE_HISTORY("OTHER EXPENSES", EXP)
-	CLEAR_SCREEN()
-	CL()
-}
-
-func GROW() {
+func GROW()	{
 	NET_WORTH = NET_WORTH + BALANCE
+	SAVED_AMOUNT := BALANCE
 	BALANCE = 0
-	EXPENSES = 0
-	SAVE_DB()
-	SAVE_HISTORY("GROW", BALANCE)
-	CLEAR_SCREEN()
-	CL()
+	RESET()
+	SAVE("Grow", SAVED_AMOUNT)
 }
 
 func RESET() {
 	INCOME = 0
 	EXPENSES = 0
-	SAVE_DB()
-	SAVE_HISTORY("RESET", EXPENSES)
-	REMOVE_FILE("./history.json")
-	CLEAR_SCREEN()
-	CL()
+	BILLS = 0
+	GAS = 0
+	FOOD = 0
+	OTHER = 0
 }
 
-func PRINT_HISTORY() {
-	now := time.Now()
-	formattedDate := now.Format("02-01-2006")
+func CALCULATE(name string) {
+	amount := PROMPT(name + ": ")
 
-	file := READ_FILE("./history.json")
-	hdata := CONVERT_TO_HISTORY(file)
-
-	CLEAR_SCREEN()
-
-	PRINT_CYAN("History: \n")
-
-	for _, value := range hdata {
-		if strings.Contains(value.DATE, formattedDate) {
-			fmt.Println(value)
-		}
+	switch name {
+	case "Bills":
+		BILLS = BILLS - amount
+		EXP(amount)
+	case "Gas":
+		GAS = GAS - amount
+		EXP(amount)
+	case "Food":
+		FOOD = FOOD - amount
+		EXP(amount)
+	case "Other":
+		OTHER = OTHER - amount
+		EXP(amount)
+	case "Add":
+		ADD(amount)
 	}
 
-	CL()
+	SAVE(name, amount)
 }
 
 /* MAIN FINANCE VARIABLES */
@@ -191,13 +144,36 @@ func SETUP() {
 }
 
 func PRINT_PROGRAM_INFO() {
-	
+
 	PRINT_SEPARATOR_ONE()
-	
+
 	PRINT_GRAY("============== VK FINANCE v1 ===============\n")
-	
+
 	PRINT_SEPARATOR_ONE()
 	PRINT_GRAY(DATABASE.MONTH.String() + "\n")
+}
+
+func PRINT_HISTORY() {
+	now := time.Now()
+	CurrentMonth := now.Month()
+
+	file := READ_FILE("./history.json")
+	hdata := CONVERT_TO_HISTORY(file)
+
+	CLEAR_SCREEN()
+
+	PRINT_CYAN("History: \n")
+
+	for _, value := range hdata {
+		layout := "02-01-2006"
+
+		t, err := time.Parse(layout, value.DATE)
+		ERROR(err, "PRINT_HISTORY")
+
+		if t.Month() == CurrentMonth {
+			fmt.Println(value)
+		}
+	}
 }
 
 func PRINT_COMMAND(name string) {
@@ -278,6 +254,7 @@ func PRINT_MONEY() {
 
 func PRINT_ALL() {
 	PRINT_PROGRAM_INFO()
+	PRINT_HISTORY()
 
 	PRINT_NET_WORTH()
 	PRINT_INCOME()
@@ -425,6 +402,13 @@ func SAVE_DB() {
 	WRITE_FILE("./finance.json", dataBytes)
 }
 
+func SAVE(name string, amount float64) {
+	SAVE_DB()
+	SAVE_HISTORY(name, amount)
+	CLEAR_SCREEN()
+	CL()
+}
+
 func CREATE_HISTROY_DB() {
 	WRITE_FILE("./history.json", []byte("[]"))
 }
@@ -548,8 +532,5 @@ func ERROR(err error, location string) {
 		PRINT_RED(" << Function name: ")
 		PRINT_RED(location + " >>\n")
 		PRINT_RED(err.Error() + "\n")
-
 	}
 }
-
-
