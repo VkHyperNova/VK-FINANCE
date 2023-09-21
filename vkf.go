@@ -59,13 +59,17 @@ func CL() {
 			RESET()
 			SAVE("Reset", 0)
 		case "q":
-			QUIT("clear")
+			CLEAR_SCREEN()
+			os.Exit(0)
 		default:
 			CLEAR_SCREEN()
 			CL()
 		}
 	}
 }
+
+
+
 
 func ADD(amount float64) {
 	INCOME = INCOME + amount
@@ -516,15 +520,6 @@ func CLEAR_SCREEN() {
 		cmd.Stdout = os.Stdout
 		cmd.Run()
 	}
-}
-
-func QUIT(clear string) {
-
-	if clear == "clear" {
-		CLEAR_SCREEN()
-	}
-
-	os.Exit(0)
 }
 
 func ERROR(err error, location string) {
