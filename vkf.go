@@ -20,7 +20,8 @@ func main() {
 
 /* MAIN CMD */
 func CL() {
-	CHECK_DB()
+	clearScreen()
+	validateDatabase()
 	SETUP()
 	PRINT_ALL()
 
@@ -55,19 +56,16 @@ func CL() {
 			GROW()
 		case "reset":
 			RESET()
-			SAVE("Reset", 0)
+			SaveData("Reset", 0)
+			CL()
 		case "q":
 			clearScreen()
 			os.Exit(0)
 		default:
-			clearScreen()
 			CL()
 		}
 	}
 }
-
-
-
 
 func ADD(amount float64) {
 	INCOME = INCOME + amount
@@ -79,12 +77,13 @@ func EXP(amount float64) {
 	EXPENSES = EXPENSES - amount
 }
 
-func GROW()	{
+func GROW() {
 	NET_WORTH = NET_WORTH + BALANCE
 	SAVED_AMOUNT := BALANCE
 	BALANCE = 0
 	RESET()
-	SAVE("Grow", SAVED_AMOUNT)
+	SaveData("Grow", SAVED_AMOUNT)
+	CL()
 }
 
 func RESET() {
@@ -116,7 +115,8 @@ func CALCULATE(name string) {
 		ADD(amount)
 	}
 
-	SAVE(name, amount)
+	SaveData(name, amount)
+	CL()
 }
 
 /* MAIN FINANCE VARIABLES */
@@ -133,7 +133,7 @@ var PERFECT_SAVE float64
 
 func SETUP() {
 	data := readFile("./finance.json")
-	DATABASE = CONVERT_TO_FINANCE(data)
+	DATABASE = byteToFinanceJsonObject(data)
 	NET_WORTH = DATABASE.NET_WORTH
 	BALANCE = DATABASE.BALANCE
 	EXPENSES = DATABASE.EXPENSES
@@ -160,7 +160,7 @@ func PRINT_HISTORY() {
 	CurrentMonth := now.Month()
 
 	file := readFile("./history.json")
-	hdata := CONVERT_TO_HISTORY(file)
+	hdata := byteToHistoryJsonArray(file)
 
 	clearScreen()
 
@@ -170,7 +170,7 @@ func PRINT_HISTORY() {
 		layout := "02-01-2006"
 
 		t, err := time.Parse(layout, value.DATE)
-		handleError(err, "PRINT_HISTORY")
+		handleError(err)
 
 		if t.Month() == CurrentMonth {
 			fmt.Println(value)
@@ -347,7 +347,7 @@ type history struct {
 	VALUE  float64 `json:"value"`
 }
 
-func CONCSTRUCT_HISTORY_JSON(LAST_ACTION string, VALUE float64) history {
+func getHistoryJsonArrayObject(LAST_ACTION string, VALUE float64) history {
 
 	now := time.Now()
 	formattedTime := now.Format("15:04:05")
@@ -361,84 +361,95 @@ func CONCSTRUCT_HISTORY_JSON(LAST_ACTION string, VALUE float64) history {
 	}
 }
 
-func CONVERT_TO_HISTORY(body []byte) []history {
+func byteToHistoryJsonArray(byteArray []byte) []history {
 
-	data := []history{}
+	historyJsonArray := []history{}
 
-	err := json.Unmarshal(body, &data)
-	handleError(err, "CONVERT_TO_FINANCE")
+	err := json.Unmarshal(byteArray, &historyJsonArray)
+	handleError(err)
 
-	return data
+	return historyJsonArray
 }
 
-func SAVE_HISTORY(LAST_ACTION string, VALUE float64) {
 
-	file := readFile("./history.json")
-	hdata := CONVERT_TO_HISTORY(file)
 
-	newdata := CONCSTRUCT_HISTORY_JSON(LAST_ACTION, VALUE)
-	hdata = append(hdata, newdata)
-	dataBytes := interfaceToByteArray(hdata)
-	writeDataToFile("./history.json", dataBytes)
+func byteToFinanceJsonObject(byteArray []byte) finance {
+
+	financeJsonObject := finance{}
+
+	err := json.Unmarshal(byteArray, &financeJsonObject)
+	handleError(err)
+
+	return financeJsonObject
 }
 
-func CONVERT_TO_FINANCE(body []byte) finance {
+// SaveData saves the given name and amount to the database and history
+func SaveData(name string, amount float64) {
+    // Save the name and amount to the database
+    SaveToDatabase()
 
-	data := finance{}
-
-	err := json.Unmarshal(body, &data)
-	handleError(err, "CONVERT_TO_FINANCE")
-
-	return data
+    // Save the name and amount to the history
+    SaveHistory(name, amount)
 }
 
-func CREATE_DB() {
-	NET_WORTH = getUserInput("NET_WORTH: ")
-	clearScreen()
-	SAVE_DB()
+// SaveToDatabase saves finance data to a JSON file
+func SaveToDatabase() {
+    // Construct finance data as a JSON object
+    data := CONCSTRUCT_FINANCE_JSON()
+
+    // Convert finance data to a byte array
+    dataBytes := interfaceToByteArray(data)
+
+    // Write finance data to a JSON file
+    writeDataToFile("./finance.json", dataBytes)
 }
 
-func SAVE_DB() {
-	data := CONCSTRUCT_FINANCE_JSON()
-	dataBytes := interfaceToByteArray(data)
-	writeDataToFile("./finance.json", dataBytes)
+// SaveHistory saves the last action and its value to the history file
+func SaveHistory(Action string, Value float64) {
+
+	// Read the history file content
+	historyByteArray := readFile("./history.json")
+
+	// Convert the file content to history data
+	historyJsonArray := byteToHistoryJsonArray(historyByteArray)
+
+	// Construct a new history JSON object
+	historyJsonArrayObject := getHistoryJsonArrayObject(Action, Value)
+
+	// Append the new data to the history data
+	historyJsonArray = append(historyJsonArray, historyJsonArrayObject)
+
+	// Convert the history data to a byte array
+	historyByteArrayUpdated := interfaceToByteArray(historyJsonArray)
+
+	// Write the data to the history file
+	writeDataToFile("./history.json", historyByteArrayUpdated)
 }
 
-func SAVE(name string, amount float64) {
-	SAVE_DB()
-	SAVE_HISTORY(name, amount)
-	clearScreen()
-	CL()
-}
 
-func CREATE_HISTROY_DB() {
-	writeDataToFile("./history.json", []byte("[]"))
-}
-
-func CHECK_DB() {
+// Validate the existence of the database files
+func validateDatabase() {
+	
 	if !doesDirectoryExist("./finance.json") {
-		CREATE_DB()
+		NET_WORTH = getUserInput("NET_WORTH: ")
+		SaveToDatabase()
 	}
 
 	if !doesDirectoryExist("./history.json") {
-		CREATE_HISTROY_DB()
+		writeDataToFile("./history.json", []byte("[]"))
 	}
-}
-
-func createDirectory(dir_name string) {
-	_ = os.Mkdir(dir_name, 0700)
 }
 
 func readFile(filename string) []byte {
 	file, err := os.ReadFile(filename)
-	handleError(err, "ReadFile")
+	handleError(err)
 	return file
 }
 
 func writeDataToFile(filename string, dataBytes []byte) {
 
 	var err = os.WriteFile(filename, dataBytes, 0644)
-	handleError(err, "WRITE_FILE FUNCTION")
+	handleError(err)
 }
 
 func doesDirectoryExist(dir_name string) bool {
@@ -451,7 +462,7 @@ func doesDirectoryExist(dir_name string) bool {
 
 func interfaceToByteArray(data interface{}) []byte {
 	dataBytes, err := json.MarshalIndent(data, "", "  ")
-	handleError(err, "Convert_To_Byte")
+	handleError(err)
 
 	return dataBytes
 }
@@ -493,10 +504,8 @@ func clearScreen() {
 	}
 }
 
-func handleError(err error, location string) {
+func handleError(err error) {
 	if err != nil {
-		PRINT_RED(" << Function name: ")
-		PRINT_RED(location + " >>\n")
 		PRINT_RED(err.Error() + "\n")
 	}
 }
