@@ -15,78 +15,103 @@ import (
 
 func main() {
 	clearScreen()
-	CL()
+	displayAndHandleCommandLineCommands()
 }
 
-/* MAIN CMD */
-func CL() {
+func displayAndHandleCommandLineCommands() {
+	// Clear the screen
 	clearScreen()
+
+	// Validate the database
 	validateDatabase()
-	SETUP()
-	PRINT_ALL()
 
-	PRINT_SEPARATOR_TWO()
-	PRINT_CYAN("Program Options: \n\n")
-	PRINT_COMMAND("add")
-	PRINT_COMMAND("bills")
-	PRINT_COMMAND("gas")
-	PRINT_COMMAND("food")
-	PRINT_COMMAND("other")
-	PRINT_COMMAND("grow")
-	PRINT_COMMAND("reset")
-	PRINT_COMMAND("q")
+	// Fetch the finance data
+	fetchFinanceData()
 
-	var command string
-	PRINT_GRAY("\n\n=> ")
-	fmt.Scanln(&command)
+	// Print all the data
+	displayAllVariables()
 
+	// Display a separator
+	displaySeparatorDoubleDash()
+
+	// Print the program options
+	printCyan("Program Options: \n\n")
+
+	// Display the command names
+	displayCommandName("add")
+	displayCommandName("bills")
+	displayCommandName("gas")
+	displayCommandName("food")
+	displayCommandName("other")
+	displayCommandName("grow")
+	displayCommandName("reset")
+	displayCommandName("q")
+
+	// Get the user input
+	var user_input string
+	printGray("\n\n=> ")
+	fmt.Scanln(&user_input)
+
+	// Handle the user input
 	for {
-		switch command {
+		switch user_input {
 		case "add":
-			CALCULATE("Add")
+			calculateCashFlowTransactions("Add")
 		case "bills":
-			CALCULATE("Bills")
+			calculateCashFlowTransactions("Bills")
 		case "gas":
-			CALCULATE("Gas")
+			calculateCashFlowTransactions("Gas")
 		case "food":
-			CALCULATE("Food")
+			calculateCashFlowTransactions("Food")
 		case "other":
-			CALCULATE("Other")
+			calculateCashFlowTransactions("Other")
 		case "grow":
-			GROW()
+			growNetWorth()
 		case "reset":
-			RESET()
+			resetVariables()
 			SaveData("Reset", 0)
-			CL()
+			displayAndHandleCommandLineCommands()
 		case "q":
 			clearScreen()
 			os.Exit(0)
 		default:
-			CL()
+			displayAndHandleCommandLineCommands()
 		}
 	}
 }
 
-func ADD(amount float64) {
+func calculateIncomeAndBalance(amount float64) {
+	// Add amount to income
 	INCOME = INCOME + amount
+	// Add amount to balance
 	BALANCE = BALANCE + amount
 }
 
-func EXP(amount float64) {
+func calculateExpensesAndBalance(amount float64) {
+	// subtract amount from balance
 	BALANCE = BALANCE - amount
+	// subtract amount from expenses
 	EXPENSES = EXPENSES - amount
 }
 
-func GROW() {
+// growNetWorth function increases the net worth by the balance amount
+func growNetWorth() {
+	// increase net worth by balance amount
 	NET_WORTH = NET_WORTH + BALANCE
+	// set saved amount to balance amount
 	SAVED_AMOUNT := BALANCE
+	// reset balance to 0
 	BALANCE = 0
-	RESET()
+	// reset other variables
+	resetVariables()
+	// save data to file
 	SaveData("Grow", SAVED_AMOUNT)
-	CL()
+	// display and handle command line commands
+	displayAndHandleCommandLineCommands()
 }
 
-func RESET() {
+// Reset all variables to 0
+func resetVariables() {
 	INCOME = 0
 	EXPENSES = 0
 	BILLS = 0
@@ -95,32 +120,46 @@ func RESET() {
 	OTHER = 0
 }
 
-func CALCULATE(name string) {
-	amount := getUserInput(name + ": ")
+// calculateCashFlowTransactions calculates cash flow transactions
+func calculateCashFlowTransactions(name string) {
+	// getUserInput retrieves user input for a specific transaction
+	sum_of_money := getUserInput(name + ": ")
 
+	// switch statement handles different transaction types
 	switch name {
 	case "Bills":
-		BILLS = BILLS - amount
-		EXP(amount)
+		// subtract transaction amount from BILLS
+		BILLS -= sum_of_money
+		// calculate expenses and balance
+		calculateExpensesAndBalance(sum_of_money)
 	case "Gas":
-		GAS = GAS - amount
-		EXP(amount)
+		// subtract transaction amount from GAS
+		GAS -= sum_of_money
+		// calculate expenses and balance
+		calculateExpensesAndBalance(sum_of_money)
 	case "Food":
-		FOOD = FOOD - amount
-		EXP(amount)
+		// subtract transaction amount from FOOD
+		FOOD -= sum_of_money
+		// calculate expenses and balance
+		calculateExpensesAndBalance(sum_of_money)
 	case "Other":
-		OTHER = OTHER - amount
-		EXP(amount)
+		// subtract transaction amount from OTHER
+		OTHER -= sum_of_money
+		// calculate expenses and balance
+		calculateExpensesAndBalance(sum_of_money)
 	case "Add":
-		ADD(amount)
+		// calculate income and balance
+		calculateIncomeAndBalance(sum_of_money)
 	}
 
-	SaveData(name, amount)
-	CL()
+	// SaveData saves transaction data to a file
+	SaveData(name, sum_of_money)
+	// displayAndHandleCommandLineCommands displays the updated data and handles user commands
+	displayAndHandleCommandLineCommands()
 }
 
 /* MAIN FINANCE VARIABLES */
-var DATABASE finance
+var financeJsonObject finance
 var NET_WORTH float64
 var BALANCE float64
 var EXPENSES float64
@@ -131,143 +170,208 @@ var OTHER float64
 var INCOME float64
 var PERFECT_SAVE float64
 
-func SETUP() {
-	data := readFile("./finance.json")
-	DATABASE = byteToFinanceJsonObject(data)
-	NET_WORTH = DATABASE.NET_WORTH
-	BALANCE = DATABASE.BALANCE
-	EXPENSES = DATABASE.EXPENSES
-	BILLS = DATABASE.BILLS
-	GAS = DATABASE.GAS
-	FOOD = DATABASE.FOOD
-	OTHER = DATABASE.OTHER
-	INCOME = DATABASE.INCOME
-	PERFECT_SAVE = INCOME * 0.25
+// FetchFinanceData reads the finance data from a file and stores it in variables
+func fetchFinanceData() {
+    // Read the finance data from a file
+    byteArray := readFile("./finance.json")
+
+    // Convert the byte array to a FinanceJsonObject
+    financeJsonObject = byteToFinanceJsonObject(byteArray)
+
+    // Store the values from the FinanceJsonObject in variables
+    NET_WORTH = financeJsonObject.NET_WORTH
+    BALANCE = financeJsonObject.BALANCE
+    EXPENSES = financeJsonObject.EXPENSES
+    BILLS = financeJsonObject.BILLS
+    GAS = financeJsonObject.GAS
+    FOOD = financeJsonObject.FOOD
+    OTHER = financeJsonObject.OTHER
+    INCOME = financeJsonObject.INCOME
+
+    // Calculate the perfect save amount
+    PERFECT_SAVE = INCOME * 0.25
 }
 
-func PRINT_PROGRAM_INFO() {
+func displayProgramStart() {
+    // Display separator line
+    displaySeparatorSingleDash()
 
-	PRINT_SEPARATOR_ONE()
+    // Display program title and version
+    printGray("============== VK FINANCE v1 ===============\n")
 
-	PRINT_GRAY("============== VK FINANCE v1 ===============\n")
+    // Display separator line
+    displaySeparatorSingleDash()
 
-	PRINT_SEPARATOR_ONE()
-	PRINT_GRAY(DATABASE.MONTH.String() + "\n")
+    // Display current month
+    printGray(financeJsonObject.MONTH.String() + "\n")
 }
 
-func PRINT_HISTORY() {
+// Function to display current month history
+func displayCurrentMonthHistory() {
+	// Get current date and time
 	now := time.Now()
+	// Get current month
 	CurrentMonth := now.Month()
 
-	file := readFile("./history.json")
-	hdata := byteToHistoryJsonArray(file)
+	// Read history.json file and convert it to byte array
+	byteArray := readFile("./history.json")
+	// Convert byte array to historyJsonArray
+	historyJsonArray := byteToHistoryJsonArray(byteArray)
 
+	// Clear the screen
 	clearScreen()
 
-	PRINT_CYAN("History: \n")
+	// Print cyan color text
+	printCyan("History: \n")
 
-	for _, value := range hdata {
+	// Loop through historyJsonArray
+	for _, value := range historyJsonArray {
+		// Define date layout format
 		layout := "02-01-2006"
 
+		// Parse date string to time.Time object
 		t, err := time.Parse(layout, value.DATE)
+		// Handle error if any
 		handleError(err)
 
+		// Check if the month of the current date is equal to the current month
 		if t.Month() == CurrentMonth {
+			// Print the value
 			fmt.Println(value)
 		}
 	}
 }
 
-func PRINT_COMMAND(name string) {
-	PRINT_CYAN("[")
-	PRINT_YELLOW(name)
-	PRINT_CYAN("] ")
+func displayCommandName(name string) {
+	printCyan("[")
+	printYellow(name)
+	printCyan("] ")
 }
 
-func PRINT_SEPARATOR_ONE() {
-	PRINT_GRAY("============================================\n")
+// Display separator with single dash
+func displaySeparatorSingleDash() {
+	printGray("============================================\n")
 }
 
-func PRINT_SEPARATOR_TWO() {
-	PRINT_GRAY("--------------------------------------------\n")
+// Display separator with double dashes
+func displaySeparatorDoubleDash() {
+	printGray("--------------------------------------------\n")
 }
 
-func PRINT_NET_WORTH() {
-	PRINT_CYAN("NET WORTH: ")
-	PRINT_GREEN(Float64ToStringWithTwoDecimalPoints(NET_WORTH) + " EUR\n\n")
+func displayNetWorth() {
+	printCyan("NET WORTH: ")
+	printGreen(Float64ToStringWithTwoDecimalPoints(NET_WORTH) + " EUR\n\n")
 }
 
-func PRINT_INCOME() {
-	PRINT_CYAN("INCOME: ")
-	PRINT_GREEN("+" + Float64ToStringWithTwoDecimalPoints(INCOME) + " EUR\n")
+func displayIncome() {
+	printCyan("INCOME: ")
+	printGreen("+" + Float64ToStringWithTwoDecimalPoints(INCOME) + " EUR\n")
 }
 
-func PRINT_EXPENCES() {
-	PRINT_CYAN("EXPENCES: ")
-	PRINT_RED(Float64ToStringWithTwoDecimalPoints(EXPENSES) + " EUR\n\n")
+func displayAllExpences() {
+	printCyan("EXPENCES: ")
+	printRed(Float64ToStringWithTwoDecimalPoints(EXPENSES) + " EUR\n\n")
 
-	PRINT_CYAN("-> Bills: ")
-	PRINT_RED(Float64ToStringWithTwoDecimalPoints(BILLS) + " EUR\n")
-	PRINT_CYAN("-> Gas: ")
-	PRINT_RED(Float64ToStringWithTwoDecimalPoints(GAS) + " EUR\n")
-	PRINT_CYAN("-> Food: ")
-	PRINT_RED(Float64ToStringWithTwoDecimalPoints(FOOD) + " EUR\n")
-	PRINT_CYAN("-> Other: ")
-	PRINT_RED(Float64ToStringWithTwoDecimalPoints(OTHER) + " EUR\n\n")
+	printCyan("-> Bills: ")
+	printRed(Float64ToStringWithTwoDecimalPoints(BILLS) + " EUR\n")
+	printCyan("-> Gas: ")
+	printRed(Float64ToStringWithTwoDecimalPoints(GAS) + " EUR\n")
+	printCyan("-> Food: ")
+	printRed(Float64ToStringWithTwoDecimalPoints(FOOD) + " EUR\n")
+	printCyan("-> Other: ")
+	printRed(Float64ToStringWithTwoDecimalPoints(OTHER) + " EUR\n\n")
 }
 
-func PRINT_BALANCE() {
-	PRINT_CYAN("BALANCE: ")
-	PRINT_YELLOW(Float64ToStringWithTwoDecimalPoints(BALANCE) + " EUR\n")
+func displayBalance() {
+	printCyan("BALANCE: ")
+	printYellow(Float64ToStringWithTwoDecimalPoints(BALANCE) + " EUR\n")
 }
 
-func PRINT_DAY() {
-	PERFECT_DAY := (INCOME - PERFECT_SAVE) / 31
-	REAL_DAY := EXPENSES / 31
-	PRINT_CYAN("ESTIMATED DAY: ")
-	PRINT_GREEN(Float64ToStringWithTwoDecimalPoints(PERFECT_DAY) + " EUR")
-	PRINT_CYAN(" | ")
-	PRINT_RED(Float64ToStringWithTwoDecimalPoints(REAL_DAY) + " EUR\n")
+// Calculate estimated daily spending amount
+func calculateEstimatedDaylySpendingAmount() {
+	// Calculate maximum savings budget per day
+	MaxSavingsBudgetDay := (INCOME - PERFECT_SAVE) / 31
+	// Calculate maximum spendable amount per day
+	MaxSpendableAmountDay := EXPENSES / 31
+	// Print estimated daily savings budget
+	printCyan("ESTIMATED DAY: ")
+	printGreen(Float64ToStringWithTwoDecimalPoints(MaxSavingsBudgetDay) + " EUR")
+	printCyan(" | ")
+	// Print estimated daily spendable amount
+	printRed(Float64ToStringWithTwoDecimalPoints(MaxSpendableAmountDay) + " EUR\n")
 }
 
-func PRINT_WEEK() {
-	PERFECT_WEEK := ((INCOME - PERFECT_SAVE) / 31) * 7
-	REAL_WEEK := (EXPENSES / 31) * 7
-	PRINT_CYAN("ESTIMATED WEEK: ")
-	PRINT_GREEN(Float64ToStringWithTwoDecimalPoints(PERFECT_WEEK) + " EUR")
-	PRINT_CYAN(" | ")
-	PRINT_RED(Float64ToStringWithTwoDecimalPoints(REAL_WEEK) + " EUR\n")
+// Calculate estimated weekly spending amount
+func calculateEstimatedWeeklySpendingAmount() {
+	// Max savings budget calculation
+	MaxSavingsBudgetWeek := ((INCOME - PERFECT_SAVE) / 31) * 7
+	// Max spendable amount calculation
+	MaxSpendableAmountWeek := (EXPENSES / 31) * 7
+	// Print estimated weekly spending amount
+	printCyan("ESTIMATED WEEK: ")
+	printGreen(Float64ToStringWithTwoDecimalPoints(MaxSavingsBudgetWeek) + " EUR")
+	printCyan(" | ")
+	printRed(Float64ToStringWithTwoDecimalPoints(MaxSpendableAmountWeek) + " EUR\n")
 }
 
-func PRINT_SAVING() {
-	PRINT_CYAN("SAVING (25%): ")
-	PRINT_GREEN(Float64ToStringWithTwoDecimalPoints(PERFECT_SAVE) + " EUR\n\n")
+// Display saving amount
+func displaySavingAmount() {
+    // Print cyan text
+    printCyan("SAVING (25%): ")
+    // Convert float to string with two decimal points
+    savingAmount := Float64ToStringWithTwoDecimalPoints(PERFECT_SAVE)
+    // Print green text
+    printGreen(savingAmount + " EUR\n\n")
 }
 
-func PRINT_MONEY() {
+// calculateMoneyLeft calculates the money left after saving for a perfect save
+func calculateMoneyLeft() {
+	// Calculate the money left after saving for a perfect save
 	MONEY := BALANCE - PERFECT_SAVE
-	PRINT_CYAN("MONEY: ")
+	
+	// Print the text "MONEY: " in cyan color
+	printCyan("MONEY: ")
+	
+	// Check if the money left is less than 0
 	if MONEY < 0 {
-		PRINT_RED(Float64ToStringWithTwoDecimalPoints(MONEY) + " EUR\n\n")
+		// Print the money left in red color with two decimal points
+		printRed(Float64ToStringWithTwoDecimalPoints(MONEY) + " EUR\n\n")
 	} else {
-		PRINT_GREEN(Float64ToStringWithTwoDecimalPoints(MONEY) + " EUR\n\n")
+		// Print the money left in green color with two decimal points
+		printGreen(Float64ToStringWithTwoDecimalPoints(MONEY) + " EUR\n\n")
 	}
 }
 
-func PRINT_ALL() {
-	PRINT_PROGRAM_INFO()
-	PRINT_HISTORY()
-
-	PRINT_NET_WORTH()
-	PRINT_INCOME()
-	PRINT_EXPENCES()
-
-	PRINT_DAY()
-	PRINT_WEEK()
-	PRINT_SAVING()
-
-	PRINT_BALANCE()
-	PRINT_MONEY()
+func displayAllVariables() {
+    // Display program start
+    displayProgramStart()
+    
+    // Display current month history
+    displayCurrentMonthHistory()
+    
+    // Display net worth
+    displayNetWorth()
+    
+    // Display income
+    displayIncome()
+    
+    // Display all expenses
+    displayAllExpences()
+    
+    // Calculate estimated daily spending amount
+    calculateEstimatedDaylySpendingAmount()
+    
+    // Calculate estimated weekly spending amount
+    calculateEstimatedWeeklySpendingAmount()
+    
+    // Display saving amount
+    displaySavingAmount()
+    
+    // Display balance
+    displayBalance()
+    
+    // Calculate money left
+    calculateMoneyLeft()
 }
 
 /* COLORS */
@@ -282,35 +386,34 @@ const (
 	Gray   = "\033[37m"
 )
 
-func PRINT_RED(a string) {
+func printRed(a string) {
 	fmt.Print(Red + a + Reset)
 }
 
-func PRINT_GREEN(a string) {
+func printGreen(a string) {
 	fmt.Print(Green + a + Reset)
 }
 
-func PRINT_YELLOW(a string) {
+func printYellow(a string) {
 	fmt.Print(Yellow + a + Reset)
 }
 
-func PRINT_BLUE(a string) {
+func printBlue(a string) {
 	fmt.Print(Blue + a + Reset)
 }
 
-func PRINT_PURPLE(a string) {
+func printPurple(a string) {
 	fmt.Print(Purple + a + Reset)
 }
 
-func PRINT_CYAN(a string) {
+func printCyan(a string) {
 	fmt.Print(Cyan + a + Reset)
 }
 
-func PRINT_GRAY(a string) {
+func printGray(a string) {
 	fmt.Print(Gray + a + Reset)
 }
 
-/* DATABASE */
 type finance struct {
 	NET_WORTH float64    `json:"net_worth"`
 	INCOME    float64    `json:"income"`
@@ -323,15 +426,18 @@ type finance struct {
 	MONTH     time.Month `json:"month"`
 }
 
-func CONCSTRUCT_FINANCE_JSON() finance {
+// GetFinanceData returns a finance struct with financial data
+func getFinanceData() finance {
 
+	// Get the current time
 	now := time.Now()
 
+	// Return a finance struct with financial data rounded to 2 decimal places
 	return finance{
 		NET_WORTH: math.Round(NET_WORTH*100) / 100,
 		INCOME:    math.Round(INCOME*100) / 100,
 		BALANCE:   math.Round(BALANCE*100) / 100,
-		EXPENSES:  math.Round(EXPENSES*100) / 100,
+		EXPENSES: math.Round(EXPENSES*100) / 100,
 		BILLS:     math.Round(BILLS*100) / 100,
 		GAS:       math.Round(GAS*100) / 100,
 		FOOD:      math.Round(FOOD*100) / 100,
@@ -347,19 +453,27 @@ type history struct {
 	VALUE  float64 `json:"value"`
 }
 
-func getHistoryJsonArrayObject(LAST_ACTION string, VALUE float64) history {
+// getHistoryJsonArrayObject creates a history object with the current date, time, action, and value.
+func getHistoryJsonArrayObject(action string, value float64) history {
 
+	// Get the current time.
 	now := time.Now()
+
+	// Format the current time as a string.
 	formattedTime := now.Format("15:04:05")
+
+	// Format the current date as a string.
 	formattedDate := now.Format("02-01-2006")
 
+	// Return the history object with the current date, time, action, and value.
 	return history{
 		DATE:   formattedDate,
 		TIME:   formattedTime,
-		ACTION: LAST_ACTION,
-		VALUE:  VALUE,
+		ACTION: action,
+		VALUE: value,
 	}
 }
+
 
 func byteToHistoryJsonArray(byteArray []byte) []history {
 
@@ -370,8 +484,6 @@ func byteToHistoryJsonArray(byteArray []byte) []history {
 
 	return historyJsonArray
 }
-
-
 
 func byteToFinanceJsonObject(byteArray []byte) finance {
 
@@ -395,7 +507,7 @@ func SaveData(name string, amount float64) {
 // SaveToDatabase saves finance data to a JSON file
 func SaveToDatabase() {
     // Construct finance data as a JSON object
-    data := CONCSTRUCT_FINANCE_JSON()
+    data := getFinanceData()
 
     // Convert finance data to a byte array
     dataBytes := interfaceToByteArray(data)
@@ -474,7 +586,7 @@ func Float64ToStringWithTwoDecimalPoints(number float64) string {
 func getUserInput(question string) float64 {
 start:
 	var answer string
-	PRINT_CYAN("\n" + question)
+	printCyan("\n" + question)
 	fmt.Scanln(&answer)
 
 	if answer == "" {
@@ -506,6 +618,6 @@ func clearScreen() {
 
 func handleError(err error) {
 	if err != nil {
-		PRINT_RED(err.Error() + "\n")
+		printRed(err.Error() + "\n")
 	}
 }
