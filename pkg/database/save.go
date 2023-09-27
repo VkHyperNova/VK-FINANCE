@@ -4,16 +4,7 @@ import (
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
-// Save changes to database files
-func Save(name string, amount float64) {
-	// Save updated variables to the finance.json
-	SaveFinance()
-
-	// Save the name and amount to the history.json
-	SaveHistory(name, amount)
-}
-
-func SaveFinance() {
+func Save(Action string, Value float64) {
 	// Construct finance financeJsonObject as a JSON object
 	financeJsonObject := util.Finance()
 
@@ -22,10 +13,6 @@ func SaveFinance() {
 
 	// Write finance data to a JSON file
 	WriteDataToFile("./finance.json", financeByteArray)
-}
-
-// SaveHistory saves the last action and its value to the history file
-func SaveHistory(Action string, Value float64) {
 
 	// Read the history file content
 	historyByteArray := ReadFile("./history.json")

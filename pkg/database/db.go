@@ -11,7 +11,7 @@ func ValidateRequiredFiles() {
 		// If not, get the user's net worth input
 		util.NET_WORTH = util.GetUserInput("NET_WORTH: ")
 		// Save the user's input to the database
-		SaveFinance()
+		Save("Create finance database", 0)
 	}
 
 	// Check if the history.json file exists
