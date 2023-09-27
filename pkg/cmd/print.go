@@ -3,8 +3,9 @@ package cmd
 import (
 	"encoding/json"
 	"time"
-	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
+
 	"github.com/VkHyperNova/VK-FINANCE/pkg/database"
+	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
 func DisplayAllVariables() {
@@ -113,18 +114,18 @@ func displayAllExpences() {
 func displayEstimatedDaylySpendingAmount() {
 	// Print estimated daily savings budget
 	util.PrintCyan("ESTIMATED DAY: ")
-	util.PrintGreen(util.Float64ToStringWithTwoDecimalPoints(util.MaxSavingsBudgetDay) + " EUR")
+	util.PrintGreen(util.Float64ToStringWithTwoDecimalPoints(util.DayBudget) + " EUR")
 	util.PrintCyan(" | ")
 	// Print estimated daily spendable amount
-	util.PrintRed(util.Float64ToStringWithTwoDecimalPoints(util.MaxSpendableAmountDay) + " EUR\n")
+	util.PrintRed(util.Float64ToStringWithTwoDecimalPoints(util.DayBudgetSpent) + " EUR\n")
 }
 
 func displayEstimatedWeeklySpendingAmount() {
 	// Print estimated weekly spending amount
 	util.PrintCyan("ESTIMATED WEEK: ")
-	util.PrintGreen(util.Float64ToStringWithTwoDecimalPoints(util.MaxSavingsBudgetWeek) + " EUR")
+	util.PrintGreen(util.Float64ToStringWithTwoDecimalPoints(util.WeekBudget) + " EUR")
 	util.PrintCyan(" | ")
-	util.PrintRed(util.Float64ToStringWithTwoDecimalPoints(util.MaxSpendableAmountWeek) + " EUR\n")
+	util.PrintRed(util.Float64ToStringWithTwoDecimalPoints(util.WeekBudgetSpent) + " EUR\n")
 }
 
 func displaySavingAmount() {
@@ -146,12 +147,12 @@ func displayMoneyLeft() {
 	util.PrintCyan("MONEY: ")
 
 	// Check if the money left is less than 0
-	if util.MONEY < 0 {
+	if util.Budget < 0 {
 		// Print the money left in red color with two decimal points
-		util.PrintRed(util.Float64ToStringWithTwoDecimalPoints(util.MONEY) + " EUR\n\n")
+		util.PrintRed(util.Float64ToStringWithTwoDecimalPoints(util.Budget) + " EUR\n\n")
 	} else {
 		// Print the money left in green color with two decimal points
-		util.PrintGreen(util.Float64ToStringWithTwoDecimalPoints(util.MONEY) + " EUR\n\n")
+		util.PrintGreen(util.Float64ToStringWithTwoDecimalPoints(util.Budget) + " EUR\n\n")
 	}
 }
 

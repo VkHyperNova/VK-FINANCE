@@ -12,8 +12,8 @@ var INCOME float64
 var PERFECT_SAVE float64
 
 /* Calculate */
-var MaxSavingsBudgetDay float64
-var MaxSpendableAmountDay float64
-var MaxSavingsBudgetWeek float64
-var MaxSpendableAmountWeek float64
-var MONEY float64
+var DayBudget float64
+var DayBudgetSpent float64
+var WeekBudget float64
+var WeekBudgetSpent float64
+var Budget float64
