@@ -9,9 +9,9 @@ func ValidateRequiredFiles() {
 	// Check if the finance.json file exists
 	if !DoesDirectoryExist("./finance.json") {
 		// If not, get the user's net worth input
-		util.NET_WORTH = util.GetUserInput("NET_WORTH: ")
+		util.NET_WORTH = util.UserInputFloat64("NET_WORTH: ")
 		// Save the user's input to the database
-		Save("Create finance database", 0)
+		Save(0, "Fresh Start")
 	}
 
 	// Check if the history.json file exists
@@ -33,12 +33,8 @@ func FetchFinanceDataFromFile() {
 	util.NET_WORTH = financeJsonObject.NET_WORTH
 	util.BALANCE = financeJsonObject.BALANCE
 	util.EXPENSES = financeJsonObject.EXPENSES
-	util.BILLS = financeJsonObject.BILLS
-	util.GAS = financeJsonObject.GAS
-	util.FOOD = financeJsonObject.FOOD
-	util.OTHER = financeJsonObject.OTHER
 	util.INCOME = financeJsonObject.INCOME
 
 	// Calculate the perfect save amount
-	util.PERFECT_SAVE = util.INCOME * 0.25
+	util.SAVING = util.INCOME * 0.25
 }

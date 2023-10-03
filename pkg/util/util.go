@@ -9,64 +9,62 @@ import (
 	"strconv"
 )
 
-
 func HandleError(err error) {
-	// check if error is not nil
 	if err != nil {
-		// print error message in red color
 		PrintRed(err.Error() + "\n")
 	}
 }
 func ClearScreen() {
-
-	// check if the operating system is Linux
-	if runtime.GOOS == "linux" {
-		// execute the clear command
-		cmd := exec.Command("clear")
+	if runtime.GOOS == "linux" { // check if the operating system is Linux
+		cmd := exec.Command("clear") // execute the clear command
 		cmd.Stdout = os.Stdout
 		cmd.Run()
 	} else if runtime.GOOS == "windows" {
-		// execute the cls command
-		cmd := exec.Command("cmd", "/c", "cls")
+		cmd := exec.Command("cmd", "/c", "cls") // execute the cls command
 		cmd.Stdout = os.Stdout
 		cmd.Run()
 	}
 }
 
-func GetUserInput(question string) float64 {
-start:
+// In this code, the `UserInputFloat64` function prompts the user with a question and returns a float64 value.
+func UserInputFloat64(question string) float64 {
+	start:
+		var answer string
+		PrintCyan("\n" + question) // It uses a loop to repeatedly prompt the user until a valid float64 value is entered.
+		fmt.Scanln(&answer)
+
+		if answer == "" { // If user presses enter
+			answer = "0" // Assign zero
+		}
+
+		floatValue, err := strconv.ParseFloat(answer, 64) // Convert string to float64
+		HandleError(err)                                  // The `HandleError` function is called to handle any errors that occur during the conversion process.
+
+		if err != nil {
+			goto start // If an error occurs, the loop restarts and the user is prompted again.
+		}
+
+		return floatValue
+}
+
+func UserInputString(question string) string {
 	var answer string
-	PrintCyan("\n" + question)
+	PrintCyan("\n" + question) // It uses a loop to repeatedly prompt the user until a valid float64 value is entered.
 	fmt.Scanln(&answer)
 
-	if answer == "" {
-		answer = "0"
+	if answer == "" { // If user presses enter
+		answer = "No Comment" // Assign zero
 	}
 
-	floatValue, err := strconv.ParseFloat(answer, 64)
-	HandleError(err)
-
-	if err != nil {
-		goto start
-	}
-
-	return floatValue
+	return answer
 }
 
-func Float64ToStringWithTwoDecimalPoints(number float64) string {
-	// Use fmt.Sprintf to format the float64 number with two decimal points
-	return fmt.Sprintf("%.2f", number)
+func FloatToString(number float64) string {
+	return fmt.Sprintf("%.2f", number) // Converts float64 to string with 2 decimal points.
 }
 
-func InterfaceToByteArray(data interface{}) []byte {
-	// MarshalIndent converts the interface{} to a JSON byte array with indentation.
-	dataBytes, err := json.MarshalIndent(data, "", " ")
-	// handleError checks for errors and panics if there is one.
-	HandleError(err)
-
-	return dataBytes
+func InterfaceToByte(input interface{}) []byte {
+	byteArray, err := json.MarshalIndent(input, "", " ") // MarshalIndent Converts The interface{} To A JSON Byte Array With Indentation.
+	HandleError(err)                                     // Handle Error If Any.
+	return byteArray                                     // Return JSON As []byte Array.
 }
-
-
-
-

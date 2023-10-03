@@ -13,8 +13,6 @@ const (
 	Gray   = "\033[37m"
 )
 
-/* Functions must start with Capital letter to use in other files */
-
 func PrintRed(a string) {
 	fmt.Print(Red + a + Reset)
 }

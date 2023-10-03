@@ -11,10 +11,6 @@ type finance struct {
 	INCOME    float64    `json:"income"`
 	BALANCE   float64    `json:"balance"`
 	EXPENSES  float64    `json:"expences"`
-	BILLS     float64    `json:"bills"`
-	GAS       float64    `json:"gas"`
-	FOOD      float64    `json:"food"`
-	OTHER     float64    `json:"other"`
 	MONTH     time.Month `json:"month"`
 }
 
@@ -31,10 +27,6 @@ func Finance() finance {
 		INCOME:    math.Round(INCOME*100) / 100,
 		BALANCE:   math.Round(BALANCE*100) / 100,
 		EXPENSES:  math.Round(EXPENSES*100) / 100,
-		BILLS:     math.Round(BILLS*100) / 100,
-		GAS:       math.Round(GAS*100) / 100,
-		FOOD:      math.Round(FOOD*100) / 100,
-		OTHER:     math.Round(OTHER*100) / 100,
 		MONTH:     now.Month(),
 	}
 }

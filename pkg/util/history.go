@@ -6,14 +6,14 @@ import (
 )
 
 type history struct {
-	DATE   string  `json:"date"`
-	TIME   string  `json:"time"`
-	ACTION string  `json:"action"`
-	VALUE  float64 `json:"value"`
+	DATE    string  `json:"date"`
+	TIME    string  `json:"time"`
+	COMMENT string  `json:"comment"`
+	VALUE   float64 `json:"value"`
 }
 
 // History creates a history object with the current date, time, action, and value.
-func History(action string, value float64) history {
+func History(value float64, comment string) history {
 
 	// Get the current time.
 	now := time.Now()
@@ -26,10 +26,10 @@ func History(action string, value float64) history {
 
 	// Return the history object with the current date, time, action, and value.
 	return history{
-		DATE:   formattedDate,
-		TIME:   formattedTime,
-		ACTION: action,
-		VALUE:  value,
+		DATE:    formattedDate,
+		TIME:    formattedTime,
+		COMMENT: comment,
+		VALUE:   value,
 	}
 }
 

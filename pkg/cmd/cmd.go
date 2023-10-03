@@ -3,150 +3,94 @@ package cmd
 import (
 	"fmt"
 	"os"
+
 	"github.com/VkHyperNova/VK-FINANCE/pkg/database"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
-func DisplayAndHandleCommandLineCommands() {
-	// Clear the screen
-	util.ClearScreen()
 
-	// Validate the database
-	database.ValidateRequiredFiles()
+func DisplayAndHandleOptions() {
 
-	// Fetch the finance data
-	database.FetchFinanceDataFromFile()
+	util.ClearScreen() // Clear the screen
 
-	// Calculate
-	Calculate()
+	database.ValidateRequiredFiles()    // Validate the database
+	database.FetchFinanceDataFromFile() // Fetch the finance data
 
-	// Print all the data
-	DisplayAllVariables()
+	Calculate() // Calculate
 
-	// Print the program options
-	util.PrintCyan("Program Options: \n\n")
+	DisplayAllVariables() // Print all the data
+
+	util.PrintCyan("Program Options: \n\n") // Print the program options
 
 	// Display the command names
 	AddBrackets("add")
-	AddBrackets("bills")
-	AddBrackets("gas")
-	AddBrackets("food")
-	AddBrackets("other")
+	AddBrackets("spend")
 	AddBrackets("grow")
 	AddBrackets("reset")
 	AddBrackets("q")
 
-	// Get the user input
 	var user_input string
-
 	util.PrintGray("\n\n=> ")
-	fmt.Scanln(&user_input)
+	fmt.Scanln(&user_input) // Get the user input
 
 	// Handle the user input
 	for {
 		switch user_input {
 		case "add":
-			ReCalculateCashFlow("Add")
-		case "bills":
-			ReCalculateCashFlow("Bills")
-		case "gas":
-			ReCalculateCashFlow("Gas")
-		case "food":
-			ReCalculateCashFlow("Food")
-		case "other":
-			ReCalculateCashFlow("Other")
+			calculateIncome()
+		case "spend":
+			calculateExpenses()
 		case "grow":
 			NetWorth()
 		case "reset":
 			ResetVariables()
-			database.Save("Reset", 0)
-			DisplayAndHandleCommandLineCommands()
-			
+			database.Save(0, "Reset Income and Expenses")
+			DisplayAndHandleOptions()
 		case "q":
 			util.ClearScreen()
 			os.Exit(0)
 		default:
-			DisplayAndHandleCommandLineCommands()
+			DisplayAndHandleOptions()
 		}
 	}
 }
 
-func calculateIncome(amount float64) {
-	// Add amount to income
-	util.INCOME = util.INCOME + amount
-	// Add amount to balance
-	util.BALANCE = util.BALANCE + amount
+func calculateIncome() {
+
+	sum := util.UserInputFloat64("Sum: ")
+	comment := util.UserInputString("Comment: ")
+	
+	util.INCOME = util.INCOME + sum
+	util.BALANCE = util.BALANCE + sum
+
+	database.Save(sum, comment)
+	DisplayAndHandleOptions()
 }
 
-func calculateExpenses(amount float64) {
-	// subtract amount from balance
-	util.BALANCE = util.BALANCE - amount
-	// subtract amount from expenses
-	util.EXPENSES = util.EXPENSES - amount
+func calculateExpenses() {
+
+	sum := util.UserInputFloat64("Sum: ")
+	comment := util.UserInputString("Comment: ")
+
+	util.BALANCE = util.BALANCE - sum
+	util.EXPENSES = util.EXPENSES - sum
+
+	database.Save(-1 * sum, comment)
+	DisplayAndHandleOptions()
 }
 
-// NetWorth function increases the net worth by the balance amount
 func NetWorth() {
-	// increase net worth by balance amount
-	util.NET_WORTH = util.NET_WORTH + util.BALANCE
-	// set saved amount to balance amount
-	SAVED_AMOUNT := util.BALANCE
-	// reset balance to 0
-	util.BALANCE = 0
-	// reset other variables
-	ResetVariables()
-	// save data to file
-	database.Save("Grow", SAVED_AMOUNT)
-	// display and handle command line commands
-	DisplayAndHandleCommandLineCommands()
+	util.NET_WORTH = util.NET_WORTH + util.BALANCE // Increase net worth by balance amount.
+	SAVED_BALANCE := util.BALANCE                  // Save balance to a variable before setting it to 0.
+	util.BALANCE = 0                               // Reset balance to 0.
 
-
-
+	ResetVariables()                                         // Reset other variables.
+	database.Save(SAVED_BALANCE, "Update Net Worth") // Save finance data and action history.
+	DisplayAndHandleOptions()                                // Back to command line.
 }
 
 // Reset all variables to 0
 func ResetVariables() {
+	util.BALANCE = 0
 	util.INCOME = 0
 	util.EXPENSES = 0
-	util.BILLS = 0
-	util.GAS = 0
-	util.FOOD = 0
-	util.OTHER = 0
-}
-
-// ReCalculateCashFlow calculates cash flow transactions
-func ReCalculateCashFlow(name string) {
-	// getUserInput retrieves user input for a specific transaction
-	sum_of_money := util.GetUserInput(name + ": ")
-
-	// switch statement handles different transaction types
-	switch name {
-	case "Bills":
-		// subtract transaction amount from BILLS
-		util.BILLS -= sum_of_money
-		// calculate expenses and balance
-		calculateExpenses(sum_of_money)
-	case "Gas":
-		// subtract transaction amount from GAS
-		util.GAS -= sum_of_money
-		// calculate expenses and balance
-		calculateExpenses(sum_of_money)
-	case "Food":
-		// subtract transaction amount from FOOD
-		util.FOOD -= sum_of_money
-		// calculate expenses and balance
-		calculateExpenses(sum_of_money)
-	case "Other":
-		// subtract transaction amount from OTHER
-		util.OTHER -= sum_of_money
-		// calculate expenses and balance
-		calculateExpenses(sum_of_money)
-	case "Add":
-		// calculate income and balance
-		calculateIncome(sum_of_money)
-	}
-
-	// SaveData saves transaction data to a file
-	database.Save(name, sum_of_money)
-
-	DisplayAndHandleCommandLineCommands()
 }
