@@ -58,6 +58,8 @@ func calculateIncome() {
 
 	sum := util.UserInputFloat64("Sum: ")
 	comment := util.UserInputString("Comment: ")
+
+	util.LastAdd += sum
 	
 	util.INCOME = util.INCOME + sum
 	util.BALANCE = util.BALANCE + sum
@@ -70,6 +72,8 @@ func calculateExpenses() {
 
 	sum := util.UserInputFloat64("Sum: ")
 	comment := util.UserInputString("Comment: ")
+
+	util.LastExp += sum
 
 	util.BALANCE = util.BALANCE - sum
 	util.EXPENSES = util.EXPENSES - sum

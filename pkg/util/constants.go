@@ -16,7 +16,4 @@ var Budget float64
 
 /* Last added sum */
 var LastAdd float64
-var LastBills float64
-var LastGas float64
-var LastFood float64
-var LastOther float64
+var LastExp float64

@@ -77,7 +77,7 @@ func displayCurrentMonthHistory() {
 		// Check if the month of the current date is equal to the current month
 		if t.Month() == CurrentMonth {
 			// Print the value
-			
+
 			val, err := json.Marshal(value.VALUE)
 			util.HandleError(err)
 
@@ -87,7 +87,7 @@ func displayCurrentMonthHistory() {
 				util.PrintRed(" ")
 				util.PrintRed(value.TIME)
 				util.PrintRed(" ")
-				AddBrackets(value.COMMENT)
+				util.PrintRed(value.COMMENT)
 				util.PrintRed(" ==> ")
 				util.PrintRed(string(val) + "\n")
 			} else {
@@ -96,7 +96,7 @@ func displayCurrentMonthHistory() {
 				util.PrintGreen(" ")
 				util.PrintGreen(value.TIME)
 				util.PrintGreen(" ")
-				AddBrackets(value.COMMENT)
+				util.PrintGreen(value.COMMENT)
 				util.PrintGreen(" ==> ")
 				util.PrintGreen(string(val) + "\n")
 			}
@@ -112,12 +112,25 @@ func displayNetWorth() {
 
 func displayIncome() {
 	util.PrintCyan("INCOME: ")
-	util.PrintGreen("+" + util.FloatToString(util.INCOME) + " EUR\n")
+	util.PrintGreen("+" + util.FloatToString(util.INCOME) + " EUR")
+
+	if util.LastAdd != 0 {
+		util.PrintCyan(" | ")
+		util.PrintYellow("+" + util.FloatToString(util.LastAdd) + " EUR")
+	}
+	util.PrintGray("\n")
+
 }
 
 func displayExpences() {
 	util.PrintCyan("EXPENCES: ")
-	util.PrintRed(util.FloatToString(util.EXPENSES) + " EUR\n\n")
+	util.PrintRed(util.FloatToString(util.EXPENSES) + " EUR")
+
+	if util.LastExp != 0 {
+		util.PrintCyan(" | ")
+		util.PrintYellow("+" + util.FloatToString(util.LastExp) + " EUR")
+	}
+	util.PrintGray("\n\n")
 }
 
 func displayEstimatedDaylySpendingAmount() {
