@@ -14,14 +14,11 @@ type finance struct {
 	MONTH     time.Month `json:"month"`
 }
 
-
 // GetFinanceData returns a finance struct with financial data
-func Finance() finance {
+func SetFinanceJson() finance {
 
-	// Get the current time
 	now := time.Now()
 
-	// Return a finance struct with financial data rounded to 2 decimal places
 	return finance{
 		NET_WORTH: math.Round(NET_WORTH*100) / 100,
 		INCOME:    math.Round(INCOME*100) / 100,
@@ -46,3 +43,20 @@ func GetFinanceJson(byteArray []byte) finance {
 }
 
 
+// FetchFinanceDataFromFile reads the finance data from a file and stores it in variables
+func FetchFinanceDataFromFile() {
+	// Read the finance data from a file
+	byteArray := ReadFile("./finance.json")
+
+	// Convert the byte array to a FinanceJsonObject
+	financeJsonObject := GetFinanceJson(byteArray)
+
+	// Store the values from the FinanceJsonObject in variables
+	NET_WORTH = financeJsonObject.NET_WORTH
+	BALANCE = financeJsonObject.BALANCE
+	EXPENSES = financeJsonObject.EXPENSES
+	INCOME = financeJsonObject.INCOME
+
+	// Calculate the perfect save amount
+	SAVING = INCOME * 0.25
+}

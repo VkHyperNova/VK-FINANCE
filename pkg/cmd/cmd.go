@@ -13,9 +13,11 @@ func DisplayAndHandleOptions() {
 	util.ClearScreen() // Clear the screen
 
 	database.ValidateRequiredFiles()    // Validate the database
-	database.FetchFinanceDataFromFile() // Fetch the finance data
+	util.FetchFinanceDataFromFile() // Fetch the finance data
 
-	Calculate() // Calculate
+	DayBudget()
+	WeekBudget()
+	Budget()
 
 	DisplayAllVariables() // Print all the data
 

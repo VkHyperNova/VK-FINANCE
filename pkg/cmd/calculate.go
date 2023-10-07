@@ -4,12 +4,6 @@ import (
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
-func Calculate() {
-	DayBudget()
-	WeekBudget()
-	Budget()
-}
-
 func DayBudget() {
 	util.DayBudget = (util.INCOME - util.SAVING) / 31
 	util.DayBudgetSpent = util.EXPENSES / 31

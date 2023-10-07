@@ -5,30 +5,39 @@ import (
 )
 
 func Save(Value float64, Comment string) {
-	// Construct finance financeJsonObject as a JSON object
-	financeJsonObject := util.Finance()
 
-	// Convert finance data to a byte array
-	financeByteArray := util.InterfaceToByte(financeJsonObject)
+	financeJsonObject := util.SetFinanceJson() // Construct finance financeJsonObject as a JSON object
 
-	// Write finance data to a JSON file
-	WriteDataToFile("./finance.json", financeByteArray)
+	financeByteArray := util.InterfaceToByte(financeJsonObject) // Convert finance data to a byte array
 
-	// Read the history file content
-	historyByteArray := ReadFile("./history.json")
+	util.WriteDataToFile("./finance.json", financeByteArray) // Write finance data to a JSON file
 
-	// Convert the file content to history data
-	historyJsonArray := util.GetHistoryJson(historyByteArray)
+	historyByteArray := util.ReadFile("./history.json") // Read the history file content
 
-	// Construct a new history JSON object
-	historyJsonArrayObject := util.History(Value, Comment)
+	historyJsonArray := util.GetHistoryJson(historyByteArray) // Convert the file content to history data
 
-	// Append the new data to the history data
-	historyJsonArray = append(historyJsonArray, historyJsonArrayObject)
+	historyJsonArrayObject := util.SetHistoryJson(Value, Comment) // Construct a new history JSON object
 
-	// Convert the history data to a byte array
-	historyByteArrayUpdated := util.InterfaceToByte(historyJsonArray)
+	historyJsonArray = append(historyJsonArray, historyJsonArrayObject) // Append the new data to the history data
 
-	// Write the data to the history file
-	WriteDataToFile("./history.json", historyByteArrayUpdated)
+	historyByteArrayUpdated := util.InterfaceToByte(historyJsonArray) // Convert the history data to a byte array
+
+	util.WriteDataToFile("./history.json", historyByteArrayUpdated) // Write the data to the history file
+}
+
+// ValidateDatabase checks if the required files exist
+func ValidateRequiredFiles() {
+	// Check if the finance.json file exists
+	if !util.DoesDirectoryExist("./finance.json") {
+		// If not, get the user's net worth input
+		util.NET_WORTH = util.UserInputFloat64("NET_WORTH: ")
+		// Save the user's input to the database
+		Save(0, "Fresh Start")
+	}
+
+	// Check if the history.json file exists
+	if !util.DoesDirectoryExist("./history.json") {
+		// If not, create an empty file
+		util.WriteDataToFile("./history.json", []byte("[]"))
+	}
 }

@@ -12,22 +12,14 @@ type history struct {
 	VALUE   float64 `json:"value"`
 }
 
-// History creates a history object with the current date, time, action, and value.
-func History(value float64, comment string) history {
+// SetHistoryJson creates a history object with the current date, time, action, and value.
+func SetHistoryJson(value float64, comment string) history {
 
-	// Get the current time.
 	now := time.Now()
 
-	// Format the current time as a string.
-	formattedTime := now.Format("15:04:05")
-
-	// Format the current date as a string.
-	formattedDate := now.Format("02-01-2006")
-
-	// Return the history object with the current date, time, action, and value.
 	return history{
-		DATE:    formattedDate,
-		TIME:    formattedTime,
+		DATE:    now.Format("02-01-2006"),
+		TIME:    now.Format("15:04:05"),
 		COMMENT: comment,
 		VALUE:   value,
 	}

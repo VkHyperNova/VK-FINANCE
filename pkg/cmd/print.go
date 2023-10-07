@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"encoding/json"
-	"github.com/VkHyperNova/VK-FINANCE/pkg/database"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 	"time"
 )
@@ -54,7 +53,7 @@ func displayCurrentMonthHistory() {
 	CurrentMonth := now.Month()
 
 	// Read history.json file and convert it to byte array
-	byteArray := database.ReadFile("./history.json")
+	byteArray := util.ReadFile("./history.json")
 	// Convert byte array to historyJson
 	historyJson := util.GetHistoryJson(byteArray)
 
