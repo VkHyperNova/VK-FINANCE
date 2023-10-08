@@ -1,8 +1,9 @@
-package util
+package database
 
 import (
 	"encoding/json"
 	"time"
+	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
 type history struct {
@@ -33,7 +34,7 @@ func GetHistoryJson(byteArray []byte) []history {
 
 	// unmarshal byteArray to historyJsonArray
 	err := json.Unmarshal(byteArray, &historyJsonArray)
-	HandleError(err)
+	util.HandleError(err)
 
 	// return historyJsonArray
 	return historyJsonArray

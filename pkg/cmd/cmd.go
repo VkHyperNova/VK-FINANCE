@@ -12,8 +12,8 @@ func DisplayAndHandleOptions() {
 
 	util.ClearScreen() // Clear the screen
 
-	database.ValidateRequiredFiles()    // Validate the database
-	util.FetchFinanceDataFromFile() // Fetch the finance data
+	database.ValidateRequiredFiles() // Validate the database
+	database.GetFinanceJson()        // Fetch the finance data
 
 	DayBudget()
 	WeekBudget()
@@ -62,7 +62,7 @@ func calculateIncome() {
 	comment := util.UserInputString("Comment: ")
 
 	util.LastAdd += sum
-	
+
 	util.INCOME = util.INCOME + sum
 	util.BALANCE = util.BALANCE + sum
 
@@ -80,7 +80,7 @@ func calculateExpenses() {
 	util.BALANCE = util.BALANCE - sum
 	util.EXPENSES = util.EXPENSES - sum
 
-	database.Save(-1 * sum, comment)
+	database.Save(-1*sum, comment)
 	DisplayAndHandleOptions()
 }
 
@@ -89,9 +89,9 @@ func NetWorth() {
 	SAVED_BALANCE := util.BALANCE                  // Save balance to a variable before setting it to 0.
 	util.BALANCE = 0                               // Reset balance to 0.
 
-	ResetVariables()                                         // Reset other variables.
+	ResetVariables()                                 // Reset other variables.
 	database.Save(SAVED_BALANCE, "Update Net Worth") // Save finance data and action history.
-	DisplayAndHandleOptions()                                // Back to command line.
+	DisplayAndHandleOptions()                        // Back to command line.
 }
 
 // Reset all variables to 0

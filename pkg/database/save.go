@@ -6,7 +6,7 @@ import (
 
 func Save(Value float64, Comment string) {
 
-	financeJsonObject := util.SetFinanceJson() // Construct finance financeJsonObject as a JSON object
+	financeJsonObject := SetFinanceJson() // Construct finance financeJsonObject as a JSON object
 
 	financeByteArray := util.InterfaceToByte(financeJsonObject) // Convert finance data to a byte array
 
@@ -14,9 +14,9 @@ func Save(Value float64, Comment string) {
 
 	historyByteArray := util.ReadFile("./history.json") // Read the history file content
 
-	historyJsonArray := util.GetHistoryJson(historyByteArray) // Convert the file content to history data
+	historyJsonArray := GetHistoryJson(historyByteArray) // Convert the file content to history data
 
-	historyJsonArrayObject := util.SetHistoryJson(Value, Comment) // Construct a new history JSON object
+	historyJsonArrayObject := SetHistoryJson(Value, Comment) // Construct a new history JSON object
 
 	historyJsonArray = append(historyJsonArray, historyJsonArrayObject) // Append the new data to the history data
 
