@@ -2,9 +2,13 @@ package cmd
 
 import (
 	"encoding/json"
+	"fmt"
+	"sort"
+
+	"time"
+
 	"github.com/VkHyperNova/VK-FINANCE/pkg/database"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
-	"time"
 )
 
 func DisplayAllVariables() {
@@ -103,6 +107,84 @@ func displayCurrentMonthHistory() {
 
 		}
 	}
+
+	CountHistoryItems()
+}
+
+func CountHistoryItems() {
+	byteArray := util.ReadFile("./history.json")
+	historyJson := database.GetHistoryJson(byteArray)
+
+	// Get all the names
+	var items []string
+
+	for _, value := range historyJson {
+		if !contains(items, value.COMMENT) {
+			items = append(items, value.COMMENT)
+		}
+	}
+
+	/* Count */
+	myMap := make(map[string]float64)
+
+	for _, itemName := range items {
+		for _, value := range historyJson {
+			if itemName == value.COMMENT {
+				myMap[itemName] += value.VALUE
+
+			}
+		}
+	}
+
+
+	// Create slice of key-value pairs
+	pairs := make([][2]interface{}, 0, len(myMap))
+	for k, v := range myMap {
+		pairs = append(pairs, [2]interface{}{k, v})
+	}
+
+	// Sort slice based on values
+	sort.Slice(pairs, func(i, j int) bool {
+		return pairs[i][1].(float64) < pairs[j][1].(float64)
+	})
+
+	// Extract sorted keys
+	keys := make([]string, len(pairs))
+	for i, p := range pairs {
+		keys[i] = p[0].(string)
+	}
+
+	// Print sorted map Income
+	util.PrintCyan("\nINCOME\n")
+	for _, k := range keys {
+		stringValue := fmt.Sprintf("%f", myMap[k]) // convert to string
+
+		if myMap[k] > 0 {
+			util.PrintGreen(k + ": " + stringValue+ "\n")
+		} 
+		
+	}
+	
+	// Print sorted map Expenses
+	util.PrintCyan("\nEXPENSES\n")
+	for _, k := range keys {
+		stringValue := fmt.Sprintf("%f", myMap[k]) // convert to string
+
+		if myMap[k] < 0 {
+			util.PrintRed(k + ": " + stringValue+ "\n")
+		} 
+		
+	}
+
+}
+
+func contains(arr []string, name string) bool {
+	for _, n := range arr {
+		if n == name {
+			return true
+		}
+	}
+	return false
 }
 
 func displayNetWorth() {
