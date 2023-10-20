@@ -3,11 +3,12 @@ package database
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
+	"time"
+
 	"github.com/VkHyperNova/VK-FINANCE/pkg/dir"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/print"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
-	"sort"
-	"time"
 )
 
 type history struct {
@@ -109,9 +110,7 @@ func CountAndPrintHistoryItems() {
 
 }
 
-func PrintCurrentMonthHistory() {
-	now := time.Now()
-	CurrentMonth := now.Month()
+func PrintHistory() {
 
 	byteArray := dir.ReadFile("./history.json")
 	historyJson := GetHistoryJson(byteArray)
@@ -121,42 +120,30 @@ func PrintCurrentMonthHistory() {
 	print.PrintCyan("History: \n\n")
 
 	for _, value := range historyJson {
-		// Define date layout format
-		layout := "02-01-2006"
 
-		// Parse date string to time.Time object
-		t, err := time.Parse(layout, value.DATE)
-		// Handle error if any
+		val, err := json.Marshal(value.VALUE)
 		print.HandleError(err)
 
-		// Check if the month of the current date is equal to the current month
-		if t.Month() == CurrentMonth {
-			// Print the value
-
-			val, err := json.Marshal(value.VALUE)
-			print.HandleError(err)
-
-			if value.VALUE < 0 {
-				print.PrintRed(" ")
-				print.PrintRed(value.DATE)
-				print.PrintRed(" ")
-				print.PrintRed(value.TIME)
-				print.PrintRed(" ")
-				print.PrintRed(value.COMMENT)
-				print.PrintRed(" ==> ")
-				print.PrintRed(string(val) + "\n")
-			} else {
-				print.PrintGreen(" ")
-				print.PrintGreen(value.DATE)
-				print.PrintGreen(" ")
-				print.PrintGreen(value.TIME)
-				print.PrintGreen(" ")
-				print.PrintGreen(value.COMMENT)
-				print.PrintGreen(" ==> ")
-				print.PrintGreen(string(val) + "\n")
-			}
-
+		if value.VALUE < 0 {
+			print.PrintRed(" ")
+			print.PrintRed(value.DATE)
+			print.PrintRed(" ")
+			print.PrintRed(value.TIME)
+			print.PrintRed(" ")
+			print.PrintRed(value.COMMENT)
+			print.PrintRed(" ==> ")
+			print.PrintRed(string(val) + "\n")
+		} else {
+			print.PrintGreen(" ")
+			print.PrintGreen(value.DATE)
+			print.PrintGreen(" ")
+			print.PrintGreen(value.TIME)
+			print.PrintGreen(" ")
+			print.PrintGreen(value.COMMENT)
+			print.PrintGreen(" ==> ")
+			print.PrintGreen(string(val) + "\n")
 		}
+
 	}
 
 }

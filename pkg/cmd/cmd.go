@@ -24,7 +24,7 @@ func CMD() {
 	print.PrintGray("============== VK FINANCE v1 ===============\n")
 	print.PrintSeparatorSingleDash()
 
-	database.PrintCurrentMonthHistory()
+	database.PrintHistory()
 	database.CountAndPrintHistoryItems()
 
 	print.PrintNetWorth()
@@ -42,7 +42,6 @@ func CMD() {
 	print.PrintWithBrackets("add")
 	print.PrintWithBrackets("spend")
 	print.PrintWithBrackets("networth")
-	print.PrintWithBrackets("grow")
 	print.PrintWithBrackets("reset")
 	print.PrintWithBrackets("q")
 
@@ -60,9 +59,6 @@ func CMD() {
 			CMD()
 		case "networth":
 			database.AddNetWorth()
-			CMD()
-		case "grow":
-			database.Grow()
 			CMD()
 		case "reset":
 			database.ResetVariables()

@@ -88,15 +88,6 @@ func AddNetWorth() {
 	Save(global.NET_WORTH, "Net Worth")
 }
 
-func Grow() {
-	global.NET_WORTH = global.NET_WORTH + global.BALANCE
-	SAVED_BALANCE := global.BALANCE
-	global.BALANCE = 0
-
-	ResetVariables()
-	Save(SAVED_BALANCE, "Grow")
-
-}
 func ResetVariables() {
 	global.BALANCE = 0
 	global.INCOME = 0
