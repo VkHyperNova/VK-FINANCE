@@ -1,8 +1,6 @@
 package dir
 
 import (
-	"github.com/VkHyperNova/VK-FINANCE/pkg/global"
-	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/print"
 	"os"
 )
@@ -10,9 +8,9 @@ import (
 func ValidateRequiredFiles() {
 
 	if !DoesDirectoryExist("./finance.json") {
-		global.NET_WORTH = util.UserInputFloat64("NET_WORTH: ")
-		// Save(0, "Fresh Start")
+		WriteDataToFile("./finance.json", []byte("[]"))
 	}
+	
 
 	if !DoesDirectoryExist("./history.json") {
 		WriteDataToFile("./history.json", []byte("[]"))
