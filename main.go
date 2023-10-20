@@ -7,5 +7,5 @@ import (
 //go:generate goversioninfo
 
 func main() {
-	cmd.DisplayAndHandleOptions()
+	cmd.CMD()
 }

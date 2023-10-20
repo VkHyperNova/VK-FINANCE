@@ -5,7 +5,9 @@ import (
 	"math"
 	"time"
 
-	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
+	"github.com/VkHyperNova/VK-FINANCE/pkg/dir"
+	"github.com/VkHyperNova/VK-FINANCE/pkg/global"
+	"github.com/VkHyperNova/VK-FINANCE/pkg/print"
 )
 
 type finance struct {
@@ -22,10 +24,10 @@ func SetFinanceJson() finance {
 	now := time.Now()
 
 	return finance{
-		NET_WORTH: math.Round(util.NET_WORTH*100) / 100,
-		INCOME:    math.Round(util.INCOME*100) / 100,
-		BALANCE:   math.Round(util.BALANCE*100) / 100,
-		EXPENSES:  math.Round(util.EXPENSES*100) / 100,
+		NET_WORTH: math.Round(global.NET_WORTH*100) / 100,
+		INCOME:    math.Round(global.INCOME*100) / 100,
+		BALANCE:   math.Round(global.BALANCE*100) / 100,
+		EXPENSES:  math.Round(global.EXPENSES*100) / 100,
 		MONTH:     now.Month(),
 	}
 }
@@ -33,21 +35,21 @@ func SetFinanceJson() finance {
 // GetFinanceJson reads the finance data from a file and stores it in variables
 func GetFinanceJson() {
 	// Read the finance data from a file
-	byteArray := util.ReadFile("./finance.json")
+	byteArray := dir.ReadFile("./finance.json")
 
 	// Initialize finance JSON object
 	financeJsonObject := finance{}
 
 	// Unmarshal byte array to finance JSON object
 	err := json.Unmarshal(byteArray, &financeJsonObject)
-	util.HandleError(err)
+	print.HandleError(err)
 
 	// Store the values from the FinanceJsonObject in variables
-	util.NET_WORTH = financeJsonObject.NET_WORTH
-	util.BALANCE = financeJsonObject.BALANCE
-	util.EXPENSES = financeJsonObject.EXPENSES
-	util.INCOME = financeJsonObject.INCOME
+	global.NET_WORTH = financeJsonObject.NET_WORTH
+	global.BALANCE = financeJsonObject.BALANCE
+	global.EXPENSES = financeJsonObject.EXPENSES
+	global.INCOME = financeJsonObject.INCOME
 
 	// Calculate the perfect save amount
-	util.SAVING = util.INCOME * 0.25
+	global.SAVING = global.INCOME * 0.25
 }

@@ -1,4 +1,4 @@
-package util
+package global
 
 /* finance.json constants */
 var NET_WORTH float64
@@ -17,3 +17,6 @@ var Budget float64
 /* Last added sum */
 var LastAdd float64
 var LastExp float64
+
+/* history.json */
+var SortedHistory []string

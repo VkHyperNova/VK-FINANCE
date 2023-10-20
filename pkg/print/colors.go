@@ -1,4 +1,4 @@
-package util
+package print
 
 import "fmt"
 
@@ -23,7 +23,7 @@ func PrintGreen(a string) {
 
 func PrintYellow(a string) {
 	fmt.Print(Yellow + a + Reset)
-}
+} 
 
 func PrintBlue(a string) {
 	fmt.Print(Blue + a + Reset)

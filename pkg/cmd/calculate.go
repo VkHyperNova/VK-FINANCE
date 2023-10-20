@@ -1,19 +1,19 @@
 package cmd
 
 import (
-	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
+	"github.com/VkHyperNova/VK-FINANCE/pkg/global"
 )
 
 func DayBudget() {
-	util.DayBudget = (util.INCOME - util.SAVING) / 31
-	util.DayBudgetSpent = util.EXPENSES / 31
+	global.DayBudget = (global.INCOME - global.SAVING) / 31
+	global.DayBudgetSpent = global.EXPENSES / 31
 }
 
 func WeekBudget() {
-	util.WeekBudget = ((util.INCOME - util.SAVING) / 31) * 7
-	util.WeekBudgetSpent = (util.EXPENSES / 31) * 7
+	global.WeekBudget = ((global.INCOME - global.SAVING) / 31) * 7
+	global.WeekBudgetSpent = (global.EXPENSES / 31) * 7
 }
 
 func Budget() {
-	util.Budget = util.BALANCE - util.SAVING
+	global.Budget = global.BALANCE - global.SAVING
 }
