@@ -90,7 +90,6 @@ func CountAndPrintHistoryItems() {
 	print.PrintCyan("\nINCOME\n")
 	for _, k := range keys {
 		if myMap[k] > 0 {
-			fmt.Println(myMap[k])
 			print.PrintGreen(k + ": " + fmt.Sprintf("%f", myMap[k]) + "\n")
 		}
 
