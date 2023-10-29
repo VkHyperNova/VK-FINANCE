@@ -1,10 +1,10 @@
 package global
 
 /* finance.json constants */
-var NET_WORTH float64
-var BALANCE float64
-var EXPENSES float64
-var INCOME float64
+var NET_WORTH float64 = 0
+var BALANCE float64 = 0
+var EXPENSES float64 = 0
+var INCOME float64 = 0
 
 /* Calculate */
 var SAVING float64

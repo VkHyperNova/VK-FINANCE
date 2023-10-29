@@ -50,7 +50,7 @@ func GetFinanceJson() {
 	global.BALANCE = financeJsonObject.BALANCE
 	global.EXPENSES = financeJsonObject.EXPENSES
 	global.INCOME = financeJsonObject.INCOME
-
+	
 	// Calculate the perfect save amount
 	global.SAVING = global.INCOME * 0.25
 }
@@ -59,7 +59,7 @@ func CalculateIncome() {
 
 	sum := util.UserInputFloat64("Sum: ")
 	comment := util.UserInputString("Comment: ")
-
+	
 	global.LastAdd += sum
 
 	global.INCOME = global.INCOME + sum

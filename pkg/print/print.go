@@ -8,10 +8,6 @@ import (
 	"github.com/VkHyperNova/VK-FINANCE/pkg/global"
 )
 
-
-
-
-
 func ClearScreen() {
 	if runtime.GOOS == "linux" { // check if the operating system is Linux
 		cmd := exec.Command("clear") // execute the clear command
@@ -78,7 +74,7 @@ func PrintBalance() {
 
 func PrintMoneyLeft() {
 
-	PrintCyan("MONEY: ")
+	PrintCyan("\nUsable Money: ")
 
 	if global.Budget < 0 {
 		PrintRed(fmt.Sprintf("%.2f", global.Budget) + " EUR\n\n")

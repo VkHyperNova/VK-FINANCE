@@ -44,12 +44,12 @@ func GetHistoryJson(byteArray []byte) []history {
 	// return historyJsonArray
 	return historyJsonArray
 }
-
+// Rethink this <------------------------------------------------
 func CountAndPrintHistoryItems() {
 	byteArray := dir.ReadFile("./history.json")
 	historyJson := GetHistoryJson(byteArray)
 
-	// Get all the names
+	// Get all the names from history json
 	var items []string
 
 	for _, value := range historyJson {
@@ -58,7 +58,7 @@ func CountAndPrintHistoryItems() {
 		}
 	}
 
-	/* Count */
+	/* Count the value by name */
 	myMap := make(map[string]float64)
 
 	for _, itemName := range items {
@@ -89,21 +89,17 @@ func CountAndPrintHistoryItems() {
 
 	print.PrintCyan("\nINCOME\n")
 	for _, k := range keys {
-		stringValue := fmt.Sprintf("%f", myMap[k]) // convert to string
-
 		if myMap[k] > 0 {
-			print.PrintGreen(k + ": " + stringValue + "\n")
+			fmt.Println(myMap[k])
+			print.PrintGreen(k + ": " + fmt.Sprintf("%f", myMap[k]) + "\n")
 		}
 
 	}
 
-	// Print sorted map Expenses
 	print.PrintCyan("\nEXPENSES\n")
 	for _, k := range keys {
-		stringValue := fmt.Sprintf("%f", myMap[k]) // convert to string
-
 		if myMap[k] < 0 {
-			print.PrintRed(k + ": " + stringValue + "\n")
+			print.PrintRed(k + ": " + fmt.Sprintf("%f", myMap[k]) + "\n")
 		}
 
 	}
