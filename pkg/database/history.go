@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/VkHyperNova/VK-FINANCE/pkg/dir"
+	"github.com/VkHyperNova/VK-FINANCE/pkg/global"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/print"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
@@ -44,8 +45,9 @@ func GetHistoryJson(byteArray []byte) []history {
 	// return historyJsonArray
 	return historyJsonArray
 }
+
 // Rethink this <------------------------------------------------
-func CountAndPrintHistoryItems() {
+func CountIncomeAndExpenses() {
 	byteArray := dir.ReadFile("./history.json")
 	historyJson := GetHistoryJson(byteArray)
 
@@ -105,40 +107,30 @@ func CountAndPrintHistoryItems() {
 
 }
 
-func PrintHistory() {
+func GetFinances() {
 
 	byteArray := dir.ReadFile("./history.json")
 	historyJson := GetHistoryJson(byteArray)
 
-	print.ClearScreen()
+	income := 0.0
+	expenses := 0.0
 
-	print.PrintCyan("History: \n\n")
-
-	for _, value := range historyJson {
-
-		val, err := json.Marshal(value.VALUE)
-		print.HandleError(err)
-
-		if value.VALUE < 0 {
-			print.PrintRed(" ")
-			print.PrintRed(value.DATE)
-			print.PrintRed(" ")
-			print.PrintRed(value.TIME)
-			print.PrintRed(" ")
-			print.PrintRed(value.COMMENT)
-			print.PrintRed(" ==> ")
-			print.PrintRed(string(val) + "\n")
+	for _, item := range historyJson {
+		if item.VALUE < 0 {
+			expenses += item.VALUE
 		} else {
-			print.PrintGreen(" ")
-			print.PrintGreen(value.DATE)
-			print.PrintGreen(" ")
-			print.PrintGreen(value.TIME)
-			print.PrintGreen(" ")
-			print.PrintGreen(value.COMMENT)
-			print.PrintGreen(" ==> ")
-			print.PrintGreen(string(val) + "\n")
+			income += item.VALUE
 		}
 
 	}
 
+	global.INCOME = income
+	global.EXPENSES = expenses
+	global.BALANCE = income + expenses // income + (-expenses)
+	global.SAVING = income * 0.25
+	global.Budget = global.BALANCE - global.SAVING
+	global.DayBudget = (global.INCOME - global.SAVING) / 31
+	global.DayBudgetSpent = global.EXPENSES / 31
+	global.WeekBudget = ((global.INCOME - global.SAVING) / 31) * 7
+	global.WeekBudgetSpent = (global.EXPENSES / 31) * 7
 }

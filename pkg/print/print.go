@@ -20,6 +20,25 @@ func ClearScreen() {
 	}
 }
 
+func PrintStats() {
+	PrintNetWorth()
+	PrintIncome()
+	PrintExpences()
+	PrintEstimatedDaylySpendingAmount()
+	PrintEstimatedWeeklySpendingAmount()
+	PrintSavingAmount()
+	PrintBalance()
+	PrintMoneyLeft()
+}
+
+func PrintCommands() {
+	PrintCyan("Program Options: \n\n")
+	PrintWithBrackets("add")
+	PrintWithBrackets("spend")
+	PrintWithBrackets("history")
+	PrintWithBrackets("q")
+}
+
 func PrintNetWorth() {
 	PrintCyan("\nNET WORTH: ")
 	PrintGreen(fmt.Sprintf("%.2f", global.NET_WORTH) + " EUR\n\n")

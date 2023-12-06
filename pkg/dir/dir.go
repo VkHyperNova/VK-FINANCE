@@ -7,9 +7,9 @@ import (
 
 func ValidateRequiredFiles() {
 
-	if !DoesDirectoryExist("./finance.json") {
-		WriteDataToFile("./finance.json", []byte("[]"))
-	}
+	// if !DoesDirectoryExist("./finance.json") {
+	// 	WriteDataToFile("./finance.json", []byte("[]"))
+	// }
 	
 
 	if !DoesDirectoryExist("./history.json") {

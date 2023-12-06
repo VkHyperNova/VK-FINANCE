@@ -1,17 +1,17 @@
 package database
 
 import (
-	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/dir"
+	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
-func Save(Value float64, Comment string) {
+func SaveHistory(Value float64, Comment string) {
 
-	financeJsonObject := SetFinanceJson() // Construct finance financeJsonObject as a JSON object
+	// financeJsonObject := SetFinanceJson() // Construct finance financeJsonObject as a JSON object
 
-	financeByteArray := util.InterfaceToByte(financeJsonObject) // Convert finance data to a byte array
+	// financeByteArray := util.InterfaceToByte(financeJsonObject) // Convert finance data to a byte array
 
-	dir.WriteDataToFile("./finance.json", financeByteArray) // Write finance data to a JSON file
+	// dir.WriteDataToFile("./finance.json", financeByteArray) // Write finance data to a JSON file
 
 	historyByteArray := dir.ReadFile("./history.json") // Read the history file content
 
@@ -25,5 +25,3 @@ func Save(Value float64, Comment string) {
 
 	dir.WriteDataToFile("./history.json", historyByteArrayUpdated) // Write the data to the history file
 }
-
-
