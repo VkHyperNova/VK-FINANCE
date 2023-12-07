@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"time"
 
 	"github.com/VkHyperNova/VK-FINANCE/pkg/database"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/dir"
@@ -17,7 +18,7 @@ import (
 func CMD() {
 
 	print.ClearScreen()
-
+	
 	dir.ValidateRequiredFiles()
 
 	print.PrintGray("============================================\n")
@@ -26,10 +27,10 @@ func CMD() {
 
 	PrintSortedHistory()
 	PrintFinanceStats()
-
+	
 	print.PrintGray("--------------------------------------------\n")
 
-	PrintCommands([]string{"add", "spend", "history", "q"})
+	PrintCommands([]string{"add", "spend", "history", "restart", "q"})
 
 	var user_input string
 	print.PrintGray("\n\n=> ")
@@ -45,6 +46,9 @@ func CMD() {
 			CMD()
 		case "history", "h":
 			PrintHistory()
+			CMD()
+		case "restart":
+			Restart()
 			CMD()
 		case "q":
 			print.ClearScreen()
@@ -77,6 +81,23 @@ func AddExpenses() {
 	LastExp += sum
 
 	database.SaveDatabase(-1*sum, comment)
+}
+
+var RESTART_BALANCE float64
+func Restart() {
+	currentTime := time.Now()
+	previousMonth := currentTime.AddDate(0, -1, 0).Format("January2006")
+
+	db := database.OpenDatabase()
+	byteArray, err := json.MarshalIndent(db, "", " ")
+	print.HandleError(err)
+
+	dir.WriteDataToFile("./history/history_json/" + previousMonth + ".json", byteArray)
+
+	dir.RemoveFile("./history.json")
+	dir.WriteDataToFile("./history.json", []byte("[]"))
+
+	database.SaveDatabase(RESTART_BALANCE, "oldbalance")
 }
 
 func PrintHistory() {
@@ -174,7 +195,10 @@ func PrintFinanceStats() {
 	NET_WORTH := 1300.0
 	INCOME := income
 	EXPENSES := expenses
+	
 	BALANCE := income + expenses // income + (-expenses)
+	RESTART_BALANCE = BALANCE
+
 	SAVING := income * 0.25
 	Budget := BALANCE - SAVING
 	DayBudget := (INCOME - SAVING) / 31
