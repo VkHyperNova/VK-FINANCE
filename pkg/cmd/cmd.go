@@ -8,10 +8,11 @@ import (
 
 	"github.com/VkHyperNova/VK-FINANCE/pkg/database"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/dir"
-	"github.com/VkHyperNova/VK-FINANCE/pkg/global"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/print"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
+
+/* Main Functions */
 
 func CMD() {
 
@@ -23,13 +24,12 @@ func CMD() {
 	print.PrintGray("============== VK FINANCE v1 ===============\n")
 	print.PrintGray("============================================\n")
 
-	SetFinanceStats()
 	PrintSortedHistory()
-	print.PrintStats()
+	PrintFinanceStats()
 
 	print.PrintGray("--------------------------------------------\n")
-	
-	print.PrintCommands()
+
+	PrintCommands([]string{"add", "spend", "history", "q"})
 
 	var user_input string
 	print.PrintGray("\n\n=> ")
@@ -37,13 +37,13 @@ func CMD() {
 
 	for {
 		switch user_input {
-		case "add":
+		case "add", "a":
 			AddIncome()
 			CMD()
-		case "spend":
+		case "spend", "s":
 			AddExpenses()
 			CMD()
-		case "history":
+		case "history", "h":
 			PrintHistory()
 			CMD()
 		case "q":
@@ -55,22 +55,26 @@ func CMD() {
 	}
 }
 
+var LastAdd float64
+
 func AddIncome() {
 
-	sum := util.UserInputFloat64("Sum: ")
+	sum := util.UserInputFloat64("Add Sum: ")
 	comment := util.UserInputString("Comment: ")
 
-	global.LastAdd += sum
+	LastAdd += sum
 
 	database.SaveDatabase(sum, comment)
 }
 
+var LastExp float64
+
 func AddExpenses() {
 
-	sum := util.UserInputFloat64("Sum: ")
+	sum := util.UserInputFloat64("Spend Sum: ")
 	comment := util.UserInputString("Comment: ")
 
-	global.LastExp += sum
+	LastExp += sum
 
 	database.SaveDatabase(-1*sum, comment)
 }
@@ -87,23 +91,9 @@ func PrintHistory() {
 		print.HandleError(err)
 
 		if value.VALUE < 0 {
-			print.PrintRed(" ")
-			print.PrintRed(value.DATE)
-			print.PrintRed(" ")
-			print.PrintRed(value.TIME)
-			print.PrintRed(" ")
-			print.PrintRed(value.COMMENT)
-			print.PrintRed(" ==> ")
-			print.PrintRed(string(val) + "\n")
+			print.PrintRed(" " + value.DATE + " " + value.TIME + " " + value.COMMENT + " " + string(val) + "\n")
 		} else {
-			print.PrintGreen(" ")
-			print.PrintGreen(value.DATE)
-			print.PrintGreen(" ")
-			print.PrintGreen(value.TIME)
-			print.PrintGreen(" ")
-			print.PrintGreen(value.COMMENT)
-			print.PrintGreen(" ==> ")
-			print.PrintGreen(string(val) + "\n")
+			print.PrintGreen(" " + value.DATE + " " + value.TIME + " " + value.COMMENT + " " + string(val) + "\n")
 		}
 
 	}
@@ -163,10 +153,9 @@ func PrintSortedHistory() {
 		}
 
 	}
-
 }
 
-func SetFinanceStats() {
+func PrintFinanceStats() {
 
 	db := database.OpenDatabase()
 
@@ -182,13 +171,70 @@ func SetFinanceStats() {
 
 	}
 
-	global.INCOME = income
-	global.EXPENSES = expenses
-	global.BALANCE = income + expenses // income + (-expenses)
-	global.SAVING = income * 0.25
-	global.Budget = global.BALANCE - global.SAVING
-	global.DayBudget = (global.INCOME - global.SAVING) / 31
-	global.DayBudgetSpent = global.EXPENSES / 31
-	global.WeekBudget = ((global.INCOME - global.SAVING) / 31) * 7
-	global.WeekBudgetSpent = (global.EXPENSES / 31) * 7
+	NET_WORTH := 1300.0
+	INCOME := income
+	EXPENSES := expenses
+	BALANCE := income + expenses // income + (-expenses)
+	SAVING := income * 0.25
+	Budget := BALANCE - SAVING
+	DayBudget := (INCOME - SAVING) / 31
+	DayBudgetSpent := EXPENSES / 31
+	WeekBudget := ((INCOME - SAVING) / 31) * 7
+	WeekBudgetSpent := (EXPENSES / 31) * 7
+
+	print.PrintCyan("\nNET WORTH: ")
+	print.PrintGreen(fmt.Sprintf("%.2f", NET_WORTH) + " EUR\n\n")
+
+	print.PrintCyan("INCOME: ")
+	print.PrintGreen("+" + fmt.Sprintf("%.2f", INCOME) + " EUR")
+
+	if LastAdd != 0 {
+		print.PrintCyan(" | ")
+		print.PrintYellow("+" + fmt.Sprintf("%.2f", LastAdd) + " EUR")
+	}
+	print.PrintGray("\n")
+
+	print.PrintCyan("EXPENSES: ")
+	print.PrintRed(fmt.Sprintf("%.2f", EXPENSES) + " EUR")
+
+	if LastExp != 0 {
+		print.PrintCyan(" | ")
+		print.PrintYellow("+" + fmt.Sprintf("%.2f", LastExp) + " EUR")
+	}
+	print.PrintGray("\n\n")
+
+	print.PrintCyan("Day Budget: ")
+	print.PrintGreen(fmt.Sprintf("%.2f", DayBudget) + " EUR")
+	print.PrintCyan(" | ")
+	print.PrintRed(fmt.Sprintf("%.2f", DayBudgetSpent) + " EUR\n")
+
+	print.PrintCyan("Week Budget: ")
+	print.PrintGreen(fmt.Sprintf("%.2f", WeekBudget) + " EUR")
+	print.PrintCyan(" | ")
+	print.PrintRed(fmt.Sprintf("%.2f", WeekBudgetSpent) + " EUR\n")
+
+	print.PrintCyan("SAVING (25%): ")
+	print.PrintGreen(fmt.Sprintf("%.2f", SAVING) + " EUR\n\n")
+
+	print.PrintCyan("BALANCE: ")
+	print.PrintYellow(fmt.Sprintf("%.2f", BALANCE) + " EUR\n")
+
+	print.PrintCyan("\nUsable Money: ")
+
+	if Budget < 0 {
+		print.PrintRed(fmt.Sprintf("%.2f", Budget) + " EUR\n\n")
+	} else {
+		print.PrintGreen(fmt.Sprintf("%.2f", Budget) + " EUR\n\n")
+	}
+}
+
+func PrintCommands(commands []string) {
+
+	print.PrintCyan("Program Options: \n\n")
+
+	for _, value := range commands {
+		print.PrintCyan("[")
+		print.PrintYellow(value)
+		print.PrintCyan("] ")
+	}
 }

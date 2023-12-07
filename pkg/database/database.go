@@ -8,6 +8,8 @@ import (
 	"github.com/VkHyperNova/VK-FINANCE/pkg/print"
 )
 
+/* Database Functions */
+
 type history struct {
 	DATE    string  `json:"date"`
 	TIME    string  `json:"time"`

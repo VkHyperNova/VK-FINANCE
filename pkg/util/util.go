@@ -6,7 +6,7 @@ import (
 	"github.com/VkHyperNova/VK-FINANCE/pkg/print"
 )
 
-
+/* Other Functions */
 
 func Contains(arr []string, name string) bool {
 	for _, n := range arr {
