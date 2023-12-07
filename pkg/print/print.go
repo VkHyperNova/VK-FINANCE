@@ -108,10 +108,3 @@ func PrintWithBrackets(name string) {
 	PrintCyan("] ")
 }
 
-func PrintSeparatorSingleDash() {
-	PrintGray("============================================\n")
-}
-
-func PrintSeparatorDoubleDash() {
-	PrintGray("--------------------------------------------\n")
-}

@@ -1,7 +1,6 @@
 package util
 
 import (
-	"encoding/json"
 	"fmt"
 	"strconv"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/print"
@@ -50,11 +49,6 @@ func UserInputString(question string) string {
 	return answer
 }
 
-func InterfaceToByte(input interface{}) []byte {
-	byteArray, err := json.MarshalIndent(input, "", " ")
-	print.HandleError(err)                                     
-	return byteArray                                     
-}
 
 
 
