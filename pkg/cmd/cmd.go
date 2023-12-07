@@ -30,7 +30,7 @@ func CMD() {
 	
 	print.PrintGray("--------------------------------------------\n")
 
-	PrintCommands([]string{"add", "spend", "history", "restart", "q"})
+	PrintCommands([]string{"add", "spend", "history", "backup", "q"})
 
 	var user_input string
 	print.PrintGray("\n\n=> ")
@@ -48,7 +48,7 @@ func CMD() {
 			PrintHistory()
 			CMD()
 		case "restart":
-			Restart()
+			Backup()
 			CMD()
 		case "q":
 			print.ClearScreen()
@@ -84,7 +84,7 @@ func AddExpenses() {
 }
 
 var RESTART_BALANCE float64
-func Restart() {
+func Backup() {
 	currentTime := time.Now()
 	previousMonth := currentTime.AddDate(0, -1, 0).Format("January2006")
 
