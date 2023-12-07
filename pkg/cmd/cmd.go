@@ -22,7 +22,7 @@ func CMD() {
 	dir.ValidateRequiredFiles()
 
 	print.PrintGray("============================================\n")
-	print.PrintGray("============== VK FINANCE v1 ===============\n")
+	print.PrintGray("============== VK FINANCE v1.1 ===============\n")
 	print.PrintGray("============================================\n")
 
 	PrintSortedHistory()
@@ -47,7 +47,7 @@ func CMD() {
 		case "history", "h":
 			PrintHistory()
 			CMD()
-		case "restart":
+		case "backup":
 			Backup()
 			CMD()
 		case "q":
@@ -60,7 +60,6 @@ func CMD() {
 }
 
 var LastAdd float64
-
 func AddIncome() {
 
 	sum := util.UserInputFloat64("Add Sum: ")
@@ -72,7 +71,6 @@ func AddIncome() {
 }
 
 var LastExp float64
-
 func AddExpenses() {
 
 	sum := util.UserInputFloat64("Spend Sum: ")
