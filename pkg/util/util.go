@@ -22,9 +22,11 @@ func UserInputFloat64(question string) float64 {
 		var answer string
 		print.PrintCyan("\n" + question) 
 		fmt.Scanln(&answer)
+		
 
-		if answer == "" { 
-			answer = "0" 
+		if answer == "" {
+			print.PrintRed("\nEnter a valid float!")
+			goto start
 		}
 
 		floatValue, err := strconv.ParseFloat(answer, 64) 

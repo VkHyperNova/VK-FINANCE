@@ -62,8 +62,14 @@ func CMD() {
 var LastAdd float64
 func AddIncome() {
 
-	sum := util.UserInputFloat64("Add Sum: ")
+	
 	comment := util.UserInputString("Comment: ")
+	
+	if comment == "q" {
+		CMD()
+	}
+
+	sum := util.UserInputFloat64("Add Sum: ")
 
 	LastAdd += sum
 
@@ -116,7 +122,7 @@ func PrintHistory() {
 		}
 
 	}
-
+	print.PrintPurple("\n\nPress ENTER to continue!")
 	fmt.Scanln() // Press enter to continue
 }
 
