@@ -18,17 +18,19 @@ import (
 func CMD() {
 
 	print.ClearScreen()
-	
+
 	dir.ValidateRequiredFiles()
 
 	print.PrintGray("============================================\n")
 	print.PrintGray("============== VK FINANCE v1.1 ===============\n")
 	print.PrintGray("============================================\n")
 
-	PrintSortedHistory()
-	PrintFinanceStats()
-	
-	print.PrintGray("--------------------------------------------\n")
+	db := database.OpenDatabase()
+
+	PrintSortedHistory(db)
+	PrintFinanceStats(db)
+
+	print.PrintGray("\n\n--------------------------------------------\n")
 
 	PrintCommands([]string{"add", "spend", "history", "backup", "q"})
 
@@ -45,10 +47,10 @@ func CMD() {
 			AddExpenses()
 			CMD()
 		case "history", "h":
-			PrintHistory()
+			PrintHistory(db)
 			CMD()
 		case "backup":
-			Backup()
+			Backup(db)
 			CMD()
 		case "q":
 			print.ClearScreen()
@@ -59,44 +61,48 @@ func CMD() {
 	}
 }
 
-var LastAdd float64
+var Last float64
+
 func AddIncome() {
 
-	
 	comment := util.UserInputString("Comment: ")
-	
+
 	if comment == "q" {
 		CMD()
 	}
 
 	sum := util.UserInputFloat64("Add Sum: ")
 
-	LastAdd += sum
+	Last += sum
 
 	database.SaveDatabase(sum, comment)
 }
 
-var LastExp float64
 func AddExpenses() {
 
-	sum := util.UserInputFloat64("Spend Sum: ")
 	comment := util.UserInputString("Comment: ")
 
-	LastExp += sum
+	if comment == "q" {
+		CMD()
+	}
+
+	sum := util.UserInputFloat64("Spend Sum: ")
+
+	Last -= sum
 
 	database.SaveDatabase(-1*sum, comment)
 }
 
 var RESTART_BALANCE float64
-func Backup() {
+
+func Backup(db []database.History) {
 	currentTime := time.Now()
 	previousMonth := currentTime.AddDate(0, -1, 0).Format("January2006")
 
-	db := database.OpenDatabase()
 	byteArray, err := json.MarshalIndent(db, "", " ")
 	print.HandleError(err)
 
-	dir.WriteDataToFile("./history/history_json/" + previousMonth + ".json", byteArray)
+	dir.WriteDataToFile("./history/history_json/"+previousMonth+".json", byteArray)
 
 	dir.RemoveFile("./history.json")
 	dir.WriteDataToFile("./history.json", []byte("[]"))
@@ -104,9 +110,7 @@ func Backup() {
 	database.SaveDatabase(RESTART_BALANCE, "oldbalance")
 }
 
-func PrintHistory() {
-
-	db := database.OpenDatabase()
+func PrintHistory(db []database.History) {
 
 	print.PrintCyan("History: \n\n")
 
@@ -126,9 +130,7 @@ func PrintHistory() {
 	fmt.Scanln() // Press enter to continue
 }
 
-func PrintSortedHistory() {
-
-	db := database.OpenDatabase()
+func PrintSortedHistory(db []database.History) {
 
 	var items []string
 
@@ -180,10 +182,141 @@ func PrintSortedHistory() {
 	}
 }
 
-func PrintFinanceStats() {
+func PrintFinanceStats(db []database.History) {
 
-	db := database.OpenDatabase()
+	myStats := SetFinanceStats(db)
+	fmt.Println("Last ", Last)
 
+	print.PrintCyan("\nNET WORTH: ")
+	print.PrintGreen(fmt.Sprintf("%.2f", myStats["NET_WORTH"]) + " EUR\n\n")
+
+	print.PrintCyan("INCOME: ")
+	print.PrintGreen("+" + fmt.Sprintf("%.2f", myStats["INCOME"]) + " EUR")
+
+	if Last > 0 {
+		print.PrintYellow(" (")
+		print.PrintYellow("+" + fmt.Sprintf("%.2f", Last) + " EUR")
+		print.PrintYellow(")")
+
+	}
+
+	print.PrintCyan("\nEXPENSES: ")
+	print.PrintRed(fmt.Sprintf("%.2f", myStats["EXPENSES"]) + " EUR")
+
+	if Last < 0 {
+		print.PrintYellow(" (")
+		print.PrintYellow(fmt.Sprintf("%.2f", Last) + " EUR")
+		print.PrintYellow(")")
+
+	}
+
+	print.PrintCyan("\n\nDay Budget: ")
+	print.PrintGreen(fmt.Sprintf("%.2f", myStats["DayBudget"]) + " EUR")
+	print.PrintCyan(" | ")
+	print.PrintRed(fmt.Sprintf("%.2f", myStats["DayBudgetSpent"]) + " EUR")
+	if Last != 0 {
+		NewIncome := myStats["INCOME"] + Last
+		NewSaving := NewIncome * 0.25
+		NewDayBudget := (NewIncome - NewSaving) / 31
+		difference := NewDayBudget-myStats["DayBudget"] // new budget minus old budget! Important order
+
+		print.PrintYellow(" (")
+		if difference > 0 {
+			print.PrintYellow(fmt.Sprintf("+%.2f", difference)) 
+		} else {
+			print.PrintYellow(fmt.Sprintf("%.2f", difference)) 
+		}
+		
+		print.PrintYellow(")")
+
+	}
+	
+
+	
+
+	print.PrintCyan("\nWeek Budget: ")
+	print.PrintGreen(fmt.Sprintf("%.2f", myStats["WeekBudget"]) + " EUR")
+	print.PrintCyan(" | ")
+	print.PrintRed(fmt.Sprintf("%.2f", myStats["WeekBudgetSpent"]) + " EUR")
+	if Last != 0 {
+		NewIncome := myStats["INCOME"] + Last
+		NewSaving := NewIncome * 0.25
+		NewWeekBudget := ((NewIncome - NewSaving) / 31) * 7
+		difference := NewWeekBudget-myStats["DayBudget"] // new budget minus old budget! Important order
+
+		print.PrintYellow(" (")
+		if difference > 0 {
+			print.PrintYellow(fmt.Sprintf("+%.2f", difference)) 
+		} else {
+			print.PrintYellow(fmt.Sprintf("%.2f", difference)) 
+		}
+		
+		print.PrintYellow(")")
+	}
+	
+
+	
+
+	print.PrintCyan("\nSAVING (25%): ")
+	print.PrintGreen(fmt.Sprintf("%.2f", myStats["SAVING"]) + " EUR")
+	if Last != 0 {
+		NewIncome := myStats["INCOME"] + Last
+		NewSaving := NewIncome * 0.25
+		difference := NewSaving - myStats["SAVING"]
+
+		print.PrintYellow(" (")
+		if difference > 0 {
+			print.PrintYellow(fmt.Sprintf("+%.2f", difference)) 
+		} else {
+			print.PrintYellow(fmt.Sprintf("%.2f", difference)) 
+		}
+		
+		print.PrintYellow(")")
+	}
+
+	print.PrintCyan("\n\nBALANCE: ")
+	print.PrintYellow(fmt.Sprintf("%.2f", myStats["BALANCE"]) + " EUR")
+	if Last != 0 {
+		NewBalance := myStats["BALANCE"] + Last
+		difference := NewBalance - myStats["BALANCE"]
+
+		print.PrintYellow(" (")
+		if difference > 0 {
+			print.PrintYellow(fmt.Sprintf("+%.2f", difference)) 
+		} else {
+			print.PrintYellow(fmt.Sprintf("%.2f", difference)) 
+		}
+		
+		print.PrintYellow(")")
+	}
+
+	print.PrintCyan("\n\nBudget: ")
+	if myStats["Budget"] < 0 {
+		print.PrintRed(fmt.Sprintf("%.2f", myStats["Budget"]) + " EUR")
+	} else {
+		print.PrintGreen(fmt.Sprintf("%.2f", myStats["Budget"]) + " EUR")
+	}
+
+	if Last != 0 {
+		NewIncome := myStats["INCOME"] + Last
+		NewSaving := NewIncome * 0.25
+		NewBalance := (myStats["BALANCE"] + Last) - NewSaving
+		difference := NewBalance - myStats["BALANCE"]
+
+		print.PrintYellow(" (")
+		if difference > 0 {
+			print.PrintYellow(fmt.Sprintf("+%.2f", difference)) 
+		} else {
+			print.PrintYellow(fmt.Sprintf("%.2f", difference)) 
+		}
+		
+		print.PrintYellow(")")
+	}
+
+	Last = 0
+}
+
+func SetFinanceStats(db []database.History) map[string]float64 {
 	income := 0.0
 	expenses := 0.0
 
@@ -196,64 +329,40 @@ func PrintFinanceStats() {
 
 	}
 
+	myStats := make(map[string]float64)
+
 	NET_WORTH := 1300.0
+	myStats["NET_WORTH"] = NET_WORTH
+
 	INCOME := income
+	myStats["INCOME"] = INCOME
+
 	EXPENSES := expenses
-	
+	myStats["EXPENSES"] = EXPENSES
+
 	BALANCE := income + expenses // income + (-expenses)
+	myStats["BALANCE"] = BALANCE
 	RESTART_BALANCE = BALANCE
 
 	SAVING := income * 0.25
+	myStats["SAVING"] = SAVING
+
 	Budget := BALANCE - SAVING
+	myStats["Budget"] = Budget
+
 	DayBudget := (INCOME - SAVING) / 31
+	myStats["DayBudget"] = DayBudget
+
 	DayBudgetSpent := EXPENSES / 31
+	myStats["DayBudgetSpent"] = DayBudgetSpent
+
 	WeekBudget := ((INCOME - SAVING) / 31) * 7
+	myStats["WeekBudget"] = WeekBudget
+
 	WeekBudgetSpent := (EXPENSES / 31) * 7
+	myStats["WeekBudgetSpent"] = WeekBudgetSpent
 
-	print.PrintCyan("\nNET WORTH: ")
-	print.PrintGreen(fmt.Sprintf("%.2f", NET_WORTH) + " EUR\n\n")
-
-	print.PrintCyan("INCOME: ")
-	print.PrintGreen("+" + fmt.Sprintf("%.2f", INCOME) + " EUR")
-
-	if LastAdd != 0 {
-		print.PrintCyan(" | ")
-		print.PrintYellow("+" + fmt.Sprintf("%.2f", LastAdd) + " EUR")
-	}
-	print.PrintGray("\n")
-
-	print.PrintCyan("EXPENSES: ")
-	print.PrintRed(fmt.Sprintf("%.2f", EXPENSES) + " EUR")
-
-	if LastExp != 0 {
-		print.PrintCyan(" | ")
-		print.PrintYellow("+" + fmt.Sprintf("%.2f", LastExp) + " EUR")
-	}
-	print.PrintGray("\n\n")
-
-	print.PrintCyan("Day Budget: ")
-	print.PrintGreen(fmt.Sprintf("%.2f", DayBudget) + " EUR")
-	print.PrintCyan(" | ")
-	print.PrintRed(fmt.Sprintf("%.2f", DayBudgetSpent) + " EUR\n")
-
-	print.PrintCyan("Week Budget: ")
-	print.PrintGreen(fmt.Sprintf("%.2f", WeekBudget) + " EUR")
-	print.PrintCyan(" | ")
-	print.PrintRed(fmt.Sprintf("%.2f", WeekBudgetSpent) + " EUR\n")
-
-	print.PrintCyan("SAVING (25%): ")
-	print.PrintGreen(fmt.Sprintf("%.2f", SAVING) + " EUR\n\n")
-
-	print.PrintCyan("BALANCE: ")
-	print.PrintYellow(fmt.Sprintf("%.2f", BALANCE) + " EUR\n")
-
-	print.PrintCyan("\nUsable Money: ")
-
-	if Budget < 0 {
-		print.PrintRed(fmt.Sprintf("%.2f", Budget) + " EUR\n\n")
-	} else {
-		print.PrintGreen(fmt.Sprintf("%.2f", Budget) + " EUR\n\n")
-	}
+	return myStats
 }
 
 func PrintCommands(commands []string) {

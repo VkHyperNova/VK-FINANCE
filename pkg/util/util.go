@@ -1,8 +1,12 @@
 package util
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"strconv"
+	"strings"
+
 	"github.com/VkHyperNova/VK-FINANCE/pkg/print"
 )
 
@@ -40,15 +44,25 @@ func UserInputFloat64(question string) float64 {
 }
 
 func UserInputString(question string) string {
-	var answer string
-	print.PrintCyan("\n" + question) 
-	fmt.Scanln(&answer)
+	// var answer string
+	// print.PrintCyan("\n" + question) 
+	// fmt.Scanln(&answer)
 
-	if answer == "" { 
-		answer = "No Comment" 
-	}
+	// if answer == "" { 
+	// 	answer = "No Comment" 
+	// }
 
-	return answer
+	// return answer
+
+	// Write the string to a buffer
+	print.PrintCyan(question)
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	CommentString := scanner.Text()
+	CommentString = strings.TrimSpace(CommentString)
+
+	return CommentString
+
 }
 
 

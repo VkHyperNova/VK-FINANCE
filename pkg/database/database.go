@@ -10,18 +10,18 @@ import (
 
 /* Database Functions */
 
-type history struct {
+type History struct {
 	DATE    string  `json:"date"`
 	TIME    string  `json:"time"`
 	COMMENT string  `json:"comment"`
 	VALUE   float64 `json:"value"`
 }
 
-func NewItem(value float64, comment string) history {
+func NewItem(value float64, comment string) History {
 
 	now := time.Now()
 
-	return history{
+	return History{
 		DATE:    now.Format("02-01-2006"),
 		TIME:    now.Format("15:04:05"),
 		COMMENT: comment,
@@ -29,11 +29,11 @@ func NewItem(value float64, comment string) history {
 	}
 }
 
-func OpenDatabase() []history {
+func OpenDatabase() []History {
 
 	OpenFile := dir.ReadFile("./history.json")
 
-	JsonArray := []history{}
+	JsonArray := []History{}
 
 	err := json.Unmarshal(OpenFile, &JsonArray)
 	print.HandleError(err)
