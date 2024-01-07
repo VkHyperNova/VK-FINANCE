@@ -8,8 +8,6 @@ import (
 	"time"
 
 	"github.com/VkHyperNova/VK-FINANCE/pkg/database"
-	"github.com/VkHyperNova/VK-FINANCE/pkg/dir"
-	"github.com/VkHyperNova/VK-FINANCE/pkg/print"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
@@ -17,25 +15,25 @@ import (
 
 func CMD() {
 
-	print.ClearScreen()
+	util.ClearScreen()
 
-	dir.ValidateRequiredFiles()
+	util.ValidateRequiredFiles()
 
-	print.PrintGray("============================================\n")
-	print.PrintGray("============== VK FINANCE v1.1 ===============\n")
-	print.PrintGray("============================================\n")
+	util.PrintGray("============================================\n")
+	util.PrintGray("============== VK FINANCE v1.1 ===============\n")
+	util.PrintGray("============================================\n")
 
 	db := database.OpenDatabase()
 
 	PrintSortedHistory(db)
 	PrintFinanceStats(db)
 
-	print.PrintGray("\n\n--------------------------------------------\n")
+	util.PrintGray("\n\n--------------------------------------------\n")
 
 	PrintCommands([]string{"add", "spend", "history", "backup", "q"})
 
 	var user_input string
-	print.PrintGray("\n\n=> ")
+	util.PrintGray("\n\n=> ")
 	fmt.Scanln(&user_input)
 
 	for {
@@ -53,7 +51,7 @@ func CMD() {
 			Backup(db)
 			CMD()
 		case "q":
-			print.ClearScreen()
+			util.ClearScreen()
 			os.Exit(0)
 		default:
 			CMD()
@@ -95,33 +93,33 @@ func Backup(db []database.History) {
 	previousMonth := currentTime.AddDate(0, -1, 0).Format("January2006")
 
 	byteArray, err := json.MarshalIndent(db, "", " ")
-	print.HandleError(err)
+	util.HandleError(err)
 
-	dir.WriteDataToFile("./history/history_json/"+previousMonth+".json", byteArray)
+	util.WriteDataToFile("./history/history_json/"+previousMonth+".json", byteArray)
 
-	dir.RemoveFile("./history.json")
-	dir.WriteDataToFile("./history.json", []byte("[]"))
+	util.RemoveFile("./history.json")
+	util.WriteDataToFile("./history.json", []byte("[]"))
 
 	database.SaveDatabase(RESTART_BALANCE, "oldbalance")
 }
 
 func PrintHistory(db []database.History) {
 
-	print.PrintCyan("History: \n\n")
+	util.PrintCyan("History: \n\n")
 
 	for _, value := range db {
 
 		val, err := json.Marshal(value.VALUE)
-		print.HandleError(err)
+		util.HandleError(err)
 
 		if value.VALUE < 0 {
-			print.PrintRed(" " + value.DATE + " " + value.TIME + " " + value.COMMENT + " " + string(val) + "\n")
+			util.PrintRed(" " + value.DATE + " " + value.TIME + " " + value.COMMENT + " " + string(val) + "\n")
 		} else {
-			print.PrintGreen(" " + value.DATE + " " + value.TIME + " " + value.COMMENT + " " + string(val) + "\n")
+			util.PrintGreen(" " + value.DATE + " " + value.TIME + " " + value.COMMENT + " " + string(val) + "\n")
 		}
 
 	}
-	print.PrintPurple("\n\nPress ENTER to continue!")
+	util.PrintPurple("\n\nPress ENTER to continue!")
 	fmt.Scanln() // Press enter to continue
 }
 
@@ -160,18 +158,18 @@ func PrintSortedHistory(db []database.History) {
 		keys[i] = p[0].(string)
 	}
 
-	print.PrintCyan("\nINCOME\n")
+	util.PrintCyan("\nINCOME\n")
 	for _, k := range keys {
 		if myMap[k] > 0 {
-			print.PrintGreen(k + ": " + fmt.Sprintf("%f", myMap[k]) + "\n")
+			util.PrintGreen(k + ": " + fmt.Sprintf("%f", myMap[k]) + "\n")
 		}
 
 	}
 
-	print.PrintCyan("\nEXPENSES\n")
+	util.PrintCyan("\nEXPENSES\n")
 	for _, k := range keys {
 		if myMap[k] < 0 {
-			print.PrintRed(k + ": " + fmt.Sprintf("%f", myMap[k]) + "\n")
+			util.PrintRed(k + ": " + fmt.Sprintf("%f", myMap[k]) + "\n")
 		}
 
 	}
@@ -181,44 +179,44 @@ func PrintFinanceStats(db []database.History) {
 
 	myStats := SetFinanceStats(db)
 
-	print.PrintCyan("\nNET WORTH: ")
-	print.PrintGreen(fmt.Sprintf("%.2f", myStats["NET_WORTH"]) + " EUR\n\n")
+	util.PrintCyan("\nNET WORTH: ")
+	util.PrintGreen(fmt.Sprintf("%.2f", myStats["NET_WORTH"]) + " EUR\n\n")
 
-	print.PrintCyan("INCOME: ")
-	print.PrintGreen("+" + fmt.Sprintf("%.2f", myStats["INCOME"]) + " EUR")
-
-	
-
-	print.PrintCyan("\nEXPENSES: ")
-	print.PrintRed(fmt.Sprintf("%.2f", myStats["EXPENSES"]) + " EUR")
+	util.PrintCyan("INCOME: ")
+	util.PrintGreen("+" + fmt.Sprintf("%.2f", myStats["INCOME"]) + " EUR")
 
 	
 
-	print.PrintCyan("\n\nDay Budget: ")
-	print.PrintGreen(fmt.Sprintf("%.2f", myStats["DayBudget"]) + " EUR")
-	print.PrintCyan(" | ")
-	print.PrintRed(fmt.Sprintf("%.2f", myStats["DayBudgetSpent"]) + " EUR")
-	
-	print.PrintCyan("\nWeek Budget: ")
-	print.PrintGreen(fmt.Sprintf("%.2f", myStats["WeekBudget"]) + " EUR")
-	print.PrintCyan(" | ")
-	print.PrintRed(fmt.Sprintf("%.2f", myStats["WeekBudgetSpent"]) + " EUR")
+	util.PrintCyan("\nEXPENSES: ")
+	util.PrintRed(fmt.Sprintf("%.2f", myStats["EXPENSES"]) + " EUR")
 
 	
 
-	print.PrintCyan("\nSAVING (25%): ")
-	print.PrintGreen(fmt.Sprintf("%.2f", myStats["SAVING"]) + " EUR")
+	util.PrintCyan("\n\nDay Budget: ")
+	util.PrintGreen(fmt.Sprintf("%.2f", myStats["DayBudget"]) + " EUR")
+	util.PrintCyan(" | ")
+	util.PrintRed(fmt.Sprintf("%.2f", myStats["DayBudgetSpent"]) + " EUR")
+	
+	util.PrintCyan("\nWeek Budget: ")
+	util.PrintGreen(fmt.Sprintf("%.2f", myStats["WeekBudget"]) + " EUR")
+	util.PrintCyan(" | ")
+	util.PrintRed(fmt.Sprintf("%.2f", myStats["WeekBudgetSpent"]) + " EUR")
+
+	
+
+	util.PrintCyan("\nSAVING (25%): ")
+	util.PrintGreen(fmt.Sprintf("%.2f", myStats["SAVING"]) + " EUR")
 
 
-	print.PrintCyan("\n\nBALANCE: ")
-	print.PrintYellow(fmt.Sprintf("%.2f", myStats["BALANCE"]) + " EUR")
+	util.PrintCyan("\n\nBALANCE: ")
+	util.PrintYellow(fmt.Sprintf("%.2f", myStats["BALANCE"]) + " EUR")
 
 
-	print.PrintCyan("\n\nBudget: ")
+	util.PrintCyan("\n\nBudget: ")
 	if myStats["Budget"] < 0 {
-		print.PrintRed(fmt.Sprintf("%.2f", myStats["Budget"]) + " EUR")
+		util.PrintRed(fmt.Sprintf("%.2f", myStats["Budget"]) + " EUR")
 	} else {
-		print.PrintGreen(fmt.Sprintf("%.2f", myStats["Budget"]) + " EUR")
+		util.PrintGreen(fmt.Sprintf("%.2f", myStats["Budget"]) + " EUR")
 	}
 }
 
@@ -273,11 +271,11 @@ func SetFinanceStats(db []database.History) map[string]float64 {
 
 func PrintCommands(commands []string) {
 
-	print.PrintCyan("Program Options: \n\n")
+	util.PrintCyan("Program Options: \n\n")
 
 	for _, value := range commands {
-		print.PrintCyan("[")
-		print.PrintYellow(value)
-		print.PrintCyan("] ")
+		util.PrintCyan("[")
+		util.PrintYellow(value)
+		util.PrintCyan("] ")
 	}
 }

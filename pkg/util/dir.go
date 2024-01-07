@@ -1,10 +1,8 @@
-package dir
+package util
 
 import (
 	"log"
 	"os"
-
-	"github.com/VkHyperNova/VK-FINANCE/pkg/print"
 )
 
 /* Directory Functions */
@@ -28,7 +26,7 @@ func CreateDir(dirs string) {
 
 func RemoveFile(file string) {
 	err := os.Remove(file)
-	print.HandleError(err)
+	HandleError(err)
 }
 
 func DoesDirectoryExist(dir_name string) bool {
@@ -40,11 +38,11 @@ func DoesDirectoryExist(dir_name string) bool {
 
 func WriteDataToFile(filename string, dataBytes []byte) {
 	var err = os.WriteFile(filename, dataBytes, 0644)
-	print.HandleError(err)
+	HandleError(err)
 }
 
 func ReadFile(filename string) []byte {
 	file, err := os.ReadFile(filename)
-	print.HandleError(err)
+	HandleError(err)
 	return file
 }

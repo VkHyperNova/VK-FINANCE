@@ -3,9 +3,7 @@ package database
 import (
 	"encoding/json"
 	"time"
-
-	"github.com/VkHyperNova/VK-FINANCE/pkg/dir"
-	"github.com/VkHyperNova/VK-FINANCE/pkg/print"
+	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
 /* Database Functions */
@@ -31,12 +29,12 @@ func NewItem(value float64, comment string) History {
 
 func OpenDatabase() []History {
 
-	OpenFile := dir.ReadFile("./history.json")
+	OpenFile := util.ReadFile("./history.json")
 
 	JsonArray := []History{}
 
 	err := json.Unmarshal(OpenFile, &JsonArray)
-	print.HandleError(err)
+	util.HandleError(err)
 
 	return JsonArray
 }
@@ -50,7 +48,7 @@ func SaveDatabase(Value float64, Comment string) {
 	db = append(db, NewItem)
 
 	byteArray, err := json.MarshalIndent(db, "", " ")
-	print.HandleError(err)
+	util.HandleError(err)
 
-	dir.WriteDataToFile("./history.json", byteArray)
+	util.WriteDataToFile("./history.json", byteArray)
 }

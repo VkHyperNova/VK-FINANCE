@@ -6,8 +6,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-
-	"github.com/VkHyperNova/VK-FINANCE/pkg/print"
 )
 
 /* Other Functions */
@@ -24,17 +22,17 @@ func Contains(arr []string, name string) bool {
 func UserInputFloat64(question string) float64 {
 	start:
 		var answer string
-		print.PrintCyan("\n" + question) 
+		PrintCyan("\n" + question) 
 		fmt.Scanln(&answer)
 		
 
 		if answer == "" {
-			print.PrintRed("\nEnter a valid float!")
+			PrintRed("\nEnter a valid float!")
 			goto start
 		}
 
 		floatValue, err := strconv.ParseFloat(answer, 64) 
-		print.HandleError(err)                                  
+		HandleError(err)                                  
 
 		if err != nil {
 			goto start 
@@ -44,7 +42,7 @@ func UserInputFloat64(question string) float64 {
 }
 
 func UserInputString(question string) string {
-	print.PrintCyan(question)
+	PrintCyan(question)
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	CommentString := scanner.Text()
