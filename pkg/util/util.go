@@ -44,17 +44,6 @@ func UserInputFloat64(question string) float64 {
 }
 
 func UserInputString(question string) string {
-	// var answer string
-	// print.PrintCyan("\n" + question) 
-	// fmt.Scanln(&answer)
-
-	// if answer == "" { 
-	// 	answer = "No Comment" 
-	// }
-
-	// return answer
-
-	// Write the string to a buffer
 	print.PrintCyan(question)
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
@@ -62,7 +51,6 @@ func UserInputString(question string) string {
 	CommentString = strings.TrimSpace(CommentString)
 
 	return CommentString
-
 }
 
 

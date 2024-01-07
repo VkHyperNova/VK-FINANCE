@@ -61,7 +61,6 @@ func CMD() {
 	}
 }
 
-var Last float64
 
 func AddIncome() {
 
@@ -72,8 +71,6 @@ func AddIncome() {
 	}
 
 	sum := util.UserInputFloat64("Add Sum: ")
-
-	Last += sum
 
 	database.SaveDatabase(sum, comment)
 }
@@ -87,8 +84,6 @@ func AddExpenses() {
 	}
 
 	sum := util.UserInputFloat64("Spend Sum: ")
-
-	Last -= sum
 
 	database.SaveDatabase(-1*sum, comment)
 }
@@ -185,7 +180,6 @@ func PrintSortedHistory(db []database.History) {
 func PrintFinanceStats(db []database.History) {
 
 	myStats := SetFinanceStats(db)
-	fmt.Println("Last ", Last)
 
 	print.PrintCyan("\nNET WORTH: ")
 	print.PrintGreen(fmt.Sprintf("%.2f", myStats["NET_WORTH"]) + " EUR\n\n")
@@ -193,102 +187,32 @@ func PrintFinanceStats(db []database.History) {
 	print.PrintCyan("INCOME: ")
 	print.PrintGreen("+" + fmt.Sprintf("%.2f", myStats["INCOME"]) + " EUR")
 
-	if Last > 0 {
-		print.PrintYellow(" (")
-		print.PrintYellow("+" + fmt.Sprintf("%.2f", Last) + " EUR")
-		print.PrintYellow(")")
-
-	}
+	
 
 	print.PrintCyan("\nEXPENSES: ")
 	print.PrintRed(fmt.Sprintf("%.2f", myStats["EXPENSES"]) + " EUR")
 
-	if Last < 0 {
-		print.PrintYellow(" (")
-		print.PrintYellow(fmt.Sprintf("%.2f", Last) + " EUR")
-		print.PrintYellow(")")
-
-	}
+	
 
 	print.PrintCyan("\n\nDay Budget: ")
 	print.PrintGreen(fmt.Sprintf("%.2f", myStats["DayBudget"]) + " EUR")
 	print.PrintCyan(" | ")
 	print.PrintRed(fmt.Sprintf("%.2f", myStats["DayBudgetSpent"]) + " EUR")
-	if Last != 0 {
-		NewIncome := myStats["INCOME"] + Last
-		NewSaving := NewIncome * 0.25
-		NewDayBudget := (NewIncome - NewSaving) / 31
-		difference := NewDayBudget-myStats["DayBudget"] // new budget minus old budget! Important order
-
-		print.PrintYellow(" (")
-		if difference > 0 {
-			print.PrintYellow(fmt.Sprintf("+%.2f", difference)) 
-		} else {
-			print.PrintYellow(fmt.Sprintf("%.2f", difference)) 
-		}
-		
-		print.PrintYellow(")")
-
-	}
 	
-
-	
-
 	print.PrintCyan("\nWeek Budget: ")
 	print.PrintGreen(fmt.Sprintf("%.2f", myStats["WeekBudget"]) + " EUR")
 	print.PrintCyan(" | ")
 	print.PrintRed(fmt.Sprintf("%.2f", myStats["WeekBudgetSpent"]) + " EUR")
-	if Last != 0 {
-		NewIncome := myStats["INCOME"] + Last
-		NewSaving := NewIncome * 0.25
-		NewWeekBudget := ((NewIncome - NewSaving) / 31) * 7
-		difference := NewWeekBudget-myStats["DayBudget"] // new budget minus old budget! Important order
-
-		print.PrintYellow(" (")
-		if difference > 0 {
-			print.PrintYellow(fmt.Sprintf("+%.2f", difference)) 
-		} else {
-			print.PrintYellow(fmt.Sprintf("%.2f", difference)) 
-		}
-		
-		print.PrintYellow(")")
-	}
-	
 
 	
 
 	print.PrintCyan("\nSAVING (25%): ")
 	print.PrintGreen(fmt.Sprintf("%.2f", myStats["SAVING"]) + " EUR")
-	if Last != 0 {
-		NewIncome := myStats["INCOME"] + Last
-		NewSaving := NewIncome * 0.25
-		difference := NewSaving - myStats["SAVING"]
 
-		print.PrintYellow(" (")
-		if difference > 0 {
-			print.PrintYellow(fmt.Sprintf("+%.2f", difference)) 
-		} else {
-			print.PrintYellow(fmt.Sprintf("%.2f", difference)) 
-		}
-		
-		print.PrintYellow(")")
-	}
 
 	print.PrintCyan("\n\nBALANCE: ")
 	print.PrintYellow(fmt.Sprintf("%.2f", myStats["BALANCE"]) + " EUR")
-	if Last != 0 {
-		NewBalance := myStats["BALANCE"] + Last
-		difference := NewBalance - myStats["BALANCE"]
 
-		print.PrintYellow(" (")
-		if difference > 0 {
-			print.PrintYellow(fmt.Sprintf("+%.2f", difference)) 
-		} else {
-			print.PrintYellow(fmt.Sprintf("%.2f", difference)) 
-		}
-		
-		print.PrintYellow(")")
-	}
 
 	print.PrintCyan("\n\nBudget: ")
 	if myStats["Budget"] < 0 {
@@ -296,24 +220,6 @@ func PrintFinanceStats(db []database.History) {
 	} else {
 		print.PrintGreen(fmt.Sprintf("%.2f", myStats["Budget"]) + " EUR")
 	}
-
-	if Last != 0 {
-		NewIncome := myStats["INCOME"] + Last
-		NewSaving := NewIncome * 0.25
-		NewBalance := (myStats["BALANCE"] + Last) - NewSaving
-		difference := NewBalance - myStats["BALANCE"]
-
-		print.PrintYellow(" (")
-		if difference > 0 {
-			print.PrintYellow(fmt.Sprintf("+%.2f", difference)) 
-		} else {
-			print.PrintYellow(fmt.Sprintf("%.2f", difference)) 
-		}
-		
-		print.PrintYellow(")")
-	}
-
-	Last = 0
 }
 
 func SetFinanceStats(db []database.History) map[string]float64 {
