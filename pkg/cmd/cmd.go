@@ -20,7 +20,7 @@ func CMD() {
 	util.ValidateRequiredFiles()
 
 	util.PrintGray("============================================\n")
-	util.PrintGray("============== VK FINANCE v1.1 ===============\n")
+	util.PrintGray("============== VK FINANCE v1.1 =============\n")
 	util.PrintGray("============================================\n")
 
 	db := database.OpenDatabase()
