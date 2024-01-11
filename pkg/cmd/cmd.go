@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strconv"
 	"time"
-
 	"github.com/VkHyperNova/VK-FINANCE/pkg/database"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
@@ -62,29 +62,51 @@ func CMD() {
 
 func AddIncome() {
 
-	comment := util.UserInputString("Comment: ")
-
-	if comment == "q" {
-		CMD()
-	}
-
-	sum := util.UserInputFloat64("Add Sum: ")
+	comment := GetComment()
+	sum := GetSum()
 
 	database.SaveDatabase(sum, comment)
+	util.PressAnyKey()
 }
 
 func AddExpenses() {
 
-	comment := util.UserInputString("Comment: ")
+	comment := GetComment()
+	sum := GetSum()
+	
+	database.SaveDatabase(-1*sum, comment)
+	util.PressAnyKey()
+}
 
-	if comment == "q" {
+func QuitCheck(s string) {
+	if s == "q" || s == "Q" {
+		util.PrintRed("\n<< Command Canceled! >>\n")
+		util.PressAnyKey()
 		CMD()
 	}
-
-	sum := util.UserInputFloat64("Spend Sum: ")
-
-	database.SaveDatabase(-1*sum, comment)
 }
+
+func GetComment() string {
+	comment := util.UserInputString("Comment: ")
+	QuitCheck(comment)
+	return comment
+}
+
+func GetSum() float64 {
+	start:
+	sum := util.UserInputString("Spend Sum: ")
+	QuitCheck(sum)
+
+	float, err := strconv.ParseFloat(sum, 64)
+
+	if util.HandleError(err) {
+		util.PrintPurple("<< Enter a number! >>\n\n")
+		goto start
+	}
+
+	return float
+}
+
 
 var RESTART_BALANCE float64
 

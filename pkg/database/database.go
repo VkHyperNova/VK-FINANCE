@@ -51,4 +51,6 @@ func SaveDatabase(Value float64, Comment string) {
 	util.HandleError(err)
 
 	util.WriteDataToFile("./history.json", byteArray)
+
+	util.PrintGreen("\n<< Success! >>\n")
 }

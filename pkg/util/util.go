@@ -51,6 +51,12 @@ func UserInputString(question string) string {
 	return CommentString
 }
 
+func PressAnyKey() {
+	PrintGray("\nPress Any Key To Continue...")
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+}
+
 
 
 
