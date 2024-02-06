@@ -115,7 +115,13 @@ func PrintSortedHistory(db []database.History) {
 	util.PrintCyan("\nEXPENSES\n")
 	for _, k := range keys {
 		if myMap[k] < 0 {
-			util.PrintRed(k + ": " + fmt.Sprintf("%f", myMap[k]) + "\n")
+			if k == "arved" || k == "food" {
+				util.PrintYellow(k + ": " + fmt.Sprintf("%f", myMap[k]) + "\n")
+			} else {
+				util.PrintRed(k + ": " + fmt.Sprintf("%f", myMap[k]) + "\n")
+
+			}
+			
 		}
 
 	}

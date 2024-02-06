@@ -1,3 +1,5 @@
+VK-Finance
+
 << Build exe with icon >>
 
 go install github.com/josephspurrier/goversioninfo/cmd/goversioninfo
