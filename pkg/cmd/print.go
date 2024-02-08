@@ -3,6 +3,7 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"slices"
 	"sort"
 
 	"github.com/VkHyperNova/VK-FINANCE/pkg/database"
@@ -113,9 +114,12 @@ func PrintSortedHistory(db []database.History) {
 	}
 
 	util.PrintCyan("\nEXPENSES\n")
+
+	importantExpences := []string{"arved", "food", "trenn", "saun", "bensiin"}
+
 	for _, k := range keys {
 		if myMap[k] < 0 {
-			if k == "arved" || k == "food" {
+			if slices.Contains(importantExpences, k) {
 				util.PrintYellow(k + ": " + fmt.Sprintf("%f", myMap[k]) + "\n")
 			} else {
 				util.PrintRed(k + ": " + fmt.Sprintf("%f", myMap[k]) + "\n")
