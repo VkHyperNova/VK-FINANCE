@@ -1,5 +1,7 @@
 VK-Finance
 
+Simple golang console app for storing finance data.
+
 << Build exe with icon >>
 
 go install github.com/josephspurrier/goversioninfo/cmd/goversioninfo
