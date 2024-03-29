@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"os"
+
 	"github.com/VkHyperNova/VK-FINANCE/pkg/database"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
@@ -12,15 +13,15 @@ func CMD() {
 	util.ClearScreen()
 	db := database.OpenDatabase()
 
-	input := PrintVKFINANCE(db)
+	input := PrintCLI(db)
 
 	for {
 		switch input {
 		case "add", "a":
-			AddIncome()
+			AddIncome(db)
 			CMD()
 		case "spend", "s":
-			AddExpenses()
+			AddExpenses(db)
 			CMD()
 		case "history", "h":
 			PrintHistory(db)

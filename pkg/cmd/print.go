@@ -10,8 +10,7 @@ import (
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
-
-func PrintVKFINANCE(db []database.History) string{
+func PrintCLI(db []database.History) string {
 
 	util.PrintGray("============================================\n")
 	util.PrintGray("============== VK FINANCE v1.1 =============\n")
@@ -33,6 +32,7 @@ func PrintVKFINANCE(db []database.History) string{
 
 	return input
 }
+
 func PrintFinanceStats(db []database.History) {
 
 	myStats := database.SetFinanceStats(db)
@@ -50,7 +50,7 @@ func PrintFinanceStats(db []database.History) {
 	util.PrintGreen(fmt.Sprintf("%.2f", myStats["DayBudget"]) + " EUR")
 	util.PrintCyan(" | ")
 	util.PrintRed(fmt.Sprintf("%.2f", myStats["DayBudgetSpent"]) + " EUR")
-	
+
 	util.PrintCyan("\nWeek Budget: ")
 	util.PrintGreen(fmt.Sprintf("%.2f", myStats["WeekBudget"]) + " EUR")
 	util.PrintCyan(" | ")
@@ -125,7 +125,7 @@ func PrintSortedHistory(db []database.History) {
 				util.PrintRed(k + ": " + fmt.Sprintf("%f", myMap[k]) + "\n")
 
 			}
-			
+
 		}
 
 	}

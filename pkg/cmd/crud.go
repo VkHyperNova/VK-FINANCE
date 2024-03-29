@@ -2,27 +2,36 @@ package cmd
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"time"
+
 	"github.com/VkHyperNova/VK-FINANCE/pkg/database"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
-func AddIncome() {
+func AddIncome(db []database.History) {
 
 	comment := GetComment()
 	sum := GetSum()
 
 	database.SaveDatabase(sum, comment)
+
+	myStats := database.SetFinanceStats(db)
+	util.PrintCyan("INCOME: ")
+	util.PrintGreen("+" + fmt.Sprintf("%.2f", myStats["INCOME"]) + " EUR")
 	util.PressAnyKey()
 }
 
-func AddExpenses() {
+func AddExpenses(db []database.History) {
 
 	comment := GetComment()
 	sum := GetSum()
 	
 	database.SaveDatabase(-1*sum, comment)
+	myStats := database.SetFinanceStats(db)
+	util.PrintCyan("\nEXPENSES: ")
+	util.PrintRed(fmt.Sprintf("%.2f", myStats["EXPENSES"]) + " EUR")
 	util.PressAnyKey()
 }
 
