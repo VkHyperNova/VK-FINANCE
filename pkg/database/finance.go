@@ -98,22 +98,42 @@ func DaySpending(db []History) {
 		Value float64
 	}
 
-	 // Convert the map to a slice of key-value pairs
-	 var keyValueSlice []KeyValue
-	 for k, v := range DaySpent {
-		 keyValueSlice = append(keyValueSlice, KeyValue{k, v})
-	 }
+	// Convert the map to a slice of key-value pairs
+	var keyValueSlice []KeyValue
+	for k, v := range DaySpent {
+		keyValueSlice = append(keyValueSlice, KeyValue{k, v})
+	}
+
+	// Sort the slice by keys
+	sort.Slice(keyValueSlice, func(i, j int) bool {
+		return keyValueSlice[i].Key.Before(keyValueSlice[j].Key)
+	})
+
+	// Print the sorted map
+	util.PrintCyan("DAY SUMMARY\n")
+	for _, kv := range keyValueSlice {
+		// fmt.Printf("(%s) %s: %.2f\n", kv.Key.Format("02-01-2006"),kv.Key.Weekday(), kv.Value)
+		util.PrintPurple("(" +kv.Key.Format("02-01-2006") + ") ")
+		util.PrintGray(kv.Key.Weekday().String() + ": ")
+		util.PrintRed(fmt.Sprintf("%.2f", kv.Value)+ "\n")
+	}
+
+	 
+	//  var keyValueSlice []KeyValue
+	//  for k, v := range DaySpent {
+	// 	 keyValueSlice = append(keyValueSlice, KeyValue{k, v})
+	//  }
  
-	 // Sort the slice by day
-	 sort.Slice(keyValueSlice, func(i, j int) bool {
-		 return keyValueSlice[i].Key.Day() < keyValueSlice[j].Key.Day()
-	 })
+	
+	//  sort.Slice(keyValueSlice, func(i, j int) bool {
+	// 	 return keyValueSlice[i].Key.Day() < keyValueSlice[j].Key.Day()
+	//  })
  
-	 // Print the sorted map
-	 util.PrintCyan("DAY \n")
-	 for _, kv := range keyValueSlice {
-		 fmt.Printf("(%d) %s: %.2f\n",kv.Key.Day(),kv.Key.Weekday(), kv.Value)
-	 }
+	 
+	//  util.PrintCyan("DAY \n")
+	//  for _, kv := range keyValueSlice {
+	// 	 fmt.Printf("(%s) %s: %.2f\n",kv.Key.Format("02-01-2006"),kv.Key.Weekday(), kv.Value)
+	//  }
 }
 
 func GetDayFromString(dateString string) time.Time {
