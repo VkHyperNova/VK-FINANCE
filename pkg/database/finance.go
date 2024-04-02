@@ -2,7 +2,11 @@ package database
 
 import (
 	"encoding/json"
+	"fmt"
+	"sort"
+
 	"time"
+
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
@@ -44,6 +48,7 @@ func SaveDatabase(Value float64, Comment string) {
 }
 
 var RESTART_BALANCE float64
+
 func SetFinanceStats(db []History) map[string]float64 {
 	income := 0.0
 	expenses := 0.0
@@ -76,17 +81,46 @@ func SetFinanceStats(db []History) map[string]float64 {
 	Budget := BALANCE - SAVING
 	myStats["Budget"] = Budget
 
-	DayBudget := (INCOME - SAVING) / 31
-	myStats["DayBudget"] = DayBudget
-
-	DayBudgetSpent := EXPENSES / 31
-	myStats["DayBudgetSpent"] = DayBudgetSpent
-
-	WeekBudget := ((INCOME - SAVING) / 31) * 7
-	myStats["WeekBudget"] = WeekBudget
-
-	WeekBudgetSpent := (EXPENSES / 31) * 7
-	myStats["WeekBudgetSpent"] = WeekBudgetSpent
-
 	return myStats
+}
+
+func DaySpending(db []History) {
+
+	DaySpent := make(map[time.Time]float64)
+	fmt.Println()
+	for _, item := range db {
+		DaySpent[GetDayFromString(item.DATE)] += item.VALUE
+	}
+
+
+	type KeyValue struct {
+		Key   time.Time
+		Value float64
+	}
+
+	 // Convert the map to a slice of key-value pairs
+	 var keyValueSlice []KeyValue
+	 for k, v := range DaySpent {
+		 keyValueSlice = append(keyValueSlice, KeyValue{k, v})
+	 }
+ 
+	 // Sort the slice by day
+	 sort.Slice(keyValueSlice, func(i, j int) bool {
+		 return keyValueSlice[i].Key.Day() < keyValueSlice[j].Key.Day()
+	 })
+ 
+	 // Print the sorted map
+	 util.PrintCyan("DAY \n")
+	 for _, kv := range keyValueSlice {
+		 fmt.Printf("(%d) %s: %.2f\n",kv.Key.Day(),kv.Key.Weekday(), kv.Value)
+	 }
+}
+
+func GetDayFromString(dateString string) time.Time {
+	date, err := time.Parse("02-01-2006", dateString)
+	if err != nil {
+		fmt.Println("Error parsing date:", err)
+	}
+
+	return date
 }

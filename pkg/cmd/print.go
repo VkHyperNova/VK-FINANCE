@@ -11,7 +11,6 @@ import (
 )
 
 func PrintCLI(db []database.History) string {
-
 	util.PrintGray("============================================\n")
 	util.PrintGray("============== VK FINANCE v1.1 =============\n")
 	util.PrintGray("============================================\n")
@@ -37,6 +36,8 @@ func PrintFinanceStats(db []database.History) {
 
 	myStats := database.SetFinanceStats(db)
 
+	database.DaySpending(db)
+
 	util.PrintCyan("\nNET WORTH: ")
 	util.PrintGreen(fmt.Sprintf("%.2f", myStats["NET_WORTH"]) + " EUR\n\n")
 
@@ -45,16 +46,6 @@ func PrintFinanceStats(db []database.History) {
 
 	util.PrintCyan("\nEXPENSES: ")
 	util.PrintRed(fmt.Sprintf("%.2f", myStats["EXPENSES"]) + " EUR")
-
-	util.PrintCyan("\n\nDay Budget: ")
-	util.PrintGreen(fmt.Sprintf("%.2f", myStats["DayBudget"]) + " EUR")
-	util.PrintCyan(" | ")
-	util.PrintRed(fmt.Sprintf("%.2f", myStats["DayBudgetSpent"]) + " EUR")
-
-	util.PrintCyan("\nWeek Budget: ")
-	util.PrintGreen(fmt.Sprintf("%.2f", myStats["WeekBudget"]) + " EUR")
-	util.PrintCyan(" | ")
-	util.PrintRed(fmt.Sprintf("%.2f", myStats["WeekBudgetSpent"]) + " EUR")
 
 	util.PrintCyan("\nSAVING (25%): ")
 	util.PrintGreen(fmt.Sprintf("%.2f", myStats["SAVING"]) + " EUR")
@@ -68,6 +59,8 @@ func PrintFinanceStats(db []database.History) {
 	} else {
 		util.PrintGreen(fmt.Sprintf("%.2f", myStats["Budget"]) + " EUR")
 	}
+
+	
 }
 
 func PrintSortedHistory(db []database.History) {
