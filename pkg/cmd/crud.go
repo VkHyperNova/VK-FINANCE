@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/VkHyperNova/VK-FINANCE/pkg/database"
@@ -12,27 +13,42 @@ import (
 
 func AddIncome(db []database.History) {
 
-	comment := GetComment()
+	item := GetComment()
 	sum := GetSum()
 
-	database.SaveDatabase(sum, comment)
+	database.SaveDatabase(sum, item)
 
-	myStats := database.SetFinanceStats(db)
-	util.PrintCyan("INCOME: ")
-	util.PrintGreen("+" + fmt.Sprintf("%.2f", myStats["INCOME"]) + " EUR")
+	sumOfItem := FindDBItem(db, item) + sum
+	util.PrintCyan("\n" + item  + " = ")
+	util.PrintGreen(fmt.Sprintf("%.2f", sumOfItem) + " EUR")
+	
 	util.PressAnyKey()
 }
 
 func AddExpenses(db []database.History) {
 
-	comment := GetComment()
+	item := GetComment()
 	sum := GetSum()
 	
-	database.SaveDatabase(-1*sum, comment)
-	myStats := database.SetFinanceStats(db)
-	util.PrintCyan("\nEXPENSES: ")
-	util.PrintRed(fmt.Sprintf("%.2f", myStats["EXPENSES"]) + " EUR")
+	database.SaveDatabase(-1*sum, item)
+	
+	sumOfItem := FindDBItem(db, item) - sum
+	util.PrintCyan("\n" + item  + " = ")
+	util.PrintRed(fmt.Sprintf("%.2f", sumOfItem) + " EUR")
+
 	util.PressAnyKey()
+}
+
+func FindDBItem(db []database.History, comment string) float64 {
+	sumOfItem := 0.0
+
+	for _, value := range db {
+		if strings.EqualFold(value.COMMENT, comment) {
+			sumOfItem += value.VALUE
+		}
+	}
+
+	return sumOfItem
 }
 
 func QuitCheck(s string) {

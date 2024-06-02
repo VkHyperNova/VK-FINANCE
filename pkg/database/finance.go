@@ -112,28 +112,10 @@ func DaySpending(db []History) {
 	// Print the sorted map
 	util.PrintCyan("DAY SUMMARY\n")
 	for _, kv := range keyValueSlice {
-		// fmt.Printf("(%s) %s: %.2f\n", kv.Key.Format("02-01-2006"),kv.Key.Weekday(), kv.Value)
 		util.PrintPurple("(" +kv.Key.Format("02-01-2006") + ") ")
 		util.PrintGray(kv.Key.Weekday().String() + ": ")
 		util.PrintRed(fmt.Sprintf("%.2f", kv.Value)+ "\n")
 	}
-
-	 
-	//  var keyValueSlice []KeyValue
-	//  for k, v := range DaySpent {
-	// 	 keyValueSlice = append(keyValueSlice, KeyValue{k, v})
-	//  }
- 
-	
-	//  sort.Slice(keyValueSlice, func(i, j int) bool {
-	// 	 return keyValueSlice[i].Key.Day() < keyValueSlice[j].Key.Day()
-	//  })
- 
-	 
-	//  util.PrintCyan("DAY \n")
-	//  for _, kv := range keyValueSlice {
-	// 	 fmt.Printf("(%s) %s: %.2f\n",kv.Key.Format("02-01-2006"),kv.Key.Weekday(), kv.Value)
-	//  }
 }
 
 func GetDayFromString(dateString string) time.Time {

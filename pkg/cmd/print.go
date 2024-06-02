@@ -59,8 +59,6 @@ func PrintFinanceStats(db []database.History) {
 	} else {
 		util.PrintGreen(fmt.Sprintf("%.2f", myStats["Budget"]) + " EUR")
 	}
-
-	
 }
 
 func PrintSortedHistory(db []database.History) {
@@ -108,7 +106,7 @@ func PrintSortedHistory(db []database.History) {
 
 	util.PrintCyan("\nEXPENSES\n")
 
-	importantExpences := []string{"arved", "food", "trenn", "saun", "bensiin"}
+	importantExpences := []string{"arved", "food", "trenn", "saun", "bensiin", "e-smoke", "weed", "other"}
 
 	for _, k := range keys {
 		if myMap[k] < 0 {
