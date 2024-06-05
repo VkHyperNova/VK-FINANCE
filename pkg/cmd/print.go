@@ -3,20 +3,22 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	"github.com/VkHyperNova/VK-FINANCE/pkg/database"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
 func PrintCLI(db []database.History) string {
-	util.PrintGrayString("============================================\n")
-	util.PrintGrayString("============== VK FINANCE v1.1 =============\n")
-	util.PrintGrayString("============================================\n")
+
+	util.PrintCyanString("<============= VK FINANCE v1.1 ============>\n\n")
+
 	PrintIncomeByType(db)
-	util.PrintGrayString("============================================\n")
+	util.PrintCyanString("\n============== Expences ====================\n\n")
 	PrintExpencesByType(db)
-	util.PrintGrayString("============================================\n")
+	util.PrintCyanString("\n============== Summary =====================\n\n")
 	PrintFinanceStats(db)
-	util.PrintGrayString("\n============================================\n")
+	fmt.Println("\n")
 
 	commands := [5]string{"add", "spend", "history", "backup", "q"}
 	for _, value := range commands {
@@ -43,18 +45,25 @@ func PrintFinanceStats(db []database.History) {
 	util.PrintRedString(fmt.Sprintf("%.2f", myStats["EXPENSES"]) + " EUR")
 
 	util.PrintCyanString("\nBALANCE: ")
-	util.PrintGreenString("+" + fmt.Sprintf("%.2f", myStats["INCOME"] + myStats["EXPENSES"]) + " EUR")	
+	util.PrintGreenString("+" + fmt.Sprintf("%.2f", myStats["INCOME"]+myStats["EXPENSES"]) + " EUR")
 }
 
 func PrintExpencesByType(db []database.History) {
 
-	importantExpences := []string{"arved", "food", "trenn", "saun", "bensiin", "e-smoke", "vanemad", "weed", "other"}
+	importantExpences := []string{"arved", "food", "trenn", "saun", "bensiin", "e-smoke", "vanemad", "weed", "other", "oldbalance"}
 
 	for _, item := range importantExpences {
 		itemValue := CountItemValue(item, db)
-		util.PrintRedString(item + " ")
-		util.PrintRedFloat(itemValue)
-		fmt.Println()
+		if itemValue > 0 {
+			util.PrintCyanString(strings.ToUpper(item) + ": ")
+			util.PrintGreenString("+")
+			util.PrintGreenFloat(itemValue)
+			util.PrintGreenString(" EUR\n")
+		} else {
+			util.PrintCyanString(strings.ToUpper(item) + ": ")
+			util.PrintRedFloat(itemValue)
+			util.PrintRedString(" EUR\n")
+		}
 	}
 }
 
@@ -64,9 +73,10 @@ func PrintIncomeByType(db []database.History) {
 
 	for _, item := range importantIncome {
 		itemValue := CountItemValue(item, db)
-		util.PrintGreenString(item + " ")
+		util.PrintCyanString(strings.ToUpper(item) + ": ")
+		util.PrintGreenString("+")
 		util.PrintGreenFloat(itemValue)
-		fmt.Println()
+		util.PrintGreenString(" EUR\n")
 	}
 }
 
