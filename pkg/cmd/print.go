@@ -36,7 +36,7 @@ func PrintFinanceStats(db []database.History) {
 
 	myStats := database.SetFinanceStats(db)
 
-	database.DaySpending(db)
+	// database.DaySpending(db)
 
 	util.PrintCyan("\nNET WORTH: ")
 	util.PrintGreen(fmt.Sprintf("%.2f", myStats["NET_WORTH"]) + " EUR\n\n")
