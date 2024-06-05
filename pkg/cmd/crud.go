@@ -19,9 +19,9 @@ func AddIncome(db []database.History) {
 	database.SaveDatabase(sum, item)
 
 	sumOfItem := FindDBItem(db, item) + sum
-	util.PrintCyan("\n" + item  + " = ")
-	util.PrintGreen(fmt.Sprintf("%.2f", sumOfItem) + " EUR")
-	
+	util.PrintCyanString("\n" + item + " = ")
+	util.PrintGreenString(fmt.Sprintf("%.2f", sumOfItem) + " EUR")
+
 	util.PressAnyKey()
 }
 
@@ -29,12 +29,12 @@ func AddExpenses(db []database.History) {
 
 	item := GetComment()
 	sum := GetSum()
-	
+
 	database.SaveDatabase(-1*sum, item)
-	
+
 	sumOfItem := FindDBItem(db, item) - sum
-	util.PrintCyan("\n" + item  + " = ")
-	util.PrintRed(fmt.Sprintf("%.2f", sumOfItem) + " EUR")
+	util.PrintCyanString("\n" + item + " = ")
+	util.PrintRedString(fmt.Sprintf("%.2f", sumOfItem) + " EUR")
 
 	util.PressAnyKey()
 }
@@ -53,7 +53,7 @@ func FindDBItem(db []database.History, comment string) float64 {
 
 func QuitCheck(s string) {
 	if s == "q" || s == "Q" {
-		util.PrintRed("\n<< Command Canceled! >>\n")
+		util.PrintRedString("\n<< Command Canceled! >>\n")
 		util.PressAnyKey()
 		CMD()
 	}
@@ -66,14 +66,14 @@ func GetComment() string {
 }
 
 func GetSum() float64 {
-	start:
+start:
 	sum := util.UserInputString("Spend Sum: ")
 	QuitCheck(sum)
 
 	float, err := strconv.ParseFloat(sum, 64)
 
 	if util.HandleError(err) {
-		util.PrintPurple("<< Enter a number! >>\n\n")
+		util.PrintPurpleString("<< Enter a number! >>\n\n")
 		goto start
 	}
 

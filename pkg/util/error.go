@@ -3,7 +3,7 @@ package util
 /* Error Handling */
 func HandleError(err error) bool {
 	if err != nil {
-		PrintRed(err.Error() + "\n")
+		PrintRedString(err.Error() + "\n")
 		return true
 	}
 

@@ -15,30 +15,65 @@ const (
 	Gray   = "\033[37m"
 )
 
-func PrintRed(a string) {
+/* Red */
+func PrintRedString(a string) {
 	fmt.Print(Red + a + Reset)
 }
 
-func PrintGreen(a string) {
+func PrintRedFloat(a float64) {
+	fmt.Print(Red, a, Reset)
+}
+
+/* Green */
+func PrintGreenString(a string) {
 	fmt.Print(Green + a + Reset)
 }
 
-func PrintYellow(a string) {
-	fmt.Print(Yellow + a + Reset)
-} 
+func PrintGreenFloat(a float64) {
+	fmt.Print(Green, a, Reset)
+}
 
-func PrintBlue(a string) {
+/* Yellow */
+func PrintYellowString(a string) {
+	fmt.Print(Yellow + a + Reset)
+}
+
+func PrintYellowFloat(a float64) {
+	fmt.Print(Yellow, a, Reset)
+}
+
+/* Blue */
+func PrintBlueString(a string) {
 	fmt.Print(Blue + a + Reset)
 }
 
-func PrintPurple(a string) {
+func PrintBlueFloat(a float64) {
+	fmt.Print(Blue, a, Reset)
+}
+
+/* Purple */
+func PrintPurpleString(a string) {
 	fmt.Print(Purple + a + Reset)
 }
 
-func PrintCyan(a string) {
+func PrintPurpleFloat(a float64) {
+	fmt.Print(Purple, a, Reset)
+}
+
+/* Cyan */
+func PrintCyanString(a string) {
 	fmt.Print(Cyan + a + Reset)
 }
 
-func PrintGray(a string) {
+func PrintCyanFloat(a float64) {
+	fmt.Print(Cyan, a, Reset)
+}
+
+/* Gray */
+func PrintGrayString(a string) {
 	fmt.Print(Gray + a + Reset)
+}
+
+func PrintGrayFloat(a float64) {
+	fmt.Print(Gray, a, Reset)
 }

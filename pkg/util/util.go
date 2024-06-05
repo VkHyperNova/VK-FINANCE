@@ -22,29 +22,28 @@ func Contains(arr []string, name string) bool {
 }
 
 func UserInputFloat64(question string) float64 {
-	start:
-		var answer string
-		PrintCyan("\n" + question) 
-		fmt.Scanln(&answer)
-		
+start:
+	var answer string
+	PrintCyanString("\n" + question)
+	fmt.Scanln(&answer)
 
-		if answer == "" {
-			PrintRed("\nEnter a valid float!")
-			goto start
-		}
+	if answer == "" {
+		PrintRedString("\nEnter a valid float!")
+		goto start
+	}
 
-		floatValue, err := strconv.ParseFloat(answer, 64) 
-		HandleError(err)                                  
+	floatValue, err := strconv.ParseFloat(answer, 64)
+	HandleError(err)
 
-		if err != nil {
-			goto start 
-		}
+	if err != nil {
+		goto start
+	}
 
-		return floatValue
+	return floatValue
 }
 
 func UserInputString(question string) string {
-	PrintCyan(question)
+	PrintCyanString(question)
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	CommentString := scanner.Text()
@@ -54,7 +53,7 @@ func UserInputString(question string) string {
 }
 
 func PressAnyKey() {
-	PrintGray("\nPress Any Key To Continue...")
+	PrintGrayString("\nPress Any Key To Continue...")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 }
@@ -70,10 +69,3 @@ func ClearScreen() {
 		cmd.Run()
 	}
 }
-
-
-
-
-
-
-

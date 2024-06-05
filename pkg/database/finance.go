@@ -44,7 +44,7 @@ func SaveDatabase(Value float64, Comment string) {
 	byteArray, err := json.MarshalIndent(db, "", " ")
 	util.HandleError(err)
 	util.WriteDataToFile("./history.json", byteArray)
-	util.PrintGreen("\n<< Success! >>\n")
+	util.PrintGreenString("\n<< Success! >>\n")
 }
 
 var RESTART_BALANCE float64
@@ -92,7 +92,6 @@ func DaySpending(db []History) {
 		DaySpent[GetDayFromString(item.DATE)] += item.VALUE
 	}
 
-
 	type KeyValue struct {
 		Key   time.Time
 		Value float64
@@ -110,11 +109,11 @@ func DaySpending(db []History) {
 	})
 
 	// Print the sorted map
-	util.PrintCyan("DAY SUMMARY\n")
+	util.PrintCyanString("DAY SUMMARY\n")
 	for _, kv := range keyValueSlice {
-		util.PrintPurple("(" +kv.Key.Format("02-01-2006") + ") ")
-		util.PrintGray(kv.Key.Weekday().String() + ": ")
-		util.PrintRed(fmt.Sprintf("%.2f", kv.Value)+ "\n")
+		util.PrintPurpleString("(" + kv.Key.Format("02-01-2006") + ") ")
+		util.PrintGrayString(kv.Key.Weekday().String() + ": ")
+		util.PrintRedString(fmt.Sprintf("%.2f", kv.Value) + "\n")
 	}
 }
 
