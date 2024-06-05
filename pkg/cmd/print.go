@@ -50,7 +50,7 @@ func PrintFinanceStats(db []database.History) {
 
 func PrintExpencesByType(db []database.History) {
 
-	importantExpences := []string{"arved", "food", "trenn", "saun", "bensiin", "e-smoke", "vanematele", "weed", "other", "oldbalance"}
+	importantExpences := []string{"arved", "food", "trenn", "saun", "bensiin", "e-smoke", "weed", "other", "oldbalance"}
 
 	for _, item := range importantExpences {
 		itemValue := CountItemValue(item, db)
@@ -69,7 +69,7 @@ func PrintExpencesByType(db []database.History) {
 
 func PrintIncomeByType(db []database.History) {
 
-	importantIncome := []string{"pension", "sotsiaal", "wolt", "bolt", "ema", "muu"}
+	importantIncome := []string{"pension", "sotsiaal", "wolt", "bolt", "muu"}
 
 	for _, item := range importantIncome {
 		itemValue := CountItemValue(item, db)
