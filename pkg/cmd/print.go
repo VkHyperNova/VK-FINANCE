@@ -54,15 +54,13 @@ func PrintExpencesByType(db []database.History) {
 
 	for _, item := range importantExpences {
 		itemValue := CountItemValue(item, db)
+		itemValueTwoDecimalPlaces := fmt.Sprintf("%.2f", itemValue)
 		if itemValue > 0 {
 			util.PrintCyanString(strings.ToUpper(item) + ": ")
-			util.PrintGreenString("+")
-			util.PrintGreenFloat(itemValue)
-			util.PrintGreenString(" EUR\n")
+			util.PrintGreenString("+" + itemValueTwoDecimalPlaces + " EUR\n")
 		} else {
 			util.PrintCyanString(strings.ToUpper(item) + ": ")
-			util.PrintRedFloat(itemValue)
-			util.PrintRedString(" EUR\n")
+			util.PrintRedString(itemValueTwoDecimalPlaces + " EUR\n")
 		}
 	}
 }
@@ -73,10 +71,10 @@ func PrintIncomeByType(db []database.History) {
 
 	for _, item := range importantIncome {
 		itemValue := CountItemValue(item, db)
+		itemValueTwoDecimalPlaces := fmt.Sprintf("%.2f", itemValue)
 		util.PrintCyanString(strings.ToUpper(item) + ": ")
-		util.PrintGreenString("+")
-		util.PrintGreenFloat(itemValue)
-		util.PrintGreenString(" EUR\n")
+		util.PrintGreenString("+" + itemValueTwoDecimalPlaces + " EUR\n")
+		
 	}
 }
 
