@@ -45,7 +45,7 @@ func PrintFinanceStats(db []database.History) {
 	util.PrintRedString(fmt.Sprintf("%.2f", myStats["EXPENSES"]) + " EUR")
 
 	util.PrintCyanString("\nBALANCE: ")
-	util.PrintGreenString("+" + fmt.Sprintf("%.2f", myStats["INCOME"]+myStats["EXPENSES"]) + " EUR")
+	util.PrintGreenString(fmt.Sprintf("%.2f", myStats["INCOME"]+myStats["EXPENSES"]) + " EUR")
 }
 
 func PrintExpencesByType(db []database.History) {
