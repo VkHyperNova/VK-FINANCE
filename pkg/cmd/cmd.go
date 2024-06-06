@@ -24,12 +24,15 @@ func CMD() {
 			Add(db, false)
 			CMD()
 		case "history", "h":
-			PrintHistory(db)
+			ShowHistory(db)
+			CMD()
+		case "day", "d":
+			ShowDaySpending(db)
 			CMD()
 		case "backup":
 			Backup(db)
 			CMD()
-		case "q":
+		case "quit", "q":
 			util.ClearScreen()
 			os.Exit(0)
 		default:

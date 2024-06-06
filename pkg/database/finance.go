@@ -2,11 +2,8 @@ package database
 
 import (
 	"encoding/json"
-	"fmt"
-	"sort"
-
+	"strings"
 	"time"
-
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
@@ -47,44 +44,14 @@ func SaveDatabase(Value float64, Comment string) {
 	util.PrintGreenString("\n<< Success! >>\n")
 }
 
-func DaySpending(db []History) {
+func FindDBItem(db []History, comment string) float64 {
 
-	DaySpent := make(map[time.Time]float64)
-	fmt.Println()
-	for _, item := range db {
-		DaySpent[GetDayFromString(item.DATE)] += item.VALUE
+	sumOfItem := 0.0
+
+	for _, value := range db {
+		if strings.EqualFold(value.COMMENT, comment) {
+			sumOfItem += value.VALUE
+		}
 	}
-
-	type KeyValue struct {
-		Key   time.Time
-		Value float64
-	}
-
-	// Convert the map to a slice of key-value pairs
-	var keyValueSlice []KeyValue
-	for k, v := range DaySpent {
-		keyValueSlice = append(keyValueSlice, KeyValue{k, v})
-	}
-
-	// Sort the slice by keys
-	sort.Slice(keyValueSlice, func(i, j int) bool {
-		return keyValueSlice[i].Key.Before(keyValueSlice[j].Key)
-	})
-
-	// Print the sorted map
-	util.PrintCyanString("DAY SUMMARY\n")
-	for _, kv := range keyValueSlice {
-		util.PrintPurpleString("(" + kv.Key.Format("02-01-2006") + ") ")
-		util.PrintGrayString(kv.Key.Weekday().String() + ": ")
-		util.PrintRedString(fmt.Sprintf("%.2f", kv.Value) + "\n")
-	}
-}
-
-func GetDayFromString(dateString string) time.Time {
-	date, err := time.Parse("02-01-2006", dateString)
-	if err != nil {
-		fmt.Println("Error parsing date:", err)
-	}
-
-	return date
+	return sumOfItem
 }

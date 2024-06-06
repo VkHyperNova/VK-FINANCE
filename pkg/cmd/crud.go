@@ -3,8 +3,8 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/VkHyperNova/VK-FINANCE/pkg/database"
@@ -12,7 +12,7 @@ import (
 )
 
 func Add(db []database.History, income bool) {
-	
+
 	item := GetComment()
 	sum := GetSum()
 
@@ -21,29 +21,88 @@ func Add(db []database.History, income bool) {
 	if income {
 		/* Add */
 		database.SaveDatabase(sum, item)
-		sumOfItem = FindDBItem(db, item) + sum
+		sumOfItem = database.FindDBItem(db, item) + sum
 	} else {
 		/* Spend */
 		database.SaveDatabase(-1*sum, item)
-		sumOfItem = FindDBItem(db, item) - sum
+		sumOfItem = database.FindDBItem(db, item) - sum
 	}
 
 	util.PrintCyanString("\n" + item + " = ")
-	util.PrintGreenString(fmt.Sprintf("%.2f", sumOfItem) + " EUR")
+
+	if income {
+		/* Print Green */
+		util.PrintGreenString(fmt.Sprintf("%.2f", sumOfItem) + " EUR")
+	} else {
+		/* Print Red */
+		util.PrintRedString(fmt.Sprintf("%.2f", sumOfItem) + " EUR")
+	}
 
 	util.PressAnyKey()
 }
 
-func FindDBItem(db []database.History, comment string) float64 {
-	sumOfItem := 0.0
-
+func ShowHistory(db []database.History) {
+	util.PrintCyanString("History: \n\n")
 	for _, value := range db {
-		if strings.EqualFold(value.COMMENT, comment) {
-			sumOfItem += value.VALUE
+		val, err := json.Marshal(value.VALUE)
+		util.HandleError(err)
+		if value.VALUE < 0 {
+			util.PrintRedString(" " + value.DATE + " " + value.TIME + " " + value.COMMENT + " " + string(val) + "\n")
+		} else {
+			util.PrintGreenString(" " + value.DATE + " " + value.TIME + " " + value.COMMENT + " " + string(val) + "\n")
 		}
 	}
+	util.PressAnyKey()
+}
 
-	return sumOfItem
+func ShowDaySpending(db []database.History) {
+
+	DaySpent := make(map[time.Time]float64)
+	fmt.Println()
+	for _, item := range db {
+		DaySpent[util.GetDayFromString(item.DATE)] += item.VALUE
+	}
+
+	type KeyValue struct {
+		Key   time.Time
+		Value float64
+	}
+
+	// Convert the map to a slice of key-value pairs
+	var keyValueSlice []KeyValue
+	for k, v := range DaySpent {
+		keyValueSlice = append(keyValueSlice, KeyValue{k, v})
+	}
+
+	// Sort the slice by keys
+	sort.Slice(keyValueSlice, func(i, j int) bool {
+		return keyValueSlice[i].Key.Before(keyValueSlice[j].Key)
+	})
+
+	// Print the sorted map
+	util.PrintCyanString("DAY SUMMARY\n")
+	for _, kv := range keyValueSlice {
+		util.PrintPurpleString("(" + kv.Key.Format("02-01-2006") + ") ")
+		util.PrintGrayString(kv.Key.Weekday().String() + ": ")
+		util.PrintRedString(fmt.Sprintf("%.2f", kv.Value) + "\n")
+	}
+	util.PressAnyKey()
+}
+
+func Backup(db []database.History) {
+	currentTime := time.Now()
+	previousMonth := currentTime.AddDate(0, -1, 0).Format("January2006")
+
+	byteArray, err := json.MarshalIndent(db, "", " ")
+	util.HandleError(err)
+
+	util.WriteDataToFile("./history/history_json/"+previousMonth+".json", byteArray)
+
+	util.RemoveFile("./history.json")
+	util.WriteDataToFile("./history.json", []byte("[]"))
+
+	database.SaveDatabase(BACKUP_BALANCE, "oldbalance")
+	util.PressAnyKey()
 }
 
 func QuitCheck(s string) {
@@ -73,20 +132,4 @@ start:
 	}
 
 	return float
-}
-
-func Backup(db []database.History) {
-	currentTime := time.Now()
-	previousMonth := currentTime.AddDate(0, -1, 0).Format("January2006")
-
-	byteArray, err := json.MarshalIndent(db, "", " ")
-	util.HandleError(err)
-
-	util.WriteDataToFile("./history/history_json/"+previousMonth+".json", byteArray)
-
-	util.RemoveFile("./history.json")
-	util.WriteDataToFile("./history.json", []byte("[]"))
-
-	database.SaveDatabase(BACKUP_BALANCE, "oldbalance")
-	util.PressAnyKey()
 }

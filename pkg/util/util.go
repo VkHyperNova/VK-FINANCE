@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 )
 
 /* Other Functions */
@@ -68,4 +69,13 @@ func ClearScreen() {
 		cmd.Stdout = os.Stdout
 		cmd.Run()
 	}
+}
+
+func GetDayFromString(dateString string) time.Time {
+	date, err := time.Parse("02-01-2006", dateString)
+	if err != nil {
+		fmt.Println("Error parsing date:", err)
+	}
+
+	return date
 }

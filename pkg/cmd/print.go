@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -13,14 +12,13 @@ func PrintCLI(db []database.History) string {
 
 	util.PrintCyanString("<============= VK FINANCE v1.1 ============>\n\n")
 
-	PrintIncomeByType(db)
+	PrintIncomeItems(db)
 	util.PrintCyanString("\n============== Expences ====================\n\n")
-	PrintExpencesByType(db)
+	PrintExpencesItems(db)
 	util.PrintCyanString("\n============== Summary =====================\n\n")
 	PrintFinanceStats(db)
-	fmt.Println("\n")
 
-	commands := [5]string{"add", "spend", "history", "backup", "q"}
+	commands := [6]string{"add", "spend", "history", "day", "backup", "q"}
 	for _, value := range commands {
 		util.PrintCyanString("[")
 		util.PrintYellowString(value)
@@ -35,7 +33,6 @@ func PrintCLI(db []database.History) string {
 }
 
 var BACKUP_BALANCE float64
-
 func PrintFinanceStats(db []database.History) {
 
 	income := 0.0
@@ -59,10 +56,10 @@ func PrintFinanceStats(db []database.History) {
 	util.PrintRedString(fmt.Sprintf("%.2f", expenses) + " EUR")
 
 	util.PrintCyanString("\nBALANCE: ")
-	util.PrintGreenString(fmt.Sprintf("%.2f", income + expenses) + " EUR")
+	util.PrintGreenString(fmt.Sprintf("%.2f", income + expenses) + " EUR\n")
 }
 
-func PrintExpencesByType(db []database.History) {
+func PrintExpencesItems(db []database.History) {
 
 	importantExpences := []string{"arved", "food", "saun", "bensiin", "e-smoke", "weed", "other", "oldbalance"}
 
@@ -79,7 +76,7 @@ func PrintExpencesByType(db []database.History) {
 	}
 }
 
-func PrintIncomeByType(db []database.History) {
+func PrintIncomeItems(db []database.History) {
 
 	importantIncome := []string{"pension", "sotsiaal", "wolt", "bolt", "muu"}
 
@@ -105,16 +102,4 @@ func CountItemValue(item string, db []database.History) float64 {
 	return itemValue
 }
 
-func PrintHistory(db []database.History) {
-	util.PrintCyanString("History: \n\n")
-	for _, value := range db {
-		val, err := json.Marshal(value.VALUE)
-		util.HandleError(err)
-		if value.VALUE < 0 {
-			util.PrintRedString(" " + value.DATE + " " + value.TIME + " " + value.COMMENT + " " + string(val) + "\n")
-		} else {
-			util.PrintGreenString(" " + value.DATE + " " + value.TIME + " " + value.COMMENT + " " + string(val) + "\n")
-		}
-	}
-	util.PressAnyKey()
-}
+
