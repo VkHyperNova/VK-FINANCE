@@ -18,10 +18,10 @@ func CMD() {
 	for {
 		switch input {
 		case "add", "a":
-			AddIncome(db)
+			Add(db, true)
 			CMD()
 		case "spend", "s":
-			AddExpenses(db)
+			Add(db, false)
 			CMD()
 		case "history", "h":
 			PrintHistory(db)

@@ -11,30 +11,25 @@ import (
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
-func AddIncome(db []database.History) {
-
+func Add(db []database.History, income bool) {
+	
 	item := GetComment()
 	sum := GetSum()
 
-	database.SaveDatabase(sum, item)
+	sumOfItem := 0.0
 
-	sumOfItem := FindDBItem(db, item) + sum
+	if income {
+		/* Add */
+		database.SaveDatabase(sum, item)
+		sumOfItem = FindDBItem(db, item) + sum
+	} else {
+		/* Spend */
+		database.SaveDatabase(-1*sum, item)
+		sumOfItem = FindDBItem(db, item) - sum
+	}
+
 	util.PrintCyanString("\n" + item + " = ")
 	util.PrintGreenString(fmt.Sprintf("%.2f", sumOfItem) + " EUR")
-
-	util.PressAnyKey()
-}
-
-func AddExpenses(db []database.History) {
-
-	item := GetComment()
-	sum := GetSum()
-
-	database.SaveDatabase(-1*sum, item)
-
-	sumOfItem := FindDBItem(db, item) - sum
-	util.PrintCyanString("\n" + item + " = ")
-	util.PrintRedString(fmt.Sprintf("%.2f", sumOfItem) + " EUR")
 
 	util.PressAnyKey()
 }

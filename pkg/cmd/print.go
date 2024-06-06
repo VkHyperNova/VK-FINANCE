@@ -37,7 +37,7 @@ func PrintCLI(db []database.History) string {
 var BACKUP_BALANCE float64
 
 func PrintFinanceStats(db []database.History) {
-	
+
 	income := 0.0
 	expenses := 0.0
 
