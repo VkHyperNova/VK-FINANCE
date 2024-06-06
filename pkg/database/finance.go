@@ -47,43 +47,6 @@ func SaveDatabase(Value float64, Comment string) {
 	util.PrintGreenString("\n<< Success! >>\n")
 }
 
-var RESTART_BALANCE float64
-
-func SetFinanceStats(db []History) map[string]float64 {
-	income := 0.0
-	expenses := 0.0
-	for _, item := range db {
-		if item.VALUE < 0 {
-			expenses += item.VALUE
-		} else {
-			income += item.VALUE
-		}
-
-	}
-	myStats := make(map[string]float64)
-
-	NET_WORTH := 1300.0
-	myStats["NET_WORTH"] = NET_WORTH
-
-	INCOME := income
-	myStats["INCOME"] = INCOME
-
-	EXPENSES := expenses
-	myStats["EXPENSES"] = EXPENSES
-
-	BALANCE := income + expenses // income + (-expenses)
-	myStats["BALANCE"] = BALANCE
-	RESTART_BALANCE = BALANCE
-
-	SAVING := income * 0.25
-	myStats["SAVING"] = SAVING
-
-	Budget := BALANCE - SAVING
-	myStats["Budget"] = Budget
-
-	return myStats
-}
-
 func DaySpending(db []History) {
 
 	DaySpent := make(map[time.Time]float64)

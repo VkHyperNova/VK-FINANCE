@@ -34,18 +34,32 @@ func PrintCLI(db []database.History) string {
 	return input
 }
 
-func PrintFinanceStats(db []database.History) {
+var BACKUP_BALANCE float64
 
-	myStats := database.SetFinanceStats(db)
+func PrintFinanceStats(db []database.History) {
+	
+	income := 0.0
+	expenses := 0.0
+
+	for _, item := range db {
+		if item.VALUE < 0 {
+			expenses += item.VALUE
+		} else {
+			income += item.VALUE
+		}
+
+	}
+
+	BACKUP_BALANCE = income + expenses // income + (-expenses)
 
 	util.PrintCyanString("INCOME: ")
-	util.PrintGreenString("+" + fmt.Sprintf("%.2f", myStats["INCOME"]) + " EUR")
+	util.PrintGreenString("+" + fmt.Sprintf("%.2f", income) + " EUR")
 
 	util.PrintCyanString("\nEXPENSES: ")
-	util.PrintRedString(fmt.Sprintf("%.2f", myStats["EXPENSES"]) + " EUR")
+	util.PrintRedString(fmt.Sprintf("%.2f", expenses) + " EUR")
 
 	util.PrintCyanString("\nBALANCE: ")
-	util.PrintGreenString(fmt.Sprintf("%.2f", myStats["INCOME"]+myStats["EXPENSES"]) + " EUR")
+	util.PrintGreenString(fmt.Sprintf("%.2f", income + expenses) + " EUR")
 }
 
 func PrintExpencesByType(db []database.History) {

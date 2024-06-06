@@ -92,6 +92,6 @@ func Backup(db []database.History) {
 	util.RemoveFile("./history.json")
 	util.WriteDataToFile("./history.json", []byte("[]"))
 
-	database.SaveDatabase(database.RESTART_BALANCE, "oldbalance")
+	database.SaveDatabase(BACKUP_BALANCE, "oldbalance")
 	util.PressAnyKey()
 }
