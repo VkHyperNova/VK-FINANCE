@@ -20,12 +20,12 @@ func Add(db []database.History, income bool) {
 
 	if income {
 		/* Add */
-		database.SaveDatabase(sum, item)
-		sumOfItem = database.FindDBItem(db, item) + sum
+		database.SaveToDatabase(sum, item)
+		sumOfItem = database.FindItemInDatabase(db, item) + sum
 	} else {
 		/* Spend */
-		database.SaveDatabase(-1*sum, item)
-		sumOfItem = database.FindDBItem(db, item) - sum
+		database.SaveToDatabase(-1*sum, item)
+		sumOfItem = database.FindItemInDatabase(db, item) - sum
 	}
 
 	util.PrintCyanString("\n" + item + " = ")
@@ -101,7 +101,7 @@ func Backup(db []database.History) {
 	util.RemoveFile("./history.json")
 	util.WriteDataToFile("./history.json", []byte("[]"))
 
-	database.SaveDatabase(BACKUP_BALANCE, "oldbalance")
+	database.SaveToDatabase(BACKUP_BALANCE, "oldbalance")
 	util.PressAnyKey()
 }
 

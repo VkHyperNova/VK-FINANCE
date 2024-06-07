@@ -64,8 +64,10 @@ func PrintExpencesItems(db []database.History) {
 	importantExpences := []string{"arved", "food", "saun", "bensiin", "e-smoke", "weed", "other", "oldbalance"}
 
 	for _, item := range importantExpences {
+
 		itemValue := CountItemValue(item, db)
 		itemValueTwoDecimalPlaces := fmt.Sprintf("%.2f", itemValue)
+
 		if itemValue > 0 {
 			util.PrintCyanString(strings.ToUpper(item) + ": ")
 			util.PrintGreenString("+" + itemValueTwoDecimalPlaces + " EUR\n")
@@ -81,11 +83,12 @@ func PrintIncomeItems(db []database.History) {
 	importantIncome := []string{"pension", "sotsiaal", "wolt", "bolt", "muu"}
 
 	for _, item := range importantIncome {
+
 		itemValue := CountItemValue(item, db)
 		itemValueTwoDecimalPlaces := fmt.Sprintf("%.2f", itemValue)
-		util.PrintCyanString(strings.ToUpper(item) + ": ")
-		util.PrintGreenString("+" + itemValueTwoDecimalPlaces + " EUR\n")
 		
+		util.PrintCyanString(strings.ToUpper(item) + ": ")
+		util.PrintGreenString("+" + itemValueTwoDecimalPlaces + " EUR\n")	
 	}
 }
 

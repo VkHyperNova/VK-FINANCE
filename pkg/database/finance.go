@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"strings"
 	"time"
+
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
@@ -16,16 +17,6 @@ type History struct {
 	VALUE   float64 `json:"value"`
 }
 
-func CompileHistoryEntry(value float64, comment string) History {
-	now := time.Now()
-	return History{
-		DATE:    now.Format("02-01-2006"),
-		TIME:    now.Format("15:04:05"),
-		COMMENT: comment,
-		VALUE:   value,
-	}
-}
-
 func OpenDatabase() []History {
 	OpenFile := util.ReadFile("./history.json")
 	JsonArray := []History{}
@@ -34,17 +25,31 @@ func OpenDatabase() []History {
 	return JsonArray
 }
 
-func SaveDatabase(Value float64, Comment string) {
+func SaveToDatabase(Value float64, Comment string) {
+
 	db := OpenDatabase()
-	NewItem := CompileHistoryEntry(Value, Comment)
+
+	now := time.Now()
+
+	NewItem := History{
+		DATE:    now.Format("02-01-2006"),
+		TIME:    now.Format("15:04:05"),
+		COMMENT: Comment,
+		VALUE:   Value,
+	}
+
 	db = append(db, NewItem)
+
 	byteArray, err := json.MarshalIndent(db, "", " ")
+
 	util.HandleError(err)
+
 	util.WriteDataToFile("./history.json", byteArray)
+
 	util.PrintGreenString("\n<< Success! >>\n")
 }
 
-func FindDBItem(db []History, comment string) float64 {
+func FindItemInDatabase(db []History, comment string) float64 {
 
 	sumOfItem := 0.0
 
