@@ -56,7 +56,12 @@ func PrintFinanceStats(db []database.History) {
 	util.PrintRedString(fmt.Sprintf("%.2f", expenses) + " EUR")
 
 	util.PrintCyanString("\nBALANCE: ")
-	util.PrintGreenString(fmt.Sprintf("%.2f", income + expenses) + " EUR\n")
+	if income + expenses < 0 {
+		util.PrintRedString(fmt.Sprintf("%.2f", income + expenses) + " EUR\n")
+	} else {
+		util.PrintGreenString(fmt.Sprintf("%.2f", income + expenses) + " EUR\n")
+	}
+	
 }
 
 func PrintExpencesItems(db []database.History) {
