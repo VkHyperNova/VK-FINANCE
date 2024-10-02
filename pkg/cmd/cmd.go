@@ -7,36 +7,42 @@ import (
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
-/* Main Functions */
+func CommandLine(history *database.History) {
 
-func CMD() {
-	util.ClearScreen()
-	db := database.OpenDatabase()
+	history.PrintCLI()
 
-	input := PrintCLI(db)
+	cmd := util.CommandPrompt()
 
 	for {
-		switch input {
+		switch cmd {
 		case "add", "a":
-			Add(db, true)
-			CMD()
+			if history.UserInput(cmd) {
+				history.SaveToFile()
+			}
+
+			util.PressAnyKey()
+			CommandLine(history)
 		case "spend", "s":
-			Add(db, false)
-			CMD()
+			if history.UserInput(cmd) {
+				history.SaveToFile()
+			}
+
+			util.PressAnyKey()
+			CommandLine(history)
 		case "history", "h":
-			ShowHistory(db)
-			CMD()
+			history.PrintHistory()
+			CommandLine(history)
 		case "day", "d":
-			ShowDaySpending(db)
-			CMD()
+			history.PrintDailySpending()
+			CommandLine(history)
 		case "backup":
-			Backup(db)
-			CMD()
+			history.Backup()
+			CommandLine(history)
 		case "quit", "q":
 			util.ClearScreen()
 			os.Exit(0)
 		default:
-			CMD()
+			CommandLine(history)
 		}
 	}
 }

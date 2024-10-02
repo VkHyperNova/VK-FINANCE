@@ -2,13 +2,15 @@ package main
 
 import (
 	"github.com/VkHyperNova/VK-FINANCE/pkg/cmd"
+	"github.com/VkHyperNova/VK-FINANCE/pkg/database"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
 //go:generate goversioninfo
 
 func main() {
-	util.ClearScreen()
 	util.ValidateRequiredFiles()
-	cmd.CMD()
+	history := database.History{}
+	history.ReadFromFile()
+	cmd.CommandLine(&history)
 }

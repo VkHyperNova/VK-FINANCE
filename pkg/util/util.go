@@ -6,42 +6,12 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
-	"strconv"
 	"strings"
 	"time"
+
 )
 
 /* Other Functions */
-
-func Contains(arr []string, name string) bool {
-	for _, n := range arr {
-		if n == name {
-			return true
-		}
-	}
-	return false
-}
-
-func UserInputFloat64(question string) float64 {
-start:
-	var answer string
-	PrintCyanString("\n" + question)
-	fmt.Scanln(&answer)
-
-	if answer == "" {
-		PrintRedString("\nEnter a valid float!")
-		goto start
-	}
-
-	floatValue, err := strconv.ParseFloat(answer, 64)
-	HandleError(err)
-
-	if err != nil {
-		goto start
-	}
-
-	return floatValue
-}
 
 func UserInputString(question string) string {
 	PrintCyanString(question)
@@ -78,4 +48,40 @@ func GetDayFromString(dateString string) time.Time {
 	}
 
 	return date
+}
+
+func CommandPrompt() string {
+	var input string
+	PrintGrayString("\n=> ")
+	fmt.Scanln(&input)
+	return input
+}
+
+func ValidateRequiredFiles() {
+
+	folderName := "history"
+
+	if _, err := os.Stat(folderName); os.IsNotExist(err) {
+		_ = os.Mkdir(folderName, 0700)
+		fmt.Println("history folder created!")
+	}
+
+	path := "./history.json"
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		err = os.WriteFile(path, []byte([]byte(`{"history": []}`)), 0644)
+		if err != nil {
+			panic(err)
+		}
+		PrintGrayString("\n=> " + path)
+	}
+}
+
+func WriteDataToFile(filename string, dataBytes []byte) {
+	var err = os.WriteFile(filename, dataBytes, 0644)
+	if err != nil {
+		panic(err)
+	}
+
+	PrintGreenString("\n=>" + filename + " saved!")
 }
