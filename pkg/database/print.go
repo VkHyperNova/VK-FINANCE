@@ -11,6 +11,10 @@ import (
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
+var INCOMESOURCES = []string{"pension", "sotsiaal", "wolt", "bolt", "muu"}
+var MAINEXPENCES = []string{"arved", "food", "saun", "bensiin", "e-smoke", "weed", "other", "oldbalance", "correction"}
+var OLDBALANCE float64
+
 func (h *History) PrintCLI() {
 
 	util.ClearScreen()

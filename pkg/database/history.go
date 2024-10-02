@@ -12,10 +12,3 @@ type HistoryItem struct {
 type History struct {
 	History []HistoryItem `json:"history"` // Slice containing multiple Quote instances.
 }
-
-var INCOMESOURCES = []string{"pension", "sotsiaal", "wolt", "bolt", "muu"}
-var MAINEXPENCES = []string{"arved", "food", "saun", "bensiin", "e-smoke", "weed", "other", "oldbalance", "correction"}
-
-var OLDBALANCE float64
-
-
