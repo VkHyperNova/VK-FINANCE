@@ -10,18 +10,13 @@ import (
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
-var MainPath = "./history.json"
-var MainPathBackup = "/media/veikko/VK DATA/DATABASES/FINANCE/history.json"
-
-var currentTime = time.Now()
-var previousMonth = currentTime.AddDate(0, -1, 0).Format("January2006")
-var HistoryPathBackup = "/media/veikko/VK DATA/DATABASES/FINANCE/" + previousMonth + ".json"
-
+var Path = "./history.json"
+var BackupPath = "/media/veikko/VK DATA/DATABASES/FINANCE/history.json"
+var HistoryPath = "/media/veikko/VK DATA/DATABASES/FINANCE/" + time.Now().AddDate(0, -1, 0).Format("January2006") + ".json"
 
 func (h *History) ReadFromFile() {
 
-
-	file, err := os.Open(MainPath)
+	file, err := os.Open(Path)
 	if err != nil {
 		panic(err)
 	}
@@ -48,16 +43,15 @@ func (h *History) SaveToFile() bool {
 	}
 
 	// Save to main path
-	util.WriteDataToFile(MainPath, byteArray)
+	util.WriteDataToFile(Path, byteArray)
 
 	// D-drive Backup
-	util.WriteDataToFile(MainPathBackup, byteArray)
+	util.WriteDataToFile(BackupPath, byteArray)
 
 	return true
 }
 
 func (h *History) Backup() {
-	
 
 	byteArray, err := json.MarshalIndent(h.History, "", " ")
 	if err != nil {
@@ -65,20 +59,26 @@ func (h *History) Backup() {
 	}
 
 	// D-drive history by month Backup
-	util.WriteDataToFile(HistoryPathBackup, byteArray)
+	util.WriteDataToFile(HistoryPath, byteArray)
 
 	// New history file
-	err = os.Remove(MainPath)
+	err = os.Remove(Path)
 	if err != nil {
 		panic(err)
-	}	
+	} else {
+		fmt.Println("\n" + Path + " Removed!")
+	}
 
 	// New history.json
-	util.WriteDataToFile(MainPath, []byte(`{"history": []}`))
+	util.WriteDataToFile(Path, []byte(`{"history": []}`))
 
-	// Add old balance
+	// Open new Empty DB
+	h.ReadFromFile()
+
+	// Append old balance
 	h.Append("old balance", OLDBALANCE)
 	h.SaveToFile()
+
 
 	util.PressAnyKey()
 }

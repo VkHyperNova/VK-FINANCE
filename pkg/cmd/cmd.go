@@ -16,14 +16,14 @@ func CommandLine(history *database.History) {
 	for {
 		switch cmd {
 		case "add", "a":
-			if history.UserInput(cmd) {
+			if history.GetUserInput(cmd) {
 				history.SaveToFile()
 			}
 
 			util.PressAnyKey()
 			CommandLine(history)
 		case "spend", "s":
-			if history.UserInput(cmd) {
+			if history.GetUserInput(cmd) {
 				history.SaveToFile()
 			}
 

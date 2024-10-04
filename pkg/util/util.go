@@ -8,12 +8,11 @@ import (
 	"runtime"
 	"strings"
 	"time"
-
 )
 
 /* Other Functions */
 
-func UserInputString(question string) string {
+func GetString(question string) string {
 	PrintCyanString(question)
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
@@ -85,3 +84,4 @@ func WriteDataToFile(filename string, dataBytes []byte) {
 
 	PrintGreenString("\n=>" + filename + " saved!")
 }
+

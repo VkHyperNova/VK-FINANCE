@@ -3,20 +3,23 @@ package database
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
-func (h *History) UserInput(cmd string) bool {
-	comment := util.UserInputString("Comment: ")
+func (h *History) GetUserInput(cmd string) bool {
+
+	comment := util.GetString("Comment: ")
 
 	if comment == "q" {
 		return false
 	}
 
-start:
-	sum := util.UserInputString("Sum: ")
+s2:
+	sum := util.GetString("Sum: ")
+
 	if sum == "q" {
 		return false
 	}
@@ -25,16 +28,24 @@ start:
 
 	if err != nil {
 		util.PrintPurpleString("<< Enter a number! >>\n\n")
-		goto start
+		goto s2
 	}
 
 	if cmd == "s" || cmd == "spend" {
-		h.Append(comment, -float)
-	} else {
-		h.Append(comment, float)
+		float = -float
 	}
 
-	sumOfItem := h.FindItemValue(comment)
+	h.Append(comment, float)
+
+	// Print summary
+	
+	sumOfItem := 0.0
+	for _, value := range h.History {
+		if strings.EqualFold(value.COMMENT, comment) {
+			sumOfItem += value.VALUE
+		}
+	}
+
 	util.PrintRedString(fmt.Sprintf("%.2f", sumOfItem) + " EUR")
 
 	return true
