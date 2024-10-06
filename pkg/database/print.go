@@ -12,7 +12,7 @@ import (
 )
 
 var INCOMESOURCES = []string{"pension", "wolt", "bolt", "muu"}
-var MAINEXPENCES = []string{"arved", "food", "saun", "bensiin", "e-smoke", "w", "other", "oldbalance", "correction"}
+var MAINEXPENCES = []string{"arved", "food", "catfood", "saun", "bensiin", "vape", "w", "other", "oldbalance", "correction"}
 var OLDBALANCE float64
 
 func (h *History) PrintCLI() {
