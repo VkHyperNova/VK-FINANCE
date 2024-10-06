@@ -8,6 +8,8 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/peterh/liner"
 )
 
 /* Other Functions */
@@ -23,7 +25,7 @@ func GetString(question string) string {
 }
 
 func PressAnyKey() {
-	PrintGrayString("\nPress Any Key To Continue...")
+	PrintGrayString("\n\nPress Any Key To Continue...")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 }
@@ -49,11 +51,16 @@ func GetDayFromString(dateString string) time.Time {
 	return date
 }
 
-func CommandPrompt() string {
-	var input string
-	PrintGrayString("\n=> ")
-	fmt.Scanln(&input)
-	return input
+func Input(prompt string) string {
+	line := liner.NewLiner()
+	defer line.Close()
+
+	// Prompt the user with the given prompt string and read userInput
+	userInput, err := line.Prompt(prompt)
+	if err != nil {
+		panic(err)
+	}
+	return userInput
 }
 
 func ValidateRequiredFiles() {
@@ -82,6 +89,15 @@ func WriteDataToFile(filename string, dataBytes []byte) {
 		panic(err)
 	}
 
-	PrintGreenString("\n=>" + filename + " saved!")
+	PrintGreenString("\n(" + filename + " saved!)")
+}
+
+func ArrayContainsString(arr []string, name string) bool {
+	for _, n := range arr {
+		if n == name {
+			return true
+		}
+	}
+	return false
 }
 

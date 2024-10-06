@@ -11,22 +11,16 @@ func CommandLine(history *database.History) {
 
 	history.PrintCLI()
 
-	cmd := util.CommandPrompt()
+	cmd := util.Input("=> ")
 
 	for {
 		switch cmd {
 		case "add", "a":
-			if history.GetUserInput(cmd) {
+			userInput := util.Input("add: ")
+			if history.SplitInput(userInput) {
 				history.SaveToFile()
+				history.Summary()
 			}
-
-			util.PressAnyKey()
-			CommandLine(history)
-		case "spend", "s":
-			if history.GetUserInput(cmd) {
-				history.SaveToFile()
-			}
-
 			util.PressAnyKey()
 			CommandLine(history)
 		case "history", "h":

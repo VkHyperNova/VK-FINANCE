@@ -1,55 +1,12 @@
 package database
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
-
-func (h *History) GetUserInput(cmd string) bool {
-
-	comment := util.GetString("Comment: ")
-
-	if comment == "q" {
-		return false
-	}
-
-s2:
-	sum := util.GetString("Sum: ")
-
-	if sum == "q" {
-		return false
-	}
-
-	float, err := strconv.ParseFloat(sum, 64)
-
-	if err != nil {
-		util.PrintPurpleString("<< Enter a number! >>\n\n")
-		goto s2
-	}
-
-	if cmd == "s" || cmd == "spend" {
-		float = -float
-	}
-
-	h.Append(comment, float)
-
-	// Print summary
-	
-	sumOfItem := 0.0
-	for _, value := range h.History {
-		if strings.EqualFold(value.COMMENT, comment) {
-			sumOfItem += value.VALUE
-		}
-	}
-
-	util.PrintRedString(fmt.Sprintf("%.2f", sumOfItem) + " EUR")
-
-	return true
-}
 
 func (h *History) Append(comment string, sum float64) {
 	now := time.Now()
@@ -62,4 +19,35 @@ func (h *History) Append(comment string, sum float64) {
 	}
 
 	h.History = append(h.History, NewItem)
+}
+
+func (h *History) SplitInput(userInput string) bool {
+
+	input := strings.TrimSpace(userInput)
+
+	// Split the input into parts based on whitespace
+	parts := strings.Fields(input)
+
+	// Check if the input contains exactly two parts
+	if len(parts) == 2 {
+
+		// Assume the first part is the command
+		item := strings.ToLower(parts[0])
+
+		// Try to convert the second part to an integer
+		sum, err := strconv.ParseFloat(parts[1], 64)
+		if err != nil {
+			panic(err)
+		}
+
+		if util.ArrayContainsString(EXPENCES, item) {
+			sum = -sum
+		}
+
+		h.Append(item, sum)
+
+		return true
+	}
+
+	return false
 }

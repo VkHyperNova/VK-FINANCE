@@ -11,10 +11,6 @@ import (
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
-var INCOMESOURCES = []string{"pension", "wolt", "bolt", "muu"}
-var MAINEXPENCES = []string{"arved", "food", "catfood", "saun", "bensiin", "vape", "w", "other", "oldbalance", "correction"}
-var OLDBALANCE float64
-
 func (h *History) PrintCLI() {
 
 	util.ClearScreen()
@@ -26,12 +22,12 @@ func (h *History) PrintCLI() {
 	h.PrintExpencesItems()
 	util.PrintCyanString("\n============== Summary =====================\n\n")
 	h.PrintFinanceStats()
-	util.PrintYellowString("\nadd spend history day backup q")
+	util.PrintYellowString("\nadd history day backup q\n")
 }
 
 func (h *History) PrintIncomeItems() {
 
-	for _, item := range INCOMESOURCES {
+	for _, item := range INCOME {
 
 		itemValue := h.CountItemValue(item)
 		itemValueTwoDecimalPlaces := fmt.Sprintf("%.2f", itemValue)
@@ -57,7 +53,7 @@ func (h *History) CountItemValue(item string) float64 {
 
 func (h *History) PrintExpencesItems() {
 
-	for _, item := range MAINEXPENCES {
+	for _, item := range EXPENCES {
 
 		itemValue := h.CountItemValue(item)
 		itemValueTwoDecimalPlaces := fmt.Sprintf("%.2f", itemValue)
@@ -150,4 +146,29 @@ func (h *History) PrintDailySpending() {
 		util.PrintRedString(fmt.Sprintf("%.2f", kv.Value) + "\n")
 	}
 	util.PressAnyKey()
+}
+
+func (h *History) Summary() {
+
+	item := ""
+
+	searchID := len(h.History) - 1
+	for key, value := range h.History {
+		if key == searchID {
+			item = value.COMMENT
+		}
+	}
+
+	sumOfItem := 0.0
+	for _, value := range h.History {
+		if strings.EqualFold(value.COMMENT, item) {
+			sumOfItem += value.VALUE
+		}
+	}
+
+	if sumOfItem > 0 {
+		util.PrintGreenString(fmt.Sprintf("\n\n"+ item + ": %.2f", sumOfItem) + " EUR")
+	} else {
+		util.PrintRedString(fmt.Sprintf("\n\n" + item + ": %.2f", sumOfItem) + " EUR")
+	}
 }
