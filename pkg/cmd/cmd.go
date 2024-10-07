@@ -13,21 +13,22 @@ func CommandLine(history *database.History) {
 
 	cmd := util.Input("=> ")
 
+	// Add if cmd is not a command
+	if history.Split(cmd) {
+		history.Save()
+		history.PrintItemSummary()
+		util.PressAnyKey()
+		CommandLine(history)
+	}
+
 	for {
 		switch cmd {
-		case "add", "a":
-			userInput := util.Input("add: ")
-			if history.SplitInput(userInput) {
-				history.SaveToFile()
-				history.Summary()
-			}
-			util.PressAnyKey()
-			CommandLine(history)
 		case "history", "h":
 			history.PrintHistory()
 			CommandLine(history)
 		case "day", "d":
-			history.PrintDailySpending()
+			history.PrintDaySummary()
+			util.PressAnyKey()
 			CommandLine(history)
 		case "backup":
 			history.Backup()

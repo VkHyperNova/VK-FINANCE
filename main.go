@@ -11,6 +11,6 @@ import (
 func main() {
 	util.ValidateRequiredFiles()
 	history := database.History{}
-	history.ReadFromFile()
+	history.Read()
 	cmd.CommandLine(&history)
 }

@@ -6,26 +6,15 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
-	"strings"
-	"time"
+
 
 	"github.com/peterh/liner"
 )
 
 /* Other Functions */
 
-func GetString(question string) string {
-	PrintCyanString(question)
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	CommentString := scanner.Text()
-	CommentString = strings.TrimSpace(CommentString)
-
-	return CommentString
-}
-
 func PressAnyKey() {
-	PrintGrayString("\n\nPress Any Key To Continue...")
+	fmt.Println("\n\nPress Any Key To Continue...")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 }
@@ -40,15 +29,6 @@ func ClearScreen() {
 		cmd.Stdout = os.Stdout
 		cmd.Run()
 	}
-}
-
-func GetDayFromString(dateString string) time.Time {
-	date, err := time.Parse("02-01-2006", dateString)
-	if err != nil {
-		fmt.Println("Error parsing date:", err)
-	}
-
-	return date
 }
 
 func Input(prompt string) string {
@@ -79,7 +59,7 @@ func ValidateRequiredFiles() {
 		if err != nil {
 			panic(err)
 		}
-		PrintGrayString("\n=> " + path)
+		fmt.Print("\n=> " + path)
 	}
 }
 
@@ -89,7 +69,7 @@ func WriteDataToFile(filename string, dataBytes []byte) {
 		panic(err)
 	}
 
-	PrintGreenString("\n(" + filename + " saved!)")
+	fmt.Println("\n(" + filename + " saved!)")
 }
 
 func ArrayContainsString(arr []string, name string) bool {
@@ -100,4 +80,3 @@ func ArrayContainsString(arr []string, name string) bool {
 	}
 	return false
 }
-

@@ -15,43 +15,33 @@ func (h *History) PrintCLI() {
 
 	util.ClearScreen()
 
-	util.PrintCyanString("<============= VK FINANCE v1.1 ============>\n\n")
+	fmt.Println(Cyan, "<============= VK FINANCE v1.1 =============>\n", Reset)
 
-	h.PrintIncomeItems()
-	util.PrintCyanString("\n============== Expences ====================\n\n")
-	h.PrintExpencesItems()
-	util.PrintCyanString("\n============== Summary =====================\n\n")
-	h.PrintFinanceStats()
-	util.PrintYellowString("\nadd history day backup q\n")
+	fmt.Println(Yellow, "\nIncome", Reset)
+	h.PrintIncome()
+
+	fmt.Println(Yellow, "\nExpences", Reset)
+	h.PrintExpences()
+
+	fmt.Println(Yellow, "\nSummary", Reset)
+	h.PrintStats()
+
+	fmt.Println(Yellow, "\n[history, day, backup, q]", Reset)
 }
 
-func (h *History) PrintIncomeItems() {
+func (h *History) PrintIncome() {
 
 	for _, item := range INCOME {
 
 		itemValue := h.CountItemValue(item)
 		itemValueTwoDecimalPlaces := fmt.Sprintf("%.2f", itemValue)
 
-		util.PrintCyanString(strings.ToUpper(item) + ": ")
-		util.PrintGreenString("+" + itemValueTwoDecimalPlaces + " EUR\n")
+		fmt.Print(Cyan, strings.ToUpper(item)+": ", Reset)
+		fmt.Print(Green, "+"+itemValueTwoDecimalPlaces+" EUR\n", Reset)
 	}
 }
 
-func (h *History) CountItemValue(item string) float64 {
-
-	itemValue := 0.0
-
-	for _, value := range h.History {
-		if item == value.COMMENT {
-			itemValue += value.VALUE
-
-		}
-	}
-
-	return itemValue
-}
-
-func (h *History) PrintExpencesItems() {
+func (h *History) PrintExpences() {
 
 	for _, item := range EXPENCES {
 
@@ -59,16 +49,16 @@ func (h *History) PrintExpencesItems() {
 		itemValueTwoDecimalPlaces := fmt.Sprintf("%.2f", itemValue)
 
 		if itemValue > 0 {
-			util.PrintCyanString(strings.ToUpper(item) + ": ")
-			util.PrintGreenString("+" + itemValueTwoDecimalPlaces + " EUR\n")
+			fmt.Print(Cyan, strings.ToUpper(item)+": ", Reset)
+			fmt.Print(Green, "+"+itemValueTwoDecimalPlaces+" EUR\n", Reset)
 		} else {
-			util.PrintCyanString(strings.ToUpper(item) + ": ")
-			util.PrintRedString(itemValueTwoDecimalPlaces + " EUR\n")
+			fmt.Print(Cyan, strings.ToUpper(item)+": ", Reset)
+			fmt.Print(Green, itemValueTwoDecimalPlaces+" EUR\n", Reset)
 		}
 	}
 }
 
-func (h *History) PrintFinanceStats() {
+func (h *History) PrintStats() {
 
 	income := 0.0
 	expenses := 0.0
@@ -84,42 +74,50 @@ func (h *History) PrintFinanceStats() {
 
 	OLDBALANCE = income + expenses // income + (-expenses)
 
-	util.PrintCyanString("INCOME: ")
-	util.PrintGreenString("+" + fmt.Sprintf("%.2f", income) + " EUR")
+	fmt.Print(Cyan, "INCOME: ", Reset)
+	fmt.Println(Green, "+"+fmt.Sprintf("%.2f", income)+" EUR", Reset)
 
-	util.PrintCyanString("\nEXPENSES: ")
-	util.PrintRedString(fmt.Sprintf("%.2f", expenses) + " EUR")
+	fmt.Print(Cyan, "EXPENSES: ", Reset)
+	fmt.Println(Red, fmt.Sprintf("%.2f", expenses)+" EUR", Reset)
 
-	util.PrintCyanString("\nBALANCE: ")
+	fmt.Print(Cyan, "BALANCE: ", Reset)
+
+	msg := fmt.Sprintf("%.2f", income+expenses) + " EUR"
 	if income+expenses < 0 {
-		util.PrintRedString(fmt.Sprintf("%.2f", income+expenses) + " EUR\n")
+		fmt.Println(Red, msg, Reset)
 	} else {
-		util.PrintGreenString(fmt.Sprintf("%.2f", income+expenses) + " EUR\n")
+		fmt.Println(Green, msg, Reset)
 	}
 }
 
 func (h *History) PrintHistory() {
-	util.PrintCyanString("History: \n\n")
+	fmt.Println("History: ")
 	for _, value := range h.History {
 		val, err := json.Marshal(value.VALUE)
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		msg := " " + value.DATE + " " + value.TIME + " " + value.COMMENT + " " + string(val)
 		if value.VALUE < 0 {
-			util.PrintRedString(" " + value.DATE + " " + value.TIME + " " + value.COMMENT + " " + string(val) + "\n")
+			fmt.Println(Red, msg, Reset)
 		} else {
-			util.PrintGreenString(" " + value.DATE + " " + value.TIME + " " + value.COMMENT + " " + string(val) + "\n")
+			fmt.Println(Green, msg, Reset)
 		}
 	}
 	util.PressAnyKey()
 }
 
-func (h *History) PrintDailySpending() {
+func (h *History) PrintDaySummary() {
 
 	DaySpent := make(map[time.Time]float64)
-	fmt.Println()
+
 	for _, item := range h.History {
-		DaySpent[util.GetDayFromString(item.DATE)] += item.VALUE
+		date, err := time.Parse("02-01-2006", item.DATE)
+		if err != nil {
+			fmt.Println("Error parsing date:", err)
+		}
+		DaySpent[date] += item.VALUE
 	}
 
 	type KeyValue struct {
@@ -139,16 +137,16 @@ func (h *History) PrintDailySpending() {
 	})
 
 	// Print the sorted map
-	util.PrintCyanString("DAY SUMMARY\n")
+	fmt.Println(Cyan, "DAY SUMMARY", Reset)
+
 	for _, kv := range keyValueSlice {
-		util.PrintPurpleString("(" + kv.Key.Format("02-01-2006") + ") ")
-		util.PrintGrayString(kv.Key.Weekday().String() + ": ")
-		util.PrintRedString(fmt.Sprintf("%.2f", kv.Value) + "\n")
+		fmt.Print(Purple, "("+kv.Key.Format("02-01-2006")+") ", Reset)
+		fmt.Print(kv.Key.Weekday().String() + ": ")
+		fmt.Println(Red, fmt.Sprintf("%.2f", kv.Value), Reset)
 	}
-	util.PressAnyKey()
 }
 
-func (h *History) Summary() {
+func (h *History) PrintItemSummary() {
 
 	item := ""
 
@@ -166,9 +164,25 @@ func (h *History) Summary() {
 		}
 	}
 
+	msg := fmt.Sprintf("\n\n"+item+": %.2f", sumOfItem) + " EUR"
+
 	if sumOfItem > 0 {
-		util.PrintGreenString(fmt.Sprintf("\n\n"+ item + ": %.2f", sumOfItem) + " EUR")
+		fmt.Println(Green, msg, Reset)
 	} else {
-		util.PrintRedString(fmt.Sprintf("\n\n" + item + ": %.2f", sumOfItem) + " EUR")
+		fmt.Println(Red, msg, Reset)
 	}
+}
+
+func (h *History) CountItemValue(item string) float64 {
+
+	itemValue := 0.0
+
+	for _, value := range h.History {
+		if item == value.COMMENT {
+			itemValue += value.VALUE
+
+		}
+	}
+
+	return itemValue
 }
