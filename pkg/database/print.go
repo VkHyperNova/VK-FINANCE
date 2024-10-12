@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/VkHyperNova/VK-FINANCE/pkg/colors"
+	"github.com/VkHyperNova/VK-FINANCE/pkg/config"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
@@ -15,45 +17,45 @@ func (h *History) PrintCLI() {
 
 	util.ClearScreen()
 
-	fmt.Println(Cyan, "<============= VK FINANCE v1.1 =============>\n", Reset)
+	fmt.Println(colors.Cyan, "<============= VK FINANCE v1.1 =============>\n", colors.Reset)
 
-	fmt.Println(Yellow, "\nIncome", Reset)
+	fmt.Println(colors.Yellow, "\nIncome", colors.Reset)
 	h.PrintIncome()
 
-	fmt.Println(Yellow, "\nExpences", Reset)
+	fmt.Println(colors.Yellow, "\nExpences", colors.Reset)
 	h.PrintExpences()
 
-	fmt.Println(Yellow, "\nSummary", Reset)
+	fmt.Println(colors.Yellow, "\nSummary", colors.Reset)
 	h.PrintStats()
 
-	fmt.Println(Yellow, "\n[history, day, backup, q]", Reset)
+	fmt.Println(colors.Yellow, "\n[history, day, backup, q]", colors.Reset)
 }
 
 func (h *History) PrintIncome() {
 
-	for _, item := range INCOME {
+	for _, item := range config.INCOME {
 
 		itemValue := h.CountItemValue(item)
 		itemValueTwoDecimalPlaces := fmt.Sprintf("%.2f", itemValue)
 
-		fmt.Print(Cyan, strings.ToUpper(item)+": ", Reset)
-		fmt.Print(Green, "+"+itemValueTwoDecimalPlaces+" EUR\n", Reset)
+		fmt.Print(colors.Cyan, strings.ToUpper(item)+": ", colors.Reset)
+		fmt.Print(colors.Green, "+"+itemValueTwoDecimalPlaces+" EUR\n", colors.Reset)
 	}
 }
 
 func (h *History) PrintExpences() {
 
-	for _, item := range EXPENCES {
+	for _, item := range config.EXPENCES {
 
 		itemValue := h.CountItemValue(item)
 		itemValueTwoDecimalPlaces := fmt.Sprintf("%.2f", itemValue)
 
 		if itemValue > 0 {
-			fmt.Print(Cyan, strings.ToUpper(item)+": ", Reset)
-			fmt.Print(Green, "+"+itemValueTwoDecimalPlaces+" EUR\n", Reset)
+			fmt.Print(colors.Cyan, strings.ToUpper(item)+": ", colors.Reset)
+			fmt.Print(colors.Green, "+"+itemValueTwoDecimalPlaces+" EUR\n", colors.Reset)
 		} else {
-			fmt.Print(Cyan, strings.ToUpper(item)+": ", Reset)
-			fmt.Print(Green, itemValueTwoDecimalPlaces+" EUR\n", Reset)
+			fmt.Print(colors.Cyan, strings.ToUpper(item)+": ", colors.Reset)
+			fmt.Print(colors.Green, itemValueTwoDecimalPlaces+" EUR\n", colors.Reset)
 		}
 	}
 }
@@ -72,21 +74,21 @@ func (h *History) PrintStats() {
 
 	}
 
-	OLDBALANCE = income + expenses // income + (-expenses)
+	config.OLDBALANCE = income + expenses // income + (-expenses)
 
-	fmt.Print(Cyan, "INCOME: ", Reset)
-	fmt.Println(Green, "+"+fmt.Sprintf("%.2f", income)+" EUR", Reset)
+	fmt.Print(colors.Cyan, "INCOME: ", colors.Reset)
+	fmt.Println(colors.Green, "+"+fmt.Sprintf("%.2f", income)+" EUR", colors.Reset)
 
-	fmt.Print(Cyan, "EXPENSES: ", Reset)
-	fmt.Println(Red, fmt.Sprintf("%.2f", expenses)+" EUR", Reset)
+	fmt.Print(colors.Cyan, "EXPENSES: ", colors.Reset)
+	fmt.Println(colors.Red, fmt.Sprintf("%.2f", expenses)+" EUR", colors.Reset)
 
-	fmt.Print(Cyan, "BALANCE: ", Reset)
+	fmt.Print(colors.Cyan, "BALANCE: ", colors.Reset)
 
 	msg := fmt.Sprintf("%.2f", income+expenses) + " EUR"
 	if income+expenses < 0 {
-		fmt.Println(Red, msg, Reset)
+		fmt.Println(colors.Red, msg, colors.Reset)
 	} else {
-		fmt.Println(Green, msg, Reset)
+		fmt.Println(colors.Green, msg, colors.Reset)
 	}
 }
 
@@ -105,7 +107,7 @@ func (h *History) PrintHistory() {
 		msg := " " + value.DATE + " " + value.TIME + " " + value.COMMENT + " " + string(val)
 
 		if value.DATE == now.Format("02-01-2006") {
-			fmt.Println(Green, msg, Reset)
+			fmt.Println(colors.Green, msg, colors.Reset)
 		} else {
 			fmt.Println(msg)
 		}
@@ -144,12 +146,12 @@ func (h *History) PrintDaySummary() {
 	})
 
 	// Print the sorted map
-	fmt.Println(Cyan, "DAY SUMMARY", Reset)
+	fmt.Println(colors.Cyan, "DAY SUMMARY", colors.Reset)
 
 	for _, kv := range keyValueSlice {
-		fmt.Print(Purple, "("+kv.Key.Format("02-01-2006")+") ", Reset)
+		fmt.Print(colors.Purple, "("+kv.Key.Format("02-01-2006")+") ", colors.Reset)
 		fmt.Print(kv.Key.Weekday().String() + ": ")
-		fmt.Println(Red, fmt.Sprintf("%.2f", kv.Value), Reset)
+		fmt.Println(colors.Red, fmt.Sprintf("%.2f", kv.Value), colors.Reset)
 	}
 }
 
@@ -171,13 +173,9 @@ func (h *History) PrintItemSummary() {
 		}
 	}
 
-	msg := fmt.Sprintf("\n\n"+item+": %.2f", sumOfItem) + " EUR"
+	msg := fmt.Sprintf("\n"+item+": %.2f", sumOfItem) + " EUR"
 
-	if sumOfItem > 0 {
-		fmt.Println(Green, msg, Reset)
-	} else {
-		fmt.Println(Red, msg, Reset)
-	}
+	fmt.Println(colors.Yellow, msg, colors.Reset)
 }
 
 func (h *History) CountItemValue(item string) float64 {

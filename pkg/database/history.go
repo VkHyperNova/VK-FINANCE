@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/VkHyperNova/VK-FINANCE/pkg/colors"
+	"github.com/VkHyperNova/VK-FINANCE/pkg/config"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
@@ -25,30 +27,10 @@ type History struct {
 	History []HistoryItem `json:"history"` // Slice containing multiple Quote instances.
 }
 
-/* Constants */
-var Path = "./history.json"
-var BackupPath = "/media/veikko/VK DATA/DATABASES/FINANCE/history.json"
-var HistoryPath = "/media/veikko/VK DATA/DATABASES/FINANCE/" + time.Now().AddDate(0, -1, 0).Format("January2006") + ".json"
-
-var INCOME = []string{"pension", "wolt", "bolt", "muu"}
-var EXPENCES = []string{"arved", "food", "catfood", "saun", "bensiin", "vape", "w", "other", "old balance", "correction"}
-var OLDBALANCE float64
-
-/* Colors */
-const (
-	Reset  = "\033[0m"
-	Red    = "\033[31m"
-	Green  = "\033[32m"
-	Yellow = "\033[33m"
-	Blue   = "\033[34m"
-	Purple = "\033[35m"
-	Cyan   = "\033[36m"
-	Gray   = "\033[37m"
-)
 
 func (h *History) Read() {
 
-	file, err := os.Open(Path)
+	file, err := os.Open(config.Path)
 	if err != nil {
 		panic(err)
 	}
@@ -74,10 +56,10 @@ func (h *History) Save() bool {
 	}
 
 	// Save to main path
-	util.WriteDataToFile(Path, byteArray)
+	util.WriteDataToFile(config.Path, byteArray)
 
 	// D-drive Backup
-	util.WriteDataToFile(BackupPath, byteArray)
+	util.WriteDataToFile(config.BackupPath, byteArray)
 
 	return true
 }
@@ -110,18 +92,18 @@ func (h *History) Split(userInput string) bool {
 	// Try to convert the second part to a float
 	sum, err := strconv.ParseFloat(parts[1], 64)
 	if err != nil {
-		fmt.Println(Red, err, Reset)
+		fmt.Println(colors.Red, err, colors.Reset)
 		util.PressAnyKey()
 		return false
 	}
 
 	// Adjust sum if item is in expenses category
-	if util.ArrayContainsString(EXPENCES, item) {
+	if util.ArrayContainsString(config.EXPENCES, item) {
 		sum = -sum
 	}
 
 	// Append to history if item is in either category
-	if util.ArrayContainsString(INCOME, item) || util.ArrayContainsString(EXPENCES, item) {
+	if util.ArrayContainsString(config.INCOME, item) || util.ArrayContainsString(config.EXPENCES, item) {
 		h.Append(item, sum)
 		return true
 	} else {
@@ -139,24 +121,24 @@ func (h *History) Backup() {
 	}
 
 	// D-drive history by month Backup
-	util.WriteDataToFile(HistoryPath, byteArray)
+	util.WriteDataToFile(config.HistoryPath, byteArray)
 
 	// New history file
-	err = os.Remove(Path)
+	err = os.Remove(config.Path)
 	if err != nil {
 		panic(err)
 	} else {
-		fmt.Println("\n" + Path + " Removed!")
+		fmt.Println("\n" + config.Path + " Removed!")
 	}
 
 	// New history.json
-	util.WriteDataToFile(Path, []byte(`{"history": []}`))
+	util.WriteDataToFile(config.Path, []byte(`{"history": []}`))
 
 	// Open new Empty DB
 	h.Read()
 
 	// Append old balance
-	h.Append("old balance", OLDBALANCE)
+	h.Append("old balance", config.OLDBALANCE)
 	h.Save()
 
 	util.PressAnyKey()

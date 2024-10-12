@@ -7,14 +7,14 @@ import (
 	"os/exec"
 	"runtime"
 
-
+	"github.com/VkHyperNova/VK-FINANCE/pkg/colors"
 	"github.com/peterh/liner"
 )
 
 /* Other Functions */
 
 func PressAnyKey() {
-	fmt.Println("\n\nPress Any Key To Continue...")
+	fmt.Println("Press Any Key To Continue...")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 }
@@ -69,7 +69,7 @@ func WriteDataToFile(filename string, dataBytes []byte) {
 		panic(err)
 	}
 
-	fmt.Println("\n(" + filename + " saved!)")
+	fmt.Println(colors.Green, "(" + filename + ")", colors.Reset)
 }
 
 func ArrayContainsString(arr []string, name string) bool {
