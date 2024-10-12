@@ -13,7 +13,7 @@ func CommandLine(history *database.History) {
 
 	cmd := util.Input("=> ")
 
-	// Add if cmd is not a command
+	// Add
 	if history.Split(cmd) {
 		history.Save()
 		history.PrintItemSummary()

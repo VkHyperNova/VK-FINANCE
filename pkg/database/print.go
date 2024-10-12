@@ -91,7 +91,11 @@ func (h *History) PrintStats() {
 }
 
 func (h *History) PrintHistory() {
+
 	fmt.Println("History: ")
+
+	now := time.Now()
+
 	for _, value := range h.History {
 		val, err := json.Marshal(value.VALUE)
 		if err != nil {
@@ -99,12 +103,15 @@ func (h *History) PrintHistory() {
 		}
 
 		msg := " " + value.DATE + " " + value.TIME + " " + value.COMMENT + " " + string(val)
-		if value.VALUE < 0 {
-			fmt.Println(Red, msg, Reset)
-		} else {
+
+		if value.DATE == now.Format("02-01-2006") {
 			fmt.Println(Green, msg, Reset)
+		} else {
+			fmt.Println(msg)
 		}
+
 	}
+
 	util.PressAnyKey()
 }
 
