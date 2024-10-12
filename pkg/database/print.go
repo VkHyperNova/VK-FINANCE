@@ -33,10 +33,12 @@ func (h *History) PrintCLI() {
 
 func (h *History) PrintIncome() {
 
-	for _, item := range config.INCOME {
+	for _, item := range config.IncomeItems {
 
 		itemValue := h.CountItemValue(item)
 		itemValueTwoDecimalPlaces := fmt.Sprintf("%.2f", itemValue)
+
+		config.INCOME = itemValue
 
 		fmt.Print(colors.Cyan, strings.ToUpper(item)+": ", colors.Reset)
 		fmt.Print(colors.Green, "+"+itemValueTwoDecimalPlaces+" EUR\n", colors.Reset)
@@ -45,18 +47,17 @@ func (h *History) PrintIncome() {
 
 func (h *History) PrintExpences() {
 
-	for _, item := range config.EXPENCES {
+	for _, item := range config.ExpencesItems {
 
 		itemValue := h.CountItemValue(item)
 		itemValueTwoDecimalPlaces := fmt.Sprintf("%.2f", itemValue)
 
-		if itemValue > 0 {
-			fmt.Print(colors.Cyan, strings.ToUpper(item)+": ", colors.Reset)
-			fmt.Print(colors.Green, "+"+itemValueTwoDecimalPlaces+" EUR\n", colors.Reset)
-		} else {
-			fmt.Print(colors.Cyan, strings.ToUpper(item)+": ", colors.Reset)
-			fmt.Print(colors.Green, itemValueTwoDecimalPlaces+" EUR\n", colors.Reset)
-		}
+		percentage := util.CalculatePercentage(itemValue)
+
+		fmt.Print(percentage, "% ")
+		fmt.Print(colors.Cyan, strings.ToUpper(item)+": ", colors.Reset)
+		fmt.Println(colors.Red, itemValueTwoDecimalPlaces+" EUR", colors.Reset)
+
 	}
 }
 

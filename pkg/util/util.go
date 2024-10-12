@@ -8,6 +8,7 @@ import (
 	"runtime"
 
 	"github.com/VkHyperNova/VK-FINANCE/pkg/colors"
+	"github.com/VkHyperNova/VK-FINANCE/pkg/config"
 	"github.com/peterh/liner"
 )
 
@@ -79,4 +80,16 @@ func ArrayContainsString(arr []string, name string) bool {
 		}
 	}
 	return false
+}
+
+func CalculatePercentage(part float64) int {
+
+	if part < 0 {
+		part = -part
+	}
+
+	if config.INCOME == 0 {
+		return 0
+	}
+	return int((part / config.INCOME) * 100)
 }

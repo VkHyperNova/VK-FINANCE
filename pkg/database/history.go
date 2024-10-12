@@ -27,7 +27,6 @@ type History struct {
 	History []HistoryItem `json:"history"` // Slice containing multiple Quote instances.
 }
 
-
 func (h *History) Read() {
 
 	file, err := os.Open(config.Path)
@@ -98,12 +97,12 @@ func (h *History) Split(userInput string) bool {
 	}
 
 	// Adjust sum if item is in expenses category
-	if util.ArrayContainsString(config.EXPENCES, item) {
+	if util.ArrayContainsString(config.ExpencesItems, item) {
 		sum = -sum
 	}
 
 	// Append to history if item is in either category
-	if util.ArrayContainsString(config.INCOME, item) || util.ArrayContainsString(config.EXPENCES, item) {
+	if util.ArrayContainsString(config.IncomeItems, item) || util.ArrayContainsString(config.ExpencesItems, item) {
 		h.Append(item, sum)
 		return true
 	} else {
