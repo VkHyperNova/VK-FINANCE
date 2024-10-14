@@ -16,11 +16,11 @@ func (h *History) PrintCLI() {
 
 	util.ClearScreen()
 
-	fmt.Println(colors.Bold+colors.Yellow, "\nVK FINANCE v1.2\n", colors.Reset)
+	fmt.Println(colors.Bold, "\nVK FINANCE v1.2\n", colors.Reset)
 
 	h.PrintSummary()
 
-	fmt.Println(colors.Bold, "\n\nhistory day stats backup quit", colors.Reset)
+	fmt.Println(colors.Bold, "\nhistory day stats backup quit", colors.Reset)
 }
 
 func (h *History) PrintItems(items []string, highlightName string) {
@@ -70,13 +70,9 @@ func (h *History) PrintSummary() {
 	fmt.Println(colors.Red, fmt.Sprintf("%.2f", expenses)+" EUR", colors.Reset)
 
 	// PRINT BALANCE
-	msg := "\tBALANCE: " + fmt.Sprint(colors.Bold, (fmt.Sprintf("%.2f", income+expenses)+" EUR"), colors.Bold)
-
-	if income+expenses >= 0 {
-		fmt.Print(colors.Green, msg, colors.Reset)
-	} else {
-		fmt.Print(colors.Red, msg, colors.Reset)
-	}
+	name := "\tBALANCE: "
+	sum := fmt.Sprintf("%.2f", income + expenses) + " EUR"
+	fmt.Println(colors.Bold,name + sum, colors.Reset)
 }
 
 func (h *History) PrintHistory() {
