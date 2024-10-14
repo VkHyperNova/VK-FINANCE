@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/VkHyperNova/VK-FINANCE/pkg/colors"
@@ -23,8 +21,9 @@ type HistoryItem struct {
 	VALUE   float64 `json:"value"`
 }
 
+// Slice containing multiple HistoryItem instances.
 type History struct {
-	History []HistoryItem `json:"history"` // Slice containing multiple Quote instances.
+	History []HistoryItem `json:"history"`
 }
 
 func (h *History) Read() {
@@ -47,7 +46,24 @@ func (h *History) Read() {
 	}
 }
 
-func (h *History) Save() bool {
+func (h *History) Save(name string, sum float64) bool {
+
+	if !util.ArrayContainsString(config.IncomeItems, name) && !util.ArrayContainsString(config.ExpensesItems, name) {
+		fmt.Println("No such item: " + name)
+		util.PressAnyKey()
+		return false
+	}
+
+	now := time.Now()
+
+	NewItem := HistoryItem{
+		DATE:    now.Format("02-01-2006"),
+		TIME:    now.Format("15:04:05"),
+		COMMENT: name,
+		VALUE:   sum,
+	}
+
+	h.History = append(h.History, NewItem)
 
 	byteArray, err := json.MarshalIndent(h, "", "  ")
 	if err != nil {
@@ -63,56 +79,13 @@ func (h *History) Save() bool {
 	return true
 }
 
-func (h *History) Append(comment string, sum float64) {
-	now := time.Now()
-
-	NewItem := HistoryItem{
-		DATE:    now.Format("02-01-2006"),
-		TIME:    now.Format("15:04:05"),
-		COMMENT: comment,
-		VALUE:   sum,
-	}
-
-	h.History = append(h.History, NewItem)
-}
-
-func (h *History) Split(userInput string) bool {
-
-	input := strings.TrimSpace(userInput)
-	parts := strings.Fields(input)
-
-	// Check if the input contains exactly two parts
-	if len(parts) != 2 {
-		return false
-	}
-
-	item := strings.ToLower(parts[0])
-
-	// Try to convert the second part to a float
-	sum, err := strconv.ParseFloat(parts[1], 64)
-	if err != nil {
-		fmt.Println(colors.Red, err, colors.Reset)
-		util.PressAnyKey()
-		return false
-	}
-
-	// Adjust sum if item is in expenses category
-	if util.ArrayContainsString(config.ExpencesItems, item) {
-		sum = -sum
-	}
-
-	// Append to history if item is in either category
-	if util.ArrayContainsString(config.IncomeItems, item) || util.ArrayContainsString(config.ExpencesItems, item) {
-		h.Append(item, sum)
-		return true
-	} else {
-		fmt.Println("No such item!")
-		util.PressAnyKey()
-		return false
-	}
-}
-
 func (h *History) Backup() {
+
+	values := h.Calculate("")
+	income := values[1]
+	expenses := values[2]
+
+	config.DEPT = income + expenses // income + (-expenses)
 
 	byteArray, err := json.MarshalIndent(h.History, "", " ")
 	if err != nil {
@@ -125,10 +98,8 @@ func (h *History) Backup() {
 	// New history file
 	err = os.Remove(config.Path)
 	if err != nil {
-		panic(err)
-	} else {
-		fmt.Println("\n" + config.Path + " Removed!")
-	}
+		fmt.Println(err)
+	} 
 
 	// New history.json
 	util.WriteDataToFile(config.Path, []byte(`{"history": []}`))
@@ -137,8 +108,33 @@ func (h *History) Backup() {
 	h.Read()
 
 	// Append old balance
-	h.Append("old balance", config.OLDBALANCE)
-	h.Save()
+	h.Save("dept", config.DEPT)
+
+	fmt.Println(colors.Bold + colors.Green, "\n\tBackup Done!\n", colors.Reset)
 
 	util.PressAnyKey()
+}
+
+func (h *History) Calculate(name string) []float64 {
+
+	sum := 0.0
+	income := 0.0
+	expenses := 0.0
+
+	for _, item := range h.History {
+
+		if item.COMMENT == name {
+			sum += item.VALUE
+		}
+
+		if item.VALUE < 0 {
+			expenses += item.VALUE
+		} else {
+			income += item.VALUE
+		}
+	}
+
+	values := []float64{sum, income, expenses}
+
+	return values
 }

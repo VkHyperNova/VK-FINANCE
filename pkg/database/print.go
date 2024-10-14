@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"sort"
-	"strings"
 	"time"
 
 	"github.com/VkHyperNova/VK-FINANCE/pkg/colors"
@@ -17,85 +16,74 @@ func (h *History) PrintCLI() {
 
 	util.ClearScreen()
 
-	fmt.Println(colors.Cyan, "<============= VK FINANCE v1.1 =============>\n", colors.Reset)
+	fmt.Println(colors.Bold+colors.Yellow, "\nVK FINANCE v1.2\n", colors.Reset)
 
-	fmt.Println(colors.Yellow, "\nIncome", colors.Reset)
-	h.PrintIncome()
+	h.PrintSummary()
 
-	fmt.Println(colors.Yellow, "\nExpences", colors.Reset)
-	h.PrintExpences()
-
-	fmt.Println(colors.Yellow, "\nSummary", colors.Reset)
-	h.PrintStats()
-
-	fmt.Println(colors.Yellow, "\n[history, day, backup, q]", colors.Reset)
+	fmt.Println(colors.Bold, "\n\nhistory day stats backup quit", colors.Reset)
 }
 
-func (h *History) PrintIncome() {
+func (h *History) PrintItems(items []string, highlightName string) {
 
-	for _, item := range config.IncomeItems {
+	for _, name := range items {
 
-		itemValue := h.CountItemValue(item)
-		itemValueTwoDecimalPlaces := fmt.Sprintf("%.2f", itemValue)
+		sum := h.Calculate(name)
 
-		config.INCOME = itemValue
+		itemSum := sum[0]
 
-		fmt.Print(colors.Cyan, strings.ToUpper(item)+": ", colors.Reset)
-		fmt.Print(colors.Green, "+"+itemValueTwoDecimalPlaces+" EUR\n", colors.Reset)
-	}
-}
+		item := "\t" + name + ": " + fmt.Sprintf("%.2f", itemSum) + " EUR"
 
-func (h *History) PrintExpences() {
+		var pMsg string
 
-	for _, item := range config.ExpencesItems {
+		// Highlight the specified name
+		if name == highlightName {
+			pMsg = colors.Bold + colors.Yellow + item + colors.Reset
 
-		itemValue := h.CountItemValue(item)
-		itemValueTwoDecimalPlaces := fmt.Sprintf("%.2f", itemValue)
+			// Positive values
+		} else if itemSum > 0 {
+			pMsg = colors.Green + item + colors.Reset
 
-		percentage := util.CalculatePercentage(itemValue)
-
-		fmt.Print(percentage, "% ")
-		fmt.Print(colors.Cyan, strings.ToUpper(item)+": ", colors.Reset)
-		fmt.Println(colors.Red, itemValueTwoDecimalPlaces+" EUR", colors.Reset)
-
-	}
-}
-
-func (h *History) PrintStats() {
-
-	income := 0.0
-	expenses := 0.0
-
-	for _, item := range h.History {
-		if item.VALUE < 0 {
-			expenses += item.VALUE
+			// Negative values
+		} else if itemSum < 0 {
+			pMsg = colors.Red + item + colors.Reset
 		} else {
-			income += item.VALUE
+			pMsg = item
 		}
 
+		fmt.Println(pMsg)
 	}
+}
 
-	config.OLDBALANCE = income + expenses // income + (-expenses)
+func (h *History) PrintSummary() {
 
-	fmt.Print(colors.Cyan, "INCOME: ", colors.Reset)
+	values := h.Calculate("")
+
+	income := values[1]
+	expenses := values[2]
+
+	// PRINT INCOME
+	fmt.Print(colors.Green, "\tINCOME: ", colors.Reset)
 	fmt.Println(colors.Green, "+"+fmt.Sprintf("%.2f", income)+" EUR", colors.Reset)
 
-	fmt.Print(colors.Cyan, "EXPENSES: ", colors.Reset)
+	// PRINT EXPENSES
+	fmt.Print(colors.Red, "\tEXPENSES: ", colors.Reset)
 	fmt.Println(colors.Red, fmt.Sprintf("%.2f", expenses)+" EUR", colors.Reset)
 
-	fmt.Print(colors.Cyan, "BALANCE: ", colors.Reset)
+	// PRINT BALANCE
+	msg := "\tBALANCE: " + fmt.Sprint(colors.Bold, (fmt.Sprintf("%.2f", income+expenses)+" EUR"), colors.Bold)
 
-	msg := fmt.Sprintf("%.2f", income+expenses) + " EUR"
-	if income+expenses < 0 {
-		fmt.Println(colors.Red, msg, colors.Reset)
+	if income+expenses >= 0 {
+		fmt.Print(colors.Green, msg, colors.Reset)
 	} else {
-		fmt.Println(colors.Green, msg, colors.Reset)
+		fmt.Print(colors.Red, msg, colors.Reset)
 	}
 }
 
 func (h *History) PrintHistory() {
 
-	fmt.Println("History: ")
+	util.ClearScreen()
+
+	fmt.Println(colors.Bold+colors.Yellow, "\n\t\tHistory: \n", colors.Reset)
 
 	now := time.Now()
 
@@ -105,20 +93,30 @@ func (h *History) PrintHistory() {
 			log.Fatal(err)
 		}
 
-		msg := " " + value.DATE + " " + value.TIME + " " + value.COMMENT + " " + string(val)
+		time := " " + value.TIME + " | "
+		date := value.DATE + " "
+		sum := fmt.Sprint(colors.Bold, value.COMMENT+" ", string(val)+" EUR", colors.Reset)
+
+		if value.VALUE > 0 {
+			sum = fmt.Sprint(colors.Bold+colors.Green, value.COMMENT+" ", string(val)+" EUR", colors.Reset)
+		}
+
+		if value.VALUE < 0 {
+			sum = fmt.Sprint(colors.Bold+colors.Red, value.COMMENT+" ", string(val)+" EUR", colors.Reset)
+		}
+
+		msg := time + date + sum
 
 		if value.DATE == now.Format("02-01-2006") {
-			fmt.Println(colors.Green, msg, colors.Reset)
+			fmt.Println(colors.Bold, msg, colors.Reset)
 		} else {
 			fmt.Println(msg)
 		}
-
 	}
-
 	util.PressAnyKey()
 }
 
-func (h *History) PrintDaySummary() {
+func (h *History) PrintDays() {
 
 	DaySpent := make(map[time.Time]float64)
 
@@ -146,49 +144,48 @@ func (h *History) PrintDaySummary() {
 		return keyValueSlice[i].Key.Before(keyValueSlice[j].Key)
 	})
 
+	util.ClearScreen()
+
 	// Print the sorted map
-	fmt.Println(colors.Cyan, "DAY SUMMARY", colors.Reset)
+	fmt.Println(colors.Yellow+colors.Bold, "\n\tDaily Spending\n", colors.Reset)
 
 	for _, kv := range keyValueSlice {
-		fmt.Print(colors.Purple, "("+kv.Key.Format("02-01-2006")+") ", colors.Reset)
-		fmt.Print(kv.Key.Weekday().String() + ": ")
-		fmt.Println(colors.Red, fmt.Sprintf("%.2f", kv.Value), colors.Reset)
+		fmt.Print(colors.Bold+colors.Cyan, kv.Key.Format("02-01-2006"), colors.Reset)
+		fmt.Print(colors.Bold+colors.Cyan, " "+kv.Key.Weekday().String()+": ", colors.Reset)
+		fmt.Println(colors.Bold+colors.Red, fmt.Sprintf("%.2f", kv.Value), colors.Reset)
 	}
+
+	util.PressAnyKey()
 }
 
-func (h *History) PrintItemSummary() {
+func (h *History) PrintStatistics() {
 
-	item := ""
+	util.ClearScreen()
 
-	searchID := len(h.History) - 1
-	for key, value := range h.History {
-		if key == searchID {
-			item = value.COMMENT
-		}
-	}
+	fmt.Println(colors.Bold + colors.Yellow, "\n\tStatistics\n", colors.Reset)
 
-	sumOfItem := 0.0
-	for _, value := range h.History {
-		if strings.EqualFold(value.COMMENT, item) {
-			sumOfItem += value.VALUE
-		}
-	}
+	h.PrintItems(config.IncomeItems, "")
+	fmt.Println()
 
-	msg := fmt.Sprintf("\n"+item+": %.2f", sumOfItem) + " EUR"
+	h.PrintItems(config.ExpensesItems, "")
+	fmt.Println()
 
-	fmt.Println(colors.Yellow, msg, colors.Reset)
+	h.PrintSummary()
+
+	util.PressAnyKey()
 }
 
-func (h *History) CountItemValue(item string) float64 {
+func (h *History) PrintMessage(name string) {
 
-	itemValue := 0.0
+	util.ClearScreen()
 
-	for _, value := range h.History {
-		if item == value.COMMENT {
-			itemValue += value.VALUE
-
-		}
+	if util.ArrayContainsString(config.IncomeItems, name) {
+		h.PrintItems(config.IncomeItems, name)
 	}
 
-	return itemValue
+	if util.ArrayContainsString(config.ExpensesItems, name) {
+		h.PrintItems(config.ExpensesItems, name)
+	}
+
+	util.PressAnyKey()
 }

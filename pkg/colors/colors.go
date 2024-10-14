@@ -10,4 +10,7 @@ const (
 	Purple = "\033[35m"
 	Cyan   = "\033[36m"
 	Gray   = "\033[37m"
+	Bold = "\033[1m"
+	Italic = "\033[3m"
 )
+

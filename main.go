@@ -10,7 +10,7 @@ import (
 
 func main() {
 	util.ValidateRequiredFiles()
-	history := database.History{}
-	history.Read()
-	cmd.CommandLine(&history)
+	db := database.History{}
+	db.Read()
+	cmd.CommandLine(&db)
 }

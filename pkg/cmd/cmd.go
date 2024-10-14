@@ -2,42 +2,54 @@ package cmd
 
 import (
 	"os"
+	"strings"
 
 	"github.com/VkHyperNova/VK-FINANCE/pkg/database"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
-func CommandLine(history *database.History) {
+func CommandLine(db *database.History) {
 
-	history.PrintCLI()
-
-	cmd := util.Input("=> ")
-
-	// Add
-	if history.Split(cmd) {
-		history.Save()
-		history.PrintItemSummary()
-		util.PressAnyKey()
-		CommandLine(history)
-	}
+	db.PrintCLI()
 
 	for {
-		switch cmd {
-		case "history", "h":
-			history.PrintHistory()
-			CommandLine(history)
-		case "day", "d":
-			history.PrintDaySummary()
-			util.PressAnyKey()
-			CommandLine(history)
-		case "backup":
-			history.Backup()
-			CommandLine(history)
-		case "quit", "q":
-			util.ClearScreen()
-			os.Exit(0)
-		default:
-			CommandLine(history)
+		cmd := util.Input()
+
+		parts := strings.Fields(cmd)
+
+		if len(parts) != 2 {
+			executeCommand(cmd, db)
 		}
+
+		name, sum := util.Split(parts)
+
+		if db.Save(name, sum) {
+			db.PrintMessage(name)
+		}
+
+		CommandLine(db)
+	}
+
+}
+
+func executeCommand(cmd string, db *database.History) {
+	switch cmd {
+	case "history", "h":
+		db.PrintHistory()
+		CommandLine(db)
+	case "day", "d":
+		db.PrintDays()
+		CommandLine(db)
+	case "stats", "s":
+		db.PrintStatistics()
+		CommandLine(db)
+	case "backup":
+		db.Backup()
+		CommandLine(db)
+	case "quit", "q":
+		util.ClearScreen()
+		os.Exit(0)
+	default:
+		CommandLine(db)
 	}
 }

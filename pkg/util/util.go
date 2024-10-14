@@ -6,8 +6,9 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strconv"
+	"strings"
 
-	"github.com/VkHyperNova/VK-FINANCE/pkg/colors"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/config"
 	"github.com/peterh/liner"
 )
@@ -15,7 +16,7 @@ import (
 /* Other Functions */
 
 func PressAnyKey() {
-	fmt.Println("Press Any Key To Continue...")
+	fmt.Print()
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 }
@@ -32,12 +33,12 @@ func ClearScreen() {
 	}
 }
 
-func Input(prompt string) string {
+func Input() string {
+
 	line := liner.NewLiner()
 	defer line.Close()
 
-	// Prompt the user with the given prompt string and read userInput
-	userInput, err := line.Prompt(prompt)
+	userInput, err := line.Prompt("=> ")
 	if err != nil {
 		panic(err)
 	}
@@ -67,10 +68,8 @@ func ValidateRequiredFiles() {
 func WriteDataToFile(filename string, dataBytes []byte) {
 	var err = os.WriteFile(filename, dataBytes, 0644)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
-
-	fmt.Println(colors.Green, "(" + filename + ")", colors.Reset)
 }
 
 func ArrayContainsString(arr []string, name string) bool {
@@ -82,14 +81,21 @@ func ArrayContainsString(arr []string, name string) bool {
 	return false
 }
 
-func CalculatePercentage(part float64) int {
+func Split(parts []string) (string, float64) {
 
-	if part < 0 {
-		part = -part
+	item := strings.ToLower(parts[0])
+
+	// Try to convert the second part to a float
+	sum, err := strconv.ParseFloat(parts[1], 64)
+
+	if err != nil {
+		fmt.Println(err)
 	}
 
-	if config.INCOME == 0 {
-		return 0
+	// Adjust sum if item is in expenses category
+	if ArrayContainsString(config.ExpensesItems, item) {
+		sum = -sum
 	}
-	return int((part / config.INCOME) * 100)
+
+	return item, sum
 }
