@@ -15,21 +15,16 @@ func CommandLine(db *database.History) {
 	for {
 		cmd := util.Input()
 
-		parts := strings.Fields(cmd)
+		itemParts := strings.Fields(cmd)
 
-		if len(parts) != 2 {
+		if len(itemParts) != 2 {
 			executeCommand(cmd, db)
 		}
 
-		name, sum := util.Split(parts)
-
-		if db.Save(name, sum) {
-			db.PrintMessage(name)
-		}
+		db.Save(itemParts)
 
 		CommandLine(db)
 	}
-
 }
 
 func executeCommand(cmd string, db *database.History) {

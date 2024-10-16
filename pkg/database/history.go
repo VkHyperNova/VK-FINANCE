@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/VkHyperNova/VK-FINANCE/pkg/colors"
@@ -46,95 +48,113 @@ func (h *History) Read() {
 	}
 }
 
-func (h *History) Save(name string, sum float64) bool {
+func (h *History) Save(parts []string) bool {
 
-	if !util.ArrayContainsString(config.IncomeItems, name) && !util.ArrayContainsString(config.ExpensesItems, name) {
-		fmt.Println("No such item: " + name)
-		util.PressAnyKey()
+	comment := strings.ToLower(parts[0])
+
+	// Check for random items
+	if !util.Contains(config.IncomeItems, comment) && !util.Contains(config.ExpensesItems, comment) {
+		comment = "other"
+	}
+
+	// Try to convert the second part to a float
+	value, err := strconv.ParseFloat(parts[1], 64)
+
+	if err != nil {
+		fmt.Println(err)
 		return false
 	}
 
-	now := time.Now()
+	// Assign +/- if it's not dept
+	if util.Contains(config.ExpensesItems, comment) && comment != "dept" {
+		value = -value
+	}
 
+	// Add time
+	now := time.Now()
 	NewItem := HistoryItem{
 		DATE:    now.Format("02-01-2006"),
 		TIME:    now.Format("15:04:05"),
-		COMMENT: name,
-		VALUE:   sum,
+		COMMENT: comment,
+		VALUE:   value,
 	}
 
+	// Append New Item
 	h.History = append(h.History, NewItem)
 
+	// Convert to json
 	byteArray, err := json.MarshalIndent(h, "", "  ")
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		return false
 	}
 
 	// Save to main path
-	util.WriteDataToFile(config.Path, byteArray)
+	util.WriteToFile(config.Path, byteArray)
 
 	// D-drive Backup
-	util.WriteDataToFile(config.BackupPath, byteArray)
+	util.WriteToFile(config.BackupPath, byteArray)
+
+	// Print Income/Expense items
+	h.PrintMessage()
 
 	return true
 }
 
 func (h *History) Backup() {
 
-	values := h.Calculate("")
-	income := values[1]
-	expenses := values[2]
+	values := h.Calculate()
+	income := values[0]
+	expenses := values[1]
 
-	config.DEPT = income + expenses // income + (-expenses)
+	// Save old balance
+	dept := strconv.FormatFloat(income+expenses, 'f', 2, 64)
 
-	byteArray, err := json.MarshalIndent(h.History, "", " ")
+	byteArray, err := json.MarshalIndent(h, "", " ")
 	if err != nil {
 		panic(err)
 	}
 
 	// D-drive history by month Backup
-	util.WriteDataToFile(config.HistoryPath, byteArray)
+	util.WriteToFile(config.HistoryPath, byteArray)
 
 	// New history file
 	err = os.Remove(config.Path)
 	if err != nil {
 		fmt.Println(err)
-	} 
+	}
 
 	// New history.json
-	util.WriteDataToFile(config.Path, []byte(`{"history": []}`))
+	util.WriteToFile(config.Path, []byte(`{"history": []}`))
 
 	// Open new Empty DB
 	h.Read()
 
 	// Append old balance
-	h.Save("dept", config.DEPT)
+	var itemParts []string
+	itemParts = append(itemParts, "dept", dept)
+	h.Save(itemParts)
 
-	fmt.Println(colors.Bold + colors.Green, "\n\tBackup Done!\n", colors.Reset)
+	fmt.Println(colors.Bold+colors.Green, "\n\tBackup Done!\n", colors.Reset)
 
 	util.PressAnyKey()
 }
 
-func (h *History) Calculate(name string) []float64 {
+func (h *History) Calculate() []float64 {
 
-	sum := 0.0
-	income := 0.0
-	expenses := 0.0
+	totalIncome := 0.0
+	totalExpenses := 0.0
 
 	for _, item := range h.History {
 
-		if item.COMMENT == name {
-			sum += item.VALUE
-		}
-
 		if item.VALUE < 0 {
-			expenses += item.VALUE
+			totalExpenses += item.VALUE
 		} else {
-			income += item.VALUE
+			totalIncome += item.VALUE
 		}
 	}
 
-	values := []float64{sum, income, expenses}
+	values := []float64{totalIncome, totalExpenses}
 
 	return values
 }

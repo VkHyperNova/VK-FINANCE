@@ -9,7 +9,7 @@ import (
 //go:generate goversioninfo
 
 func main() {
-	util.ValidateRequiredFiles()
+	util.ValidateFiles()
 	db := database.History{}
 	db.Read()
 	cmd.CommandLine(&db)

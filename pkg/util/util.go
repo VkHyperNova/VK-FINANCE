@@ -6,10 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
-	"strconv"
-	"strings"
 
-	"github.com/VkHyperNova/VK-FINANCE/pkg/config"
 	"github.com/peterh/liner"
 )
 
@@ -45,7 +42,7 @@ func Input() string {
 	return userInput
 }
 
-func ValidateRequiredFiles() {
+func ValidateFiles() {
 
 	folderName := "history"
 
@@ -65,37 +62,18 @@ func ValidateRequiredFiles() {
 	}
 }
 
-func WriteDataToFile(filename string, dataBytes []byte) {
+func WriteToFile(filename string, dataBytes []byte) {
 	var err = os.WriteFile(filename, dataBytes, 0644)
 	if err != nil {
 		fmt.Println(err)
 	}
 }
 
-func ArrayContainsString(arr []string, name string) bool {
+func Contains(arr []string, name string) bool {
 	for _, n := range arr {
 		if n == name {
 			return true
 		}
 	}
 	return false
-}
-
-func Split(parts []string) (string, float64) {
-
-	item := strings.ToLower(parts[0])
-
-	// Try to convert the second part to a float
-	sum, err := strconv.ParseFloat(parts[1], 64)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	// Adjust sum if item is in expenses category
-	if ArrayContainsString(config.ExpensesItems, item) {
-		sum = -sum
-	}
-
-	return item, sum
 }
