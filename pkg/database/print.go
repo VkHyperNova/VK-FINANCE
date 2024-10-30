@@ -17,11 +17,11 @@ func (h *History) PrintCLI() {
 
 	util.ClearScreen()
 
-	fmt.Println("\nVK FINANCE v1.2")
+	fmt.Print("\nVK FINANCE v1.2\n\n")
 
 	h.PrintSummary()
 
-	fmt.Println("\nhistory day stats backup quit")
+	fmt.Print("\n\nhistory day stats backup quit")
 }
 
 func (h *History) PrintItems(items []string, highlightName string) {
@@ -68,13 +68,23 @@ func (h *History) PrintSummary() {
 	balance := strconv.FormatFloat(values[0]+values[1], 'f', 2, 64)
 
 	// PRINT INCOME
-	fmt.Println(colors.Green, "\tINCOME: " + "+"+income+" EUR", colors.Reset)
+	fmt.Println(colors.Green, "\tINCOME: "+"+"+income+" EUR", colors.Reset)
 
 	// PRINT EXPENSES
-	fmt.Println(colors.Red, "\tEXPENSES: " + expenses+" EUR", colors.Reset)
+	fmt.Println(colors.Red, "\tEXPENSES: "+expenses+" EUR", colors.Reset)
 
 	// PRINT BALANCE
-	fmt.Println(colors.Bold, "\tBALANCE: " + balance + " EUR", colors.Reset)
+	fmt.Println(colors.Bold, "\tBALANCE: "+balance+" EUR", colors.Reset)
+
+	// PRINT LAST ADDED ITEMS
+	now := time.Now()
+	currentDate := now.Format("02-01-2006")
+
+	for _, value := range h.History {
+		if value.DATE == currentDate {
+			fmt.Print(colors.Green+ "\n=> " +value.COMMENT+": ", value.VALUE, colors.Reset)
+		}
+	}
 }
 
 func (h *History) PrintHistory() {

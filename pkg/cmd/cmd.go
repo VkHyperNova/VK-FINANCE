@@ -16,7 +16,7 @@ func CommandLine(db *database.History) {
 		var cmd string = ""
 		var sum float64 = 0.0
 
-		fmt.Print("=> ")
+		fmt.Print("\n=> ")
 
 		fmt.Scanln(&cmd, &sum)
 
