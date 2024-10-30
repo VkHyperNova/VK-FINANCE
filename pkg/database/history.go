@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -48,21 +47,13 @@ func (h *History) Read() {
 	}
 }
 
-func (h *History) Save(parts []string) bool {
+func (h *History) Save(item string, value float64) bool {
 
-	comment := strings.ToLower(parts[0])
+	comment := strings.ToLower(item)
 
 	// Check for random items
 	if !util.Contains(config.IncomeItems, comment) && !util.Contains(config.ExpensesItems, comment) {
 		comment = "other"
-	}
-
-	// Try to convert the second part to a float
-	value, err := strconv.ParseFloat(parts[1], 64)
-
-	if err != nil {
-		fmt.Println(err)
-		return false
 	}
 
 	// Assign +/- if it's not dept
@@ -108,7 +99,7 @@ func (h *History) Backup() {
 	expenses := values[1]
 
 	// Save old balance
-	dept := strconv.FormatFloat(income+expenses, 'f', 2, 64)
+	dept := income+expenses
 
 	byteArray, err := json.MarshalIndent(h, "", " ")
 	if err != nil {
@@ -131,9 +122,7 @@ func (h *History) Backup() {
 	h.Read()
 
 	// Append old balance
-	var itemParts []string
-	itemParts = append(itemParts, "dept", dept)
-	h.Save(itemParts)
+	h.Save("dept", dept)
 
 	fmt.Println(colors.Bold+colors.Green, "\n\tBackup Done!\n", colors.Reset)
 

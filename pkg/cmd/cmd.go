@@ -1,8 +1,8 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
-	"strings"
 
 	"github.com/VkHyperNova/VK-FINANCE/pkg/database"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
@@ -13,15 +13,18 @@ func CommandLine(db *database.History) {
 	db.PrintCLI()
 
 	for {
-		cmd := util.Input()
+		var cmd string = ""
+		var sum float64 = 0.0
 
-		itemParts := strings.Fields(cmd)
+		fmt.Print("=> ")
 
-		if len(itemParts) != 2 {
+		fmt.Scanln(&cmd, &sum)
+
+		if sum == 0.0 {
 			executeCommand(cmd, db)
 		}
 
-		db.Save(itemParts)
+		db.Save(cmd, sum)
 
 		CommandLine(db)
 	}
