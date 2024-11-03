@@ -61,20 +61,16 @@ func (h *History) PrintItems(items []string, highlightName string) {
 
 func (h *History) PrintSummary() {
 
-	values := h.Calculate()
-
-	income := strconv.FormatFloat(values[0], 'f', 2, 64)
-	expenses := strconv.FormatFloat(values[1], 'f', 2, 64)
-	balance := strconv.FormatFloat(values[0]+values[1], 'f', 2, 64)
+	income, expenses, balance := h.Calculate()
 
 	// PRINT INCOME
-	fmt.Println(colors.Green, "\tINCOME: "+"+"+income+" EUR", colors.Reset)
+	fmt.Println(colors.Green, "\tINCOME: "+"+"+strconv.FormatFloat(income, 'f', 2, 64)+" EUR", colors.Reset)
 
 	// PRINT EXPENSES
-	fmt.Println(colors.Red, "\tEXPENSES: "+expenses+" EUR", colors.Reset)
+	fmt.Println(colors.Red, "\tEXPENSES: "+strconv.FormatFloat(expenses, 'f', 2, 64)+" EUR", colors.Reset)
 
 	// PRINT BALANCE
-	fmt.Println(colors.Bold, "\tBALANCE: "+balance+" EUR", colors.Reset)
+	fmt.Println(colors.Bold, "\tBALANCE: "+strconv.FormatFloat(balance, 'f', 2, 64)+" EUR", colors.Reset)
 
 	// PRINT LAST ADDED ITEMS
 	now := time.Now()

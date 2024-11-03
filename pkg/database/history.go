@@ -94,12 +94,7 @@ func (h *History) Save(item string, value float64) bool {
 
 func (h *History) Backup() {
 
-	values := h.Calculate()
-	income := values[0]
-	expenses := values[1]
-
-	// Save old balance
-	dept := income+expenses
+	_, _, oldBalance := h.Calculate()
 
 	byteArray, err := json.MarshalIndent(h, "", " ")
 	if err != nil {
@@ -122,28 +117,26 @@ func (h *History) Backup() {
 	h.Read()
 
 	// Append old balance
-	h.Save("dept", dept)
+	h.Save("dept", oldBalance)
 
 	fmt.Println(colors.Bold+colors.Green, "\n\tBackup Done!\n", colors.Reset)
 
 	util.PressAnyKey()
 }
 
-func (h *History) Calculate() []float64 {
+func (h *History) Calculate() (float64, float64, float64) {
 
-	totalIncome := 0.0
-	totalExpenses := 0.0
+	income := 0.0
+	expenses := 0.0
 
 	for _, item := range h.History {
 
 		if item.VALUE < 0 {
-			totalExpenses += item.VALUE
+			expenses += item.VALUE
 		} else {
-			totalIncome += item.VALUE
+			income += item.VALUE
 		}
 	}
 
-	values := []float64{totalIncome, totalExpenses}
-
-	return values
+	return income, expenses, income + expenses
 }
