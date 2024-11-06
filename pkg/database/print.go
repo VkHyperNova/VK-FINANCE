@@ -78,7 +78,7 @@ func (h *History) PrintSummary() {
 
 	for _, value := range h.History {
 		if value.DATE == currentDate {
-			fmt.Print(colors.Green+ "\n=> " +value.COMMENT+": ", value.VALUE, colors.Reset)
+			fmt.Print(colors.Green+ "\n=> " +value.COMMENT+": ", strconv.FormatFloat(value.VALUE, 'f', 2, 64), colors.Reset)
 		}
 	}
 }
