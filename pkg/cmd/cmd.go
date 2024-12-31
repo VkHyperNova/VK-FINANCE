@@ -24,7 +24,7 @@ func CommandLine(db *database.History) {
 			executeCommand(cmd, db)
 		}
 
-		db.Save(cmd, sum)
+		db.SaveFile(cmd, sum)
 
 		CommandLine(db)
 	}
@@ -40,6 +40,9 @@ func executeCommand(cmd string, db *database.History) {
 		CommandLine(db)
 	case "stats", "s":
 		db.PrintStatistics()
+		CommandLine(db)
+	case "undo":
+		db.Undo()
 		CommandLine(db)
 	case "backup":
 		db.Backup()

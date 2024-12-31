@@ -11,6 +11,6 @@ import (
 func main() {
 	util.ValidateFiles()
 	db := database.History{}
-	db.Read()
+	db.ReadFile()
 	cmd.CommandLine(&db)
 }

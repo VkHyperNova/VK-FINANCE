@@ -15,5 +15,5 @@ var BackupPath = "/media/veikko/VK DATA/DATABASES/FINANCE/history.json"
 
 /* Constants */
 
-var IncomeItems = []string{"pension", "programming", "wolt", "bolt", "muu"}
+var IncomeItems = []string{"pension", "programming", "wolt", "bolt", "bonus"}
 var ExpensesItems = []string{"arved", "food", "catfood", "saun", "bensiin", "vape", "w", "other", "dept", "correction"}

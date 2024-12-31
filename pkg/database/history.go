@@ -27,7 +27,7 @@ type History struct {
 	History []HistoryItem `json:"history"`
 }
 
-func (h *History) Read() {
+func (h *History) ReadFile() {
 
 	file, err := os.Open(config.Path)
 	if err != nil {
@@ -47,7 +47,7 @@ func (h *History) Read() {
 	}
 }
 
-func (h *History) Save(item string, value float64) bool {
+func (h *History) SaveFile(item string, value float64) bool {
 
 	comment := strings.ToLower(item)
 
@@ -63,6 +63,7 @@ func (h *History) Save(item string, value float64) bool {
 
 	// Add time
 	now := time.Now()
+
 	NewItem := HistoryItem{
 		DATE:    now.Format("02-01-2006"),
 		TIME:    now.Format("15:04:05"),
@@ -114,10 +115,10 @@ func (h *History) Backup() {
 	util.WriteToFile(config.Path, []byte(`{"history": []}`))
 
 	// Open new Empty DB
-	h.Read()
+	h.ReadFile()
 
 	// Append old balance
-	h.Save("dept", oldBalance)
+	h.SaveFile("dept", oldBalance)
 
 	fmt.Println(colors.Bold+colors.Green, "\n\tBackup Done!\n", colors.Reset)
 
@@ -140,3 +141,25 @@ func (h *History) Calculate() (float64, float64, float64) {
 
 	return income, expenses, income + expenses
 }
+
+func (h *History) Undo() bool {
+
+    // Remove the last item
+    h.History = h.History[:len(h.History)-1]
+
+	// Convert to json
+	byteArray, err := json.MarshalIndent(h, "", "  ")
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+
+	// Save to main path
+	util.WriteToFile(config.Path, byteArray)
+
+	// D-drive Backup
+	util.WriteToFile(config.BackupPath, byteArray)
+
+	return true
+}
+

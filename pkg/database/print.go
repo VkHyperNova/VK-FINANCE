@@ -21,7 +21,7 @@ func (h *History) PrintCLI() {
 
 	h.PrintSummary()
 
-	fmt.Print("\n\nhistory day stats backup quit")
+	fmt.Print("\n\nhistory day stats undo backup quit")
 }
 
 func (h *History) PrintItems(items []string, highlightName string) {
