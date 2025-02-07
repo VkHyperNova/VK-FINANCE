@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/VkHyperNova/VK-FINANCE/pkg/colors"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/database"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
@@ -24,7 +25,7 @@ func CommandLine(db *database.History) {
 			executeCommand(cmd, db)
 		}
 
-		db.SaveFile(cmd, sum)
+		db.Insert(cmd, sum)
 
 		CommandLine(db)
 	}
@@ -34,9 +35,6 @@ func executeCommand(cmd string, db *database.History) {
 	switch cmd {
 	case "history", "h":
 		db.PrintHistory()
-		CommandLine(db)
-	case "day", "d":
-		db.PrintDays()
 		CommandLine(db)
 	case "stats", "s":
 		db.PrintStatistics()
@@ -51,6 +49,8 @@ func executeCommand(cmd string, db *database.History) {
 		util.ClearScreen()
 		os.Exit(0)
 	default:
+		fmt.Println(colors.Red, "Command does not exist", colors.Reset)
+		util.PressAnyKey()
 		CommandLine(db)
 	}
 }

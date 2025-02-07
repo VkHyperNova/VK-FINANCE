@@ -21,7 +21,7 @@ func (h *History) PrintCLI() {
 
 	h.PrintSummary()
 
-	fmt.Print("\n\nhistory day stats undo backup quit")
+	fmt.Print("\n\nhistory stats undo backup quit")
 }
 
 func (h *History) PrintItems(items []string, highlightName string) {
@@ -72,13 +72,58 @@ func (h *History) PrintSummary() {
 	// PRINT BALANCE
 	fmt.Println(colors.Bold, "\tBALANCE: "+strconv.FormatFloat(balance, 'f', 2, 64)+" EUR", colors.Reset)
 
-	// PRINT LAST ADDED ITEMS
+	// PRINT BALANCE DETAILS
+	DaySpent := make(map[time.Time]float64)
+
+	for _, item := range h.History {
+		date, err := time.Parse("02-01-2006", item.DATE)
+		if err != nil {
+			fmt.Println("Error parsing date:", err)
+		}
+		DaySpent[date] += item.VALUE
+	}
+
+	type KeyValue struct {
+		Key   time.Time
+		Value float64
+	}
+
+	// Convert the map to a slice of key-value pairs
+	var keyValueSlice []KeyValue
+	for k, v := range DaySpent {
+		keyValueSlice = append(keyValueSlice, KeyValue{k, v})
+	}
+
+	// Sort the slice by keys
+	sort.Slice(keyValueSlice, func(i, j int) bool {
+		return keyValueSlice[i].Key.Before(keyValueSlice[j].Key)
+	})
+
+	fmt.Println()
+
 	now := time.Now()
 	currentDate := now.Format("02-01-2006")
 
+	// Print balance by day
+	for _, kv := range keyValueSlice {
+		fmt.Println(colors.Bold+colors.Cyan, kv.Key.Format("02-01-2006"), colors.Reset)
+		if kv.Value <= 0 {
+			fmt.Print(colors.Bold+colors.Red, " \t"+kv.Key.Weekday().String()+": ", colors.Reset)
+			fmt.Println(colors.Bold+colors.Red, fmt.Sprintf("%.2f", kv.Value), colors.Reset)
+		} else {
+			fmt.Print(colors.Bold+colors.Green, " \t"+kv.Key.Weekday().String()+": ", colors.Reset)
+			fmt.Println(colors.Bold+colors.Green, fmt.Sprintf("+%.2f", kv.Value), colors.Reset)
+		}
+	}
+
+	// Print current date balance details
 	for _, value := range h.History {
 		if value.DATE == currentDate {
-			fmt.Print(colors.Green+ "\n=> " +value.COMMENT+": ", strconv.FormatFloat(value.VALUE, 'f', 2, 64), colors.Reset)
+			if value.VALUE <= 0 {
+				fmt.Print(colors.Red+"\n\t "+value.COMMENT+": ", strconv.FormatFloat(value.VALUE, 'f', 2, 64), colors.Reset)
+			} else {
+				fmt.Print(colors.Green+"\n\t "+value.COMMENT+": +", strconv.FormatFloat(value.VALUE, 'f', 2, 64), colors.Reset)
+			}
 		}
 	}
 }
@@ -120,48 +165,6 @@ func (h *History) PrintHistory() {
 	util.PressAnyKey()
 }
 
-func (h *History) PrintDays() {
-
-	DaySpent := make(map[time.Time]float64)
-
-	for _, item := range h.History {
-		date, err := time.Parse("02-01-2006", item.DATE)
-		if err != nil {
-			fmt.Println("Error parsing date:", err)
-		}
-		DaySpent[date] += item.VALUE
-	}
-
-	type KeyValue struct {
-		Key   time.Time
-		Value float64
-	}
-
-	// Convert the map to a slice of key-value pairs
-	var keyValueSlice []KeyValue
-	for k, v := range DaySpent {
-		keyValueSlice = append(keyValueSlice, KeyValue{k, v})
-	}
-
-	// Sort the slice by keys
-	sort.Slice(keyValueSlice, func(i, j int) bool {
-		return keyValueSlice[i].Key.Before(keyValueSlice[j].Key)
-	})
-
-	util.ClearScreen()
-
-	// Print the sorted map
-	fmt.Println(colors.Yellow+colors.Bold, "\n\tDaily Spending\n", colors.Reset)
-
-	for _, kv := range keyValueSlice {
-		fmt.Print(colors.Bold+colors.Cyan, kv.Key.Format("02-01-2006"), colors.Reset)
-		fmt.Print(colors.Bold+colors.Cyan, " "+kv.Key.Weekday().String()+": ", colors.Reset)
-		fmt.Println(colors.Bold+colors.Red, fmt.Sprintf("%.2f", kv.Value), colors.Reset)
-	}
-
-	util.PressAnyKey()
-}
-
 func (h *History) PrintStatistics() {
 
 	util.ClearScreen()
@@ -175,23 +178,6 @@ func (h *History) PrintStatistics() {
 	fmt.Println()
 
 	h.PrintSummary()
-
-	util.PressAnyKey()
-}
-
-func (h *History) PrintMessage() {
-
-	util.ClearScreen()
-
-	lastAddedItem := h.History[len(h.History)-1]
-
-	if util.Contains(config.IncomeItems, lastAddedItem.COMMENT) {
-		h.PrintItems(config.IncomeItems, lastAddedItem.COMMENT)
-	}
-
-	if util.Contains(config.ExpensesItems, lastAddedItem.COMMENT) {
-		h.PrintItems(config.ExpensesItems, lastAddedItem.COMMENT)
-	}
 
 	util.PressAnyKey()
 }

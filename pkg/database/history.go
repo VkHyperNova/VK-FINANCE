@@ -27,7 +27,7 @@ type History struct {
 	History []HistoryItem `json:"history"`
 }
 
-func (h *History) ReadFile() {
+func (h *History) Read() {
 
 	file, err := os.Open(config.Path)
 	if err != nil {
@@ -47,13 +47,15 @@ func (h *History) ReadFile() {
 	}
 }
 
-func (h *History) SaveFile(item string, value float64) bool {
+func (h *History) Insert(item string, value float64) bool {
 
 	comment := strings.ToLower(item)
 
 	// Check for random items
 	if !util.Contains(config.IncomeItems, comment) && !util.Contains(config.ExpensesItems, comment) {
-		comment = "other"
+		fmt.Println(colors.Red, "No such item!", colors.Reset)
+		util.PressAnyKey()
+		return false
 	}
 
 	// Assign +/- if it's not dept
@@ -87,9 +89,6 @@ func (h *History) SaveFile(item string, value float64) bool {
 	// D-drive Backup
 	util.WriteToFile(config.BackupPath, byteArray)
 
-	// Print Income/Expense items
-	h.PrintMessage()
-
 	return true
 }
 
@@ -115,10 +114,10 @@ func (h *History) Backup() {
 	util.WriteToFile(config.Path, []byte(`{"history": []}`))
 
 	// Open new Empty DB
-	h.ReadFile()
+	h.Read()
 
 	// Append old balance
-	h.SaveFile("dept", oldBalance)
+	h.Insert("dept", oldBalance)
 
 	fmt.Println(colors.Bold+colors.Green, "\n\tBackup Done!\n", colors.Reset)
 
@@ -144,8 +143,8 @@ func (h *History) Calculate() (float64, float64, float64) {
 
 func (h *History) Undo() bool {
 
-    // Remove the last item
-    h.History = h.History[:len(h.History)-1]
+	// Remove the last item
+	h.History = h.History[:len(h.History)-1]
 
 	// Convert to json
 	byteArray, err := json.MarshalIndent(h, "", "  ")
@@ -162,4 +161,3 @@ func (h *History) Undo() bool {
 
 	return true
 }
-
