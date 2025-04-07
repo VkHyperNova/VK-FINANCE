@@ -177,7 +177,5 @@ func (h *History) PrintStatistics() {
 	h.PrintItems(config.ExpensesItems, "")
 	fmt.Println()
 
-	h.PrintSummary()
-
 	util.PressAnyKey()
 }
