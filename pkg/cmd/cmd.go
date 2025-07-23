@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/VkHyperNova/VK-FINANCE/pkg/colors"
+	"github.com/VkHyperNova/VK-FINANCE/pkg/config"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/database"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
@@ -49,7 +49,7 @@ func executeCommand(cmd string, db *database.History) {
 		util.ClearScreen()
 		os.Exit(0)
 	default:
-		fmt.Println(colors.Red, "Command does not exist", colors.Reset)
+		fmt.Println(config.Red, "Command does not exist", config.Reset)
 		util.PressAnyKey()
 		CommandLine(db)
 	}

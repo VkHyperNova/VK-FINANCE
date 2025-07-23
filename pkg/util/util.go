@@ -6,7 +6,9 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 
+	"github.com/VkHyperNova/VK-FINANCE/pkg/config"
 	"github.com/peterh/liner"
 )
 
@@ -76,4 +78,45 @@ func Contains(arr []string, name string) bool {
 		}
 	}
 	return false
+}
+
+func isMounted(mountPoint string) (bool, error) {
+    file, err := os.Open("/proc/mounts")
+    if err != nil {
+        return false, err
+    }
+    defer file.Close()
+
+    scanner := bufio.NewScanner(file)
+    for scanner.Scan() {
+        line := scanner.Text()
+        fields := strings.Fields(line)
+        if len(fields) >= 2 && fields[1] == mountPoint {
+            return true, nil
+        }
+    }
+
+    return false, scanner.Err()
+}
+
+func IsVKDataMounted() {
+
+	if runtime.GOOS != "linux" {
+        fmt.Println("This program only works on Linux.")
+        return
+    }
+
+	mountPoint := "/media/veikko/VK\\040DATA" // change to your actual mount path
+
+    mounted, err := isMounted(mountPoint)
+    if err != nil {
+        fmt.Println("Error:", err)
+        return
+    }
+
+    if mounted {
+        fmt.Println(config.Green + "VK DATA is mounted" + config.Reset)
+    } else {
+        fmt.Println(config.Red + "VK DATA is NOT mounted" + config.Reset)
+    }
 }

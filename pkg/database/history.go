@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/VkHyperNova/VK-FINANCE/pkg/colors"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/config"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
@@ -53,7 +52,7 @@ func (h *History) Insert(item string, value float64) bool {
 
 	// Check for random items
 	if !util.Contains(config.IncomeItems, comment) && !util.Contains(config.ExpensesItems, comment) {
-		fmt.Println(colors.Red, "No such item!", colors.Reset)
+		fmt.Println(config.Red, "No such item!", config.Reset)
 		util.PressAnyKey()
 		return false
 	}
@@ -119,7 +118,7 @@ func (h *History) Backup() {
 	// Append old balance
 	h.Insert("dept", oldBalance)
 
-	fmt.Println(colors.Bold+colors.Green, "\n\tBackup Done!\n", colors.Reset)
+	fmt.Println(config.Bold+config.Green, "\n\tBackup Done!\n", config.Reset)
 
 	util.PressAnyKey()
 }
