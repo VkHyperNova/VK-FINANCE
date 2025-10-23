@@ -21,6 +21,7 @@ func (h *History) PrintCLI() {
 	h.PrintSummary()
 
 	util.IsVKDataMounted()
+	
 	fmt.Print("\n\nhistory stats undo backup quit")
 }
 

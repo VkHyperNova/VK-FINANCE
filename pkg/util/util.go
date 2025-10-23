@@ -115,8 +115,8 @@ func IsVKDataMounted() {
     }
 
     if mounted {
-        fmt.Println(config.Green + "VK DATA is mounted" + config.Reset)
+        fmt.Println(config.Green + "\nVK DATA is mounted" + config.Reset)
     } else {
-        fmt.Println(config.Red + "VK DATA is NOT mounted" + config.Reset)
+        fmt.Println(config.Red + "\nVK DATA is NOT mounted" + config.Reset)
     }
 }
