@@ -9,8 +9,10 @@ import (
 //go:generate goversioninfo
 
 func main() {
-	util.ValidateFiles()
-	db := database.History{}
-	db.Read()
-	cmd.CommandLine(&db)
+	if util.IsVKDataMounted() {
+		util.ValidateFiles()
+		db := database.History{}
+		db.Read()
+		cmd.CommandLine(&db)
+	}
 }

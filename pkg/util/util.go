@@ -46,12 +46,12 @@ func Input() string {
 
 func ValidateFiles() {
 
-	folderName := "history"
+	// folderName := "history"
 
-	if _, err := os.Stat(folderName); os.IsNotExist(err) {
-		_ = os.Mkdir(folderName, 0700)
-		fmt.Println("history folder created!")
-	}
+	// if _, err := os.Stat(folderName); os.IsNotExist(err) {
+	// 	_ = os.Mkdir(folderName, 0700)
+	// 	fmt.Println("history folder created!")
+	// }
 
 	path := "./history.json"
 
@@ -99,11 +99,11 @@ func isMounted(mountPoint string) (bool, error) {
     return false, scanner.Err()
 }
 
-func IsVKDataMounted() {
+func IsVKDataMounted() bool {
 
 	if runtime.GOOS != "linux" {
         fmt.Println("This program only works on Linux.")
-        return
+        return false
     }
 
 	mountPoint := "/media/veikko/VK\\040DATA" // change to your actual mount path
@@ -111,12 +111,14 @@ func IsVKDataMounted() {
     mounted, err := isMounted(mountPoint)
     if err != nil {
         fmt.Println("Error:", err)
-        return
+        return false
     }
 
     if mounted {
         fmt.Println(config.Green + "\nVK DATA is mounted" + config.Reset)
+		return true
     } else {
         fmt.Println(config.Red + "\nVK DATA is NOT mounted" + config.Reset)
+		return false
     }
 }
