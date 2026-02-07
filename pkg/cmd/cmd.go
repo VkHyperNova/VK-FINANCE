@@ -14,20 +14,21 @@ func CommandLine(db *database.Finance) {
 	db.PrintCLI()
 
 	for {
-		var name string = ""
+		var comment string = ""
 		var sum float64 = 0.0
 
 		fmt.Print("\n=> ")
 
-		fmt.Scanln(&name, &sum)
+		fmt.Scanln(&comment, &sum)
 
 		if sum == 0.0 {
-			executeCommand(name, db)
+			executeCommand(comment, db)
 		}
 
-		config.LastAddedItemName = name
+		config.LastAddedItemName = comment
+		config.LastAddedItemSum = sum
 
-		db.Insert(name, sum)
+		db.Insert(comment, sum)
 
 		CommandLine(db)
 	}

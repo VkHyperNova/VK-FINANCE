@@ -17,50 +17,43 @@ func (h *Finance) PrintCLI() {
 
 	fmt.Print("\nVK FINANCE v1.3\n\n")
 
+	// Print month
+	currentMonth := time.Now().AddDate(0, -1, 0).Format("January 2006")
+	fmt.Println("\t" + currentMonth + "\n")
+
 	income, expenses, balance := h.Calculate()
 	fmt.Println(config.Green, "INCOME: "+"+"+strconv.FormatFloat(income, 'f', 2, 64)+" EUR", config.Reset)
 	fmt.Println(config.Red, "EXPENSES: "+strconv.FormatFloat(expenses, 'f', 2, 64)+" EUR", config.Reset)
 	fmt.Println(config.Bold, "BALANCE: "+strconv.FormatFloat(balance, 'f', 2, 64)+" EUR", config.Reset)
 	fmt.Println()
 
-	h.PrintItems(config.IncomeItems)
-	h.PrintItems(config.ExpensesItems)
+	h.PrintItems(config.AllItems)
 
 	fmt.Print("\n\nhistory undo backup quit")
 }
 
 func (h *Finance) PrintItems(items []string) {
 	totals := make(map[string]float64)
-
 	for _, item := range h.Finance {
 		totals[item.COMMENT] += item.VALUE
 	}
 
 	for _, name := range items {
 		value := totals[name]
-
-		// 👇 skip zero values
 		if value == 0 {
 			continue
 		}
 
 		line := fmt.Sprintf("\t%s: %.2f EUR", name, value)
-
-		if name == config.LastAddedItemName {
-			line = config.Bold + line + config.Reset
+		highlight := name == config.LastAddedItemName
+		if highlight {
+			line += " | " + strconv.FormatFloat(config.LastAddedItemSum, 'f', 2, 64)
 		}
 
-		switch {
-		case value > 0:
-			line = config.Green + line + config.Reset
-		case value < 0:
-			line = config.Red + line + config.Reset
-		}
-
-		fmt.Println(line)
+		fmt.Println(util.Colorize(line, value, highlight))
 	}
-}
 
+}
 
 func (h *Finance) PrintHistory() {
 
@@ -98,4 +91,3 @@ func (h *Finance) PrintHistory() {
 	}
 	util.PressAnyKey()
 }
-

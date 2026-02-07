@@ -51,14 +51,14 @@ func (h *Finance) Insert(item string, value float64) bool {
 	comment := strings.ToLower(item)
 
 	// Check for random items
-	if !util.Contains(config.IncomeItems, comment) && !util.Contains(config.ExpensesItems, comment) {
+	if !util.Contains(config.AllItems, comment) {
 		fmt.Println(config.Red, "No such item!", config.Reset)
 		util.PressAnyKey()
 		return false
 	}
 
 	// Assign +/- if it's not dept
-	if util.Contains(config.ExpensesItems, comment) && comment != "dept" {
+	if !util.Contains(config.IncomeItems, comment) && comment != "dept" {
 		value = -value
 	}
 
@@ -92,13 +92,14 @@ func (h *Finance) Insert(item string, value float64) bool {
 }
 
 func (h *Finance) Backup() bool {
+
+	// Ask before backup start
 	answer := util.Input("Did you take a picture?(y/n)")
 	if answer == "n" {
 		fmt.Println(config.Bold+config.Red, "\n\tBackup Canceled!\n", config.Reset)
 		util.PressAnyKey()
 		return false
 	}
-
 
 	// Calculate old dept
 	_, _, oldBalance := h.Calculate()

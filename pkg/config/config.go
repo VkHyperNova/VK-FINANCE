@@ -1,13 +1,13 @@
 package config
 
-import "time"
+// import "time"
 
 /* Paths */
 
 var DefaultPath = "./vk-finance.json"
 var BackupPath = "/media/veikko/VK DATA/DATABASES/FINANCE/vk-finance.json"
 
-var HistoryPath = "/media/veikko/VK DATA/DATABASES/FINANCE/" + time.Now().AddDate(0, -1, 0).Format("January2006") + ".json"
+// var HistoryPath = "/media/veikko/VK DATA/DATABASES/FINANCE/" + time.Now().AddDate(0, -1, 0).Format("January2006") + ".json"
 
 /* Testing paths */
 
@@ -16,10 +16,10 @@ var HistoryPath = "/media/veikko/VK DATA/DATABASES/FINANCE/" + time.Now().AddDat
 
 /* Constants */
 
+var AllItems = []string{"pension", "programming", "wolt", "bolt", "bonus", "arved", "food", "catfood", "saun", "bensiin", "w", "other", "dept", "correction"}
 var IncomeItems = []string{"pension", "programming", "wolt", "bolt", "bonus"}
-var ExpensesItems = []string{"arved", "food", "catfood", "saun", "bensiin", "w", "other", "dept", "correction"}
-
 var LastAddedItemName = ""
+var LastAddedItemSum = 0.0
 
 /* Colors */
 const (

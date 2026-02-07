@@ -116,3 +116,18 @@ func IsVKDataMounted() bool {
 		return false
 	}
 }
+
+
+func Colorize(line string, value float64, highlight bool) string {
+	if highlight {
+		return config.Bold + config.Yellow + line + config.Reset
+	}
+	switch {
+	case value > 0:
+		return config.Green + line + config.Reset
+	case value < 0:
+		return config.Red + line + config.Reset
+	default:
+		return line
+	}
+}
