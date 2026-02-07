@@ -74,49 +74,37 @@ func Contains(arr []string, name string) bool {
 	return false
 }
 
-func isMounted(mountPoint string) (bool, error) {
-	file, err := os.Open("/proc/mounts")
-	if err != nil {
-		return false, err
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		fields := strings.Fields(line)
-		if len(fields) >= 2 && fields[1] == mountPoint {
-			return true, nil
-		}
-	}
-
-	return false, scanner.Err()
-}
-
-func IsVKDataMounted() bool {
-
+func HardDriveMountCheck() bool {
 	if runtime.GOOS != "linux" {
 		fmt.Println("This program only works on Linux.")
 		return false
 	}
 
-	mountPoint := "/media/veikko/VK\\040DATA" // change to your actual mount path
+	mountPoint := "/media/veikko/VK\\040DATA" // match /proc/mounts format
 
-	mounted, err := isMounted(mountPoint)
+	file, err := os.Open("/proc/mounts")
 	if err != nil {
-		fmt.Println("Error:", err)
+		fmt.Println("Cannot open /proc/mounts:", err)
+		return false
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		fields := strings.Fields(scanner.Text())
+		if len(fields) >= 2 && fields[1] == mountPoint {
+			return true
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		fmt.Println("Error scanning /proc/mounts:", err)
 		return false
 	}
 
-	if mounted {
-		fmt.Println(config.Green + "\nVK DATA is mounted" + config.Reset)
-		return true
-	} else {
-		fmt.Println(config.Red + "\nVK DATA is NOT mounted" + config.Reset)
-		return false
-	}
+	fmt.Println(config.Red + "\nVK DATA is NOT mounted" + config.Reset)
+	return false
 }
-
 
 func Colorize(line string, value float64, highlight bool) string {
 	if highlight {

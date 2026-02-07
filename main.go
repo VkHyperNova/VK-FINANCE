@@ -9,7 +9,7 @@ import (
 //go:generate goversioninfo
 
 func main() {
-	if util.IsVKDataMounted() {
+	if util.HardDriveMountCheck() {
 		util.CreateDatabaseFile()
 		db := database.Finance{}
 		db.ReadFile()
