@@ -10,9 +10,9 @@ import (
 
 func main() {
 	if util.IsVKDataMounted() {
-		util.ValidateFiles()
-		db := database.History{}
-		db.Read()
+		util.CreateDatabaseFile()
+		db := database.Finance{}
+		db.ReadFile()
 		cmd.CommandLine(&db)
 	}
 }

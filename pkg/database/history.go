@@ -14,7 +14,7 @@ import (
 
 /* Database Functions */
 
-type HistoryItem struct {
+type FinanceItem struct {
 	DATE    string  `json:"date"`
 	TIME    string  `json:"time"`
 	COMMENT string  `json:"comment"`
@@ -22,13 +22,13 @@ type HistoryItem struct {
 }
 
 // Slice containing multiple HistoryItem instances.
-type History struct {
-	History []HistoryItem `json:"history"`
+type Finance struct {
+	Finance []FinanceItem `json:"vk-finance"`
 }
 
-func (h *History) Read() {
+func (h *Finance) ReadFile() {
 
-	file, err := os.Open(config.Path)
+	file, err := os.Open(config.DefaultPath)
 	if err != nil {
 		panic(err)
 	}
@@ -46,7 +46,7 @@ func (h *History) Read() {
 	}
 }
 
-func (h *History) Insert(item string, value float64) bool {
+func (h *Finance) Insert(item string, value float64) bool {
 
 	comment := strings.ToLower(item)
 
@@ -65,7 +65,7 @@ func (h *History) Insert(item string, value float64) bool {
 	// Add time
 	now := time.Now()
 
-	NewItem := HistoryItem{
+	NewItem := FinanceItem{
 		DATE:    now.Format("02-01-2006"),
 		TIME:    now.Format("15:04:05"),
 		COMMENT: comment,
@@ -73,7 +73,7 @@ func (h *History) Insert(item string, value float64) bool {
 	}
 
 	// Append New Item
-	h.History = append(h.History, NewItem)
+	h.Finance = append(h.Finance, NewItem)
 
 	// Convert to json
 	byteArray, err := json.MarshalIndent(h, "", "  ")
@@ -83,7 +83,7 @@ func (h *History) Insert(item string, value float64) bool {
 	}
 
 	// Save to main path
-	util.WriteToFile(config.Path, byteArray)
+	util.WriteToFile(config.DefaultPath, byteArray)
 
 	// D-drive Backup
 	util.WriteToFile(config.BackupPath, byteArray)
@@ -91,29 +91,29 @@ func (h *History) Insert(item string, value float64) bool {
 	return true
 }
 
-func (h *History) Backup() {
-
-	_, _, oldBalance := h.Calculate()
-
-	byteArray, err := json.MarshalIndent(h, "", " ")
-	if err != nil {
-		panic(err)
+func (h *Finance) Backup() bool {
+	answer := util.Input("Did you take a picture?(y/n)")
+	if answer == "n" {
+		fmt.Println(config.Bold+config.Red, "\n\tBackup Canceled!\n", config.Reset)
+		util.PressAnyKey()
+		return false
 	}
 
-	// D-drive history by month Backup
-	util.WriteToFile(config.HistoryPath, byteArray)
 
-	// New history file
-	err = os.Remove(config.Path)
+	// Calculate old dept
+	_, _, oldBalance := h.Calculate()
+
+	// Remove old file
+	err := os.Remove(config.DefaultPath)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	// New history.json
-	util.WriteToFile(config.Path, []byte(`{"history": []}`))
+	// New vk-finance.json
+	util.WriteToFile(config.DefaultPath, []byte(`{"vk-finance": []}`))
 
 	// Open new Empty DB
-	h.Read()
+	h.ReadFile()
 
 	// Append old balance
 	h.Insert("dept", oldBalance)
@@ -121,14 +121,16 @@ func (h *History) Backup() {
 	fmt.Println(config.Bold+config.Green, "\n\tBackup Done!\n", config.Reset)
 
 	util.PressAnyKey()
+
+	return true
 }
 
-func (h *History) Calculate() (float64, float64, float64) {
+func (h *Finance) Calculate() (float64, float64, float64) {
 
 	income := 0.0
 	expenses := 0.0
 
-	for _, item := range h.History {
+	for _, item := range h.Finance {
 
 		if item.VALUE < 0 {
 			expenses += item.VALUE
@@ -140,10 +142,10 @@ func (h *History) Calculate() (float64, float64, float64) {
 	return income, expenses, income + expenses
 }
 
-func (h *History) Undo() bool {
+func (h *Finance) Undo() bool {
 
 	// Remove the last item
-	h.History = h.History[:len(h.History)-1]
+	h.Finance = h.Finance[:len(h.Finance)-1]
 
 	// Convert to json
 	byteArray, err := json.MarshalIndent(h, "", "  ")
@@ -153,7 +155,7 @@ func (h *History) Undo() bool {
 	}
 
 	// Save to main path
-	util.WriteToFile(config.Path, byteArray)
+	util.WriteToFile(config.DefaultPath, byteArray)
 
 	// D-drive Backup
 	util.WriteToFile(config.BackupPath, byteArray)

@@ -9,35 +9,34 @@ import (
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
-func CommandLine(db *database.History) {
+func CommandLine(db *database.Finance) {
 
 	db.PrintCLI()
 
 	for {
-		var cmd string = ""
+		var name string = ""
 		var sum float64 = 0.0
 
 		fmt.Print("\n=> ")
 
-		fmt.Scanln(&cmd, &sum)
+		fmt.Scanln(&name, &sum)
 
 		if sum == 0.0 {
-			executeCommand(cmd, db)
+			executeCommand(name, db)
 		}
 
-		db.Insert(cmd, sum)
+		config.LastAddedItemName = name
+
+		db.Insert(name, sum)
 
 		CommandLine(db)
 	}
 }
 
-func executeCommand(cmd string, db *database.History) {
+func executeCommand(cmd string, db *database.Finance) {
 	switch cmd {
 	case "history", "h":
 		db.PrintHistory()
-		CommandLine(db)
-	case "stats", "s":
-		db.PrintStatistics()
 		CommandLine(db)
 	case "undo":
 		db.Undo()

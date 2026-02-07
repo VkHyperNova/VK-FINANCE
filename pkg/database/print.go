@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"sort"
 	"strconv"
 	"time"
 
@@ -12,124 +11,58 @@ import (
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
-func (h *History) PrintCLI() {
+func (h *Finance) PrintCLI() {
 
 	util.ClearScreen()
 
-	fmt.Print("\nVK FINANCE v1.2\n\n")
-
-	h.PrintSummary()
-
-	util.IsVKDataMounted()
-	
-	fmt.Print("\n\nhistory stats undo backup quit")
-}
-
-func (h *History) PrintItems(items []string, highlightName string) {
-
-	for _, name := range items {
-
-		itemValue := 0.0
-
-		for _, item := range h.History {
-			if item.COMMENT == name {
-				itemValue += item.VALUE
-			}
-		}
-
-		item := "\t" + name + ": " + fmt.Sprintf("%.2f", itemValue) + " EUR"
-
-		var pMsg string
-
-		// Highlight the specified name
-		if name == highlightName {
-			pMsg = config.Bold + config.Yellow + item + config.Reset
-
-			// Positive values
-		} else if itemValue > 0 {
-			pMsg = config.Green + item + config.Reset
-
-			// Negative values
-		} else if itemValue < 0 {
-			pMsg = config.Red + item + config.Reset
-		} else {
-			pMsg = item
-		}
-
-		fmt.Println(pMsg)
-	}
-}
-
-func (h *History) PrintSummary() {
+	fmt.Print("\nVK FINANCE v1.3\n\n")
 
 	income, expenses, balance := h.Calculate()
-
-	// PRINT INCOME
-	fmt.Println(config.Green, "\tINCOME: "+"+"+strconv.FormatFloat(income, 'f', 2, 64)+" EUR", config.Reset)
-
-	// PRINT EXPENSES
-	fmt.Println(config.Red, "\tEXPENSES: "+strconv.FormatFloat(expenses, 'f', 2, 64)+" EUR", config.Reset)
-
-	// PRINT BALANCE
-	fmt.Println(config.Bold, "\tBALANCE: "+strconv.FormatFloat(balance, 'f', 2, 64)+" EUR", config.Reset)
-
-	// PRINT BALANCE DETAILS
-	DaySpent := make(map[time.Time]float64)
-
-	for _, item := range h.History {
-		date, err := time.Parse("02-01-2006", item.DATE)
-		if err != nil {
-			fmt.Println("Error parsing date:", err)
-		}
-		DaySpent[date] += item.VALUE
-	}
-
-	type KeyValue struct {
-		Key   time.Time
-		Value float64
-	}
-
-	// Convert the map to a slice of key-value pairs
-	var keyValueSlice []KeyValue
-	for k, v := range DaySpent {
-		keyValueSlice = append(keyValueSlice, KeyValue{k, v})
-	}
-
-	// Sort the slice by keys
-	sort.Slice(keyValueSlice, func(i, j int) bool {
-		return keyValueSlice[i].Key.Before(keyValueSlice[j].Key)
-	})
-
+	fmt.Println(config.Green, "INCOME: "+"+"+strconv.FormatFloat(income, 'f', 2, 64)+" EUR", config.Reset)
+	fmt.Println(config.Red, "EXPENSES: "+strconv.FormatFloat(expenses, 'f', 2, 64)+" EUR", config.Reset)
+	fmt.Println(config.Bold, "BALANCE: "+strconv.FormatFloat(balance, 'f', 2, 64)+" EUR", config.Reset)
 	fmt.Println()
 
-	now := time.Now()
-	currentDate := now.Format("02-01-2006")
+	h.PrintItems(config.IncomeItems)
+	h.PrintItems(config.ExpensesItems)
 
-	// Print balance by day
-	for _, kv := range keyValueSlice {
-		fmt.Println(config.Bold+config.Cyan, kv.Key.Format("02-01-2006"), config.Reset)
-		if kv.Value <= 0 {
-			fmt.Print(config.Bold+config.Red, " \t"+kv.Key.Weekday().String()+": ", config.Reset)
-			fmt.Println(config.Bold+config.Red, fmt.Sprintf("%.2f", kv.Value), config.Reset)
-		} else {
-			fmt.Print(config.Bold+config.Green, " \t"+kv.Key.Weekday().String()+": ", config.Reset)
-			fmt.Println(config.Bold+config.Green, fmt.Sprintf("+%.2f", kv.Value), config.Reset)
-		}
+	fmt.Print("\n\nhistory undo backup quit")
+}
+
+func (h *Finance) PrintItems(items []string) {
+	totals := make(map[string]float64)
+
+	for _, item := range h.Finance {
+		totals[item.COMMENT] += item.VALUE
 	}
 
-	// Print current date balance details
-	for _, value := range h.History {
-		if value.DATE == currentDate {
-			if value.VALUE <= 0 {
-				fmt.Print(config.Red+"\n\t "+value.COMMENT+": ", strconv.FormatFloat(value.VALUE, 'f', 2, 64), config.Reset)
-			} else {
-				fmt.Print(config.Green+"\n\t "+value.COMMENT+": +", strconv.FormatFloat(value.VALUE, 'f', 2, 64), config.Reset)
-			}
+	for _, name := range items {
+		value := totals[name]
+
+		// 👇 skip zero values
+		if value == 0 {
+			continue
 		}
+
+		line := fmt.Sprintf("\t%s: %.2f EUR", name, value)
+
+		if name == config.LastAddedItemName {
+			line = config.Bold + line + config.Reset
+		}
+
+		switch {
+		case value > 0:
+			line = config.Green + line + config.Reset
+		case value < 0:
+			line = config.Red + line + config.Reset
+		}
+
+		fmt.Println(line)
 	}
 }
 
-func (h *History) PrintHistory() {
+
+func (h *Finance) PrintHistory() {
 
 	util.ClearScreen()
 
@@ -137,7 +70,7 @@ func (h *History) PrintHistory() {
 
 	now := time.Now()
 
-	for _, value := range h.History {
+	for _, value := range h.Finance {
 		val, err := json.Marshal(value.VALUE)
 		if err != nil {
 			log.Fatal(err)
@@ -166,17 +99,3 @@ func (h *History) PrintHistory() {
 	util.PressAnyKey()
 }
 
-func (h *History) PrintStatistics() {
-
-	util.ClearScreen()
-
-	fmt.Println(config.Bold+config.Yellow, "\n\tStatistics\n", config.Reset)
-
-	h.PrintItems(config.IncomeItems, "")
-	fmt.Println()
-
-	h.PrintItems(config.ExpensesItems, "")
-	fmt.Println()
-
-	util.PressAnyKey()
-}
