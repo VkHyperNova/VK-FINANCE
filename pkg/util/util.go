@@ -49,12 +49,12 @@ func Input(prompt string) string {
 
 func CreateDatabaseFile() {
 
-	if _, err := os.Stat(config.DefaultPath); os.IsNotExist(err) {
-		err = os.WriteFile(config.DefaultPath, []byte([]byte(`{"vk-finance": []}`)), 0644)
+	if _, err := os.Stat(config.LocalPath); os.IsNotExist(err) {
+		err = os.WriteFile(config.LocalPath, []byte([]byte(`{"vk-finance": []}`)), 0644)
 		if err != nil {
 			panic(err)
 		}
-		fmt.Print("\n=> " + config.DefaultPath)
+		fmt.Print("\n=> " + config.LocalPath)
 	}
 }
 

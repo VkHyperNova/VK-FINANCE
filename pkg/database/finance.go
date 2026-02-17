@@ -28,7 +28,7 @@ type Finance struct {
 
 func (h *Finance) ReadFile() {
 
-	file, err := os.Open(config.DefaultPath)
+	file, err := os.Open(config.LocalPath)
 	if err != nil {
 		panic(err)
 	}
@@ -83,7 +83,7 @@ func (h *Finance) Insert(item string, value float64) bool {
 	}
 
 	// Save to main path
-	util.WriteToFile(config.DefaultPath, byteArray)
+	util.WriteToFile(config.LocalPath, byteArray)
 
 	// D-drive Backup
 	util.WriteToFile(config.BackupPath, byteArray)
@@ -115,13 +115,13 @@ func (h *Finance) Backup() bool {
 	_, _, oldBalance := h.Calculate()
 
 	// Remove old file
-	err = os.Remove(config.DefaultPath)
+	err = os.Remove(config.LocalPath)
 	if err != nil {
 		fmt.Println(err)
 	}
 
 	// New vk-finance.json
-	util.WriteToFile(config.DefaultPath, []byte(`{"vk-finance": []}`))
+	util.WriteToFile(config.LocalPath, []byte(`{"vk-finance": []}`))
 
 	// Open new Empty DB
 	h.ReadFile()
@@ -166,7 +166,7 @@ func (h *Finance) Undo() bool {
 	}
 
 	// Save to main path
-	util.WriteToFile(config.DefaultPath, byteArray)
+	util.WriteToFile(config.LocalPath, byteArray)
 
 	// D-drive Backup
 	util.WriteToFile(config.BackupPath, byteArray)

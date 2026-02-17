@@ -4,7 +4,7 @@ import "time"
 
 /* Paths */
 
-var DefaultPath = "./vk-finance.json"
+var LocalPath = "./vk-finance.json"
 var BackupPath = "/media/veikko/VK DATA/DATABASES/FINANCE/vk-finance.json"
 var HistoryPath = "/media/veikko/VK DATA/DATABASES/FINANCE/" + time.Now().AddDate(0, -1, 0).Format("January2006") + ".json"
 
