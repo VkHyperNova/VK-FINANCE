@@ -101,11 +101,21 @@ func (h *Finance) Backup() bool {
 		return false
 	}
 
+	// Convert to json
+	byteArray, err := json.MarshalIndent(h, "", "  ")
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+
+	// Save a copy
+	util.WriteToFile(config.HistoryPath, byteArray)
+
 	// Calculate old dept
 	_, _, oldBalance := h.Calculate()
 
 	// Remove old file
-	err := os.Remove(config.DefaultPath)
+	err = os.Remove(config.DefaultPath)
 	if err != nil {
 		fmt.Println(err)
 	}
