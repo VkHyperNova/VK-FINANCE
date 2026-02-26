@@ -2,6 +2,7 @@ package util
 
 import (
 	"bufio"
+	"path/filepath"
 
 	"fmt"
 	"os"
@@ -10,6 +11,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/VkHyperNova/VK-FINANCE/pkg/color"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/config"
 	"github.com/peterh/liner"
 )
@@ -47,24 +49,6 @@ func Input(prompt string) string {
 	return userInput
 }
 
-func CreateDatabaseFile() {
-
-	if _, err := os.Stat(config.LocalPath); os.IsNotExist(err) {
-		err = os.WriteFile(config.LocalPath, []byte([]byte(`{"vk-finance": []}`)), 0644)
-		if err != nil {
-			panic(err)
-		}
-		fmt.Print("\n=> " + config.LocalPath)
-	}
-}
-
-func WriteToFile(filename string, dataBytes []byte) {
-	var err = os.WriteFile(filename, dataBytes, 0644)
-	if err != nil {
-		fmt.Println(err)
-	}
-}
-
 func Contains(arr []string, name string) bool {
 	for _, n := range arr {
 		if n == name {
@@ -72,6 +56,57 @@ func Contains(arr []string, name string) bool {
 		}
 	}
 	return false
+}
+
+func Colorize(line string, value float64, highlight bool) string {
+	if highlight {
+		return color.Bold + color.Yellow + line + color.Reset
+	}
+	switch {
+	case value > 0:
+		return color.Green + line + color.Reset
+	case value < 0:
+		return color.Red + line + color.Reset
+	default:
+		return line
+	}
+}
+
+func ensureFile(path string, content string) error {
+
+	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+		return fmt.Errorf("error creating directory for %s: %w", path, err)
+	}
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		if err := os.WriteFile(path, []byte(content), 0644); err != nil {
+			return fmt.Errorf("error creating file %s: %w", path, err)
+		}
+	}
+
+	return nil
+}
+
+func CreateFilesAndFolders() error {
+	
+
+	if err := ensureFile(config.LocalFile, config.DefaultContent); err != nil {
+		return err
+	}
+
+	if !HardDriveMountCheck() {
+		input := Input("Do you want to continue? (y/n) ")
+		if strings.ToLower(strings.TrimSpace(input)) != "y" {
+			fmt.Println("Exiting program.")
+			os.Exit(0)
+		}
+	} else {
+		if err := ensureFile(config.BackupFile, config.DefaultContent); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func HardDriveMountCheck() bool {
@@ -102,20 +137,6 @@ func HardDriveMountCheck() bool {
 		return false
 	}
 
-	fmt.Println(config.Red + "\nVK DATA is NOT mounted" + config.Reset)
+	fmt.Println(color.Red + "\nVK DATA is NOT mounted" + color.Reset)
 	return false
-}
-
-func Colorize(line string, value float64, highlight bool) string {
-	if highlight {
-		return config.Bold + config.Yellow + line + config.Reset
-	}
-	switch {
-	case value > 0:
-		return config.Green + line + config.Reset
-	case value < 0:
-		return config.Red + line + config.Reset
-	default:
-		return line
-	}
 }

@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/VkHyperNova/VK-FINANCE/pkg/color"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/config"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
@@ -15,16 +16,16 @@ func (h *Finance) PrintCLI() {
 
 	util.ClearScreen()
 
-	fmt.Print("\nVK FINANCE v1.3\n\n")
+	fmt.Print("\nVK FINANCE v1.4\n\n")
 
 	// Print month
 	currentMonth := time.Now().AddDate(0, -1, 0).Format("January 2006")
 	fmt.Println("\t" + currentMonth + "\n")
 
 	income, expenses, balance := h.Calculate()
-	fmt.Println(config.Green, "INCOME: "+"+"+strconv.FormatFloat(income, 'f', 2, 64)+" EUR", config.Reset)
-	fmt.Println(config.Red, "EXPENSES: "+strconv.FormatFloat(expenses, 'f', 2, 64)+" EUR", config.Reset)
-	fmt.Println(config.Bold, "BALANCE: "+strconv.FormatFloat(balance, 'f', 2, 64)+" EUR", config.Reset)
+	fmt.Println(color.Green, "INCOME: "+"+"+strconv.FormatFloat(income, 'f', 2, 64)+" EUR", color.Reset)
+	fmt.Println(color.Red, "EXPENSES: "+strconv.FormatFloat(expenses, 'f', 2, 64)+" EUR", color.Reset)
+	fmt.Println(color.Bold, "BALANCE: "+strconv.FormatFloat(balance, 'f', 2, 64)+" EUR", color.Reset)
 	fmt.Println()
 
 	h.PrintItems(config.AllItems)
@@ -59,7 +60,7 @@ func (h *Finance) PrintHistory() {
 
 	util.ClearScreen()
 
-	fmt.Println(config.Bold+config.Yellow, "\n\t\tHistory: \n", config.Reset)
+	fmt.Println(color.Bold+color.Yellow, "\n\t\tHistory: \n", color.Reset)
 
 	now := time.Now()
 
@@ -71,20 +72,20 @@ func (h *Finance) PrintHistory() {
 
 		time := " " + value.TIME + " | "
 		date := value.DATE + " "
-		sum := fmt.Sprint(config.Bold, value.COMMENT+" ", string(val)+" EUR", config.Reset)
+		sum := fmt.Sprint(color.Bold, value.COMMENT+" ", string(val)+" EUR", color.Reset)
 
 		if value.VALUE > 0 {
-			sum = fmt.Sprint(config.Bold+config.Green, value.COMMENT+" ", string(val)+" EUR", config.Reset)
+			sum = fmt.Sprint(color.Bold+color.Green, value.COMMENT+" ", string(val)+" EUR", color.Reset)
 		}
 
 		if value.VALUE < 0 {
-			sum = fmt.Sprint(config.Bold+config.Red, value.COMMENT+" ", string(val)+" EUR", config.Reset)
+			sum = fmt.Sprint(color.Bold+color.Red, value.COMMENT+" ", string(val)+" EUR", color.Reset)
 		}
 
 		msg := time + date + sum
 
 		if value.DATE == now.Format("02-01-2006") {
-			fmt.Println(config.Bold, msg, config.Reset)
+			fmt.Println(color.Bold, msg, color.Reset)
 		} else {
 			fmt.Println(msg)
 		}

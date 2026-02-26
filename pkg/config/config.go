@@ -1,17 +1,21 @@
 package config
 
-import "time"
+import (
+	"path/filepath"
+	"time"
+)
 
 /* Paths */
+var DefaultContent = `{"finance": []}`
+var	file = "finance.json"
+var fileDate = time.Now().AddDate(0, -1, 0).Format("January2006") + ".json"
+var BaseDB = "FINANCE"
+var BaseLocal = "DATABASES"
+var	BaseBackup = "/media/veikko/VK DATA/"
 
-var LocalPath = "./vk-finance.json"
-var BackupPath = "/media/veikko/VK DATA/DATABASES/FINANCE/vk-finance.json"
-var HistoryPath = "/media/veikko/VK DATA/DATABASES/FINANCE/" + time.Now().AddDate(0, -1, 0).Format("January2006") + ".json"
-
-/* Testing paths */
-
-// var HistoryPath = "./history/"+ time.Now().AddDate(0, -1, 0).Format("January2006") + ".json"
-// var BackupPath = "./history/history.json"
+var LocalFile = filepath.Join(BaseLocal, BaseDB, file)
+var BackupFile = filepath.Join(BaseBackup, BaseLocal, BaseDB, file)
+var BackupFileWithDate = filepath.Join(BaseBackup, BaseLocal, BaseDB,fileDate)
 
 /* Constants */
 
@@ -20,16 +24,5 @@ var IncomeItems = []string{"pension", "programming", "wolt", "bolt", "bonus"}
 var LastAddedItemName = ""
 var LastAddedItemSum = 0.0
 
-/* Colors */
-const (
-	Reset  = "\033[0m"
-	Red    = "\033[31m"
-	Green  = "\033[32m"
-	Yellow = "\033[33m"
-	Blue   = "\033[34m"
-	Purple = "\033[35m"
-	Cyan   = "\033[36m"
-	Gray   = "\033[37m"
-	Bold   = "\033[1m"
-	Italic = "\033[3m"
-)
+
+

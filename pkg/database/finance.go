@@ -2,12 +2,14 @@ package database
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/VkHyperNova/VK-FINANCE/pkg/color"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/config"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
@@ -23,38 +25,38 @@ type FinanceItem struct {
 
 // Slice containing multiple HistoryItem instances.
 type Finance struct {
-	Finance []FinanceItem `json:"vk-finance"`
+	Finance []FinanceItem `json:"finance"`
 }
 
-func (h *Finance) ReadFile() {
+func (h *Finance) ReadFromFile() error {
 
-	file, err := os.Open(config.LocalPath)
+	file, err := os.Open(config.LocalFile)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	defer file.Close()
 
 	byteValue, err := io.ReadAll(file)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	err = json.Unmarshal(byteValue, h)
 	if err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
 }
 
-func (h *Finance) Insert(item string, value float64) bool {
+func (h *Finance) Insert(item string, value float64) error {
 
 	comment := strings.ToLower(item)
 
 	// Check for random items
 	if !util.Contains(config.AllItems, comment) {
-		fmt.Println(config.Red, "No such item!", config.Reset)
-		util.PressAnyKey()
-		return false
+		return errors.New("No such Item!")
 	}
 
 	// Assign +/- if it's not dept
@@ -75,65 +77,62 @@ func (h *Finance) Insert(item string, value float64) bool {
 	// Append New Item
 	h.Finance = append(h.Finance, NewItem)
 
-	// Convert to json
-	byteArray, err := json.MarshalIndent(h, "", "  ")
+	err := h.Save()
 	if err != nil {
-		fmt.Println(err)
-		return false
+		return err
 	}
 
-	// Save to main path
-	util.WriteToFile(config.LocalPath, byteArray)
-
-	// D-drive Backup
-	util.WriteToFile(config.BackupPath, byteArray)
-
-	return true
+	return nil
 }
 
-func (h *Finance) Backup() bool {
+func (h *Finance) Backup() error {
 
 	// Ask before backup start
 	answer := util.Input("Did you take a picture?(y/n)")
 	if answer == "n" {
-		fmt.Println(config.Bold+config.Red, "\n\tBackup Canceled!\n", config.Reset)
+		fmt.Println(color.Bold+color.Red, "\n\tBackup Canceled!\n", color.Reset)
 		util.PressAnyKey()
-		return false
+		return nil
 	}
 
 	// Convert to json
-	byteArray, err := json.MarshalIndent(h, "", "  ")
+	finance, err := json.MarshalIndent(h, "", "  ")
 	if err != nil {
-		fmt.Println(err)
-		return false
+		return err
 	}
 
 	// Save a copy
-	util.WriteToFile(config.HistoryPath, byteArray)
+	err = os.WriteFile(config.BackupFileWithDate, finance, 0644)
+	if err != nil {
+		return err
+	}
 
 	// Calculate old dept
 	_, _, oldBalance := h.Calculate()
 
 	// Remove old file
-	err = os.Remove(config.LocalPath)
+	err = os.Remove(config.LocalFile)
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
 
 	// New vk-finance.json
-	util.WriteToFile(config.LocalPath, []byte(`{"vk-finance": []}`))
+	err = os.WriteFile(config.LocalFile, []byte(config.DefaultContent), 0644)
+	if err != nil {
+		return err
+	}
 
 	// Open new Empty DB
-	h.ReadFile()
+	h.ReadFromFile()
 
 	// Append old balance
 	h.Insert("dept", oldBalance)
 
-	fmt.Println(config.Bold+config.Green, "\n\tBackup Done!\n", config.Reset)
+	fmt.Println(color.Bold+color.Green, "\n\tBackup Done!\n", color.Reset)
 
 	util.PressAnyKey()
 
-	return true
+	return nil
 }
 
 func (h *Finance) Calculate() (float64, float64, float64) {
@@ -153,23 +152,35 @@ func (h *Finance) Calculate() (float64, float64, float64) {
 	return income, expenses, income + expenses
 }
 
-func (h *Finance) Undo() bool {
+func (h *Finance) Undo() error {
 
 	// Remove the last item
 	h.Finance = h.Finance[:len(h.Finance)-1]
 
-	// Convert to json
-	byteArray, err := json.MarshalIndent(h, "", "  ")
+	err := h.Save()
 	if err != nil {
-		fmt.Println(err)
-		return false
+		return err
 	}
 
-	// Save to main path
-	util.WriteToFile(config.LocalPath, byteArray)
+	return nil
+}
 
-	// D-drive Backup
-	util.WriteToFile(config.BackupPath, byteArray)
+func (h *Finance) Save() error {
 
-	return true
+	finance, err := json.MarshalIndent(h, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(config.LocalFile, finance, 0644)
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(config.BackupFile, finance, 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
