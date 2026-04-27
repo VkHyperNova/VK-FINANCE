@@ -1,1 +1,424 @@
-{"finance": []}
+{
+  "finance": [
+    {
+      "date": "06-04-2026",
+      "time": "14:08:28",
+      "comment": "dept",
+      "value": -177.4399999999962
+    },
+    {
+      "date": "06-04-2026",
+      "time": "14:08:42",
+      "comment": "pension",
+      "value": 673.94
+    },
+    {
+      "date": "06-04-2026",
+      "time": "14:09:58",
+      "comment": "arved",
+      "value": -45.35
+    },
+    {
+      "date": "06-04-2026",
+      "time": "14:11:59",
+      "comment": "arved",
+      "value": -24.93
+    },
+    {
+      "date": "06-04-2026",
+      "time": "14:14:20",
+      "comment": "arved",
+      "value": -19
+    },
+    {
+      "date": "06-04-2026",
+      "time": "19:15:53",
+      "comment": "w",
+      "value": -20
+    },
+    {
+      "date": "06-04-2026",
+      "time": "19:16:04",
+      "comment": "bensiin",
+      "value": -39.22
+    },
+    {
+      "date": "07-04-2026",
+      "time": "15:08:17",
+      "comment": "catfood",
+      "value": -2.61
+    },
+    {
+      "date": "07-04-2026",
+      "time": "15:08:19",
+      "comment": "other",
+      "value": -5
+    },
+    {
+      "date": "07-04-2026",
+      "time": "15:08:21",
+      "comment": "food",
+      "value": -10
+    },
+    {
+      "date": "07-04-2026",
+      "time": "15:08:25",
+      "comment": "food",
+      "value": -9.26
+    },
+    {
+      "date": "07-04-2026",
+      "time": "15:08:29",
+      "comment": "food",
+      "value": -14.67
+    },
+    {
+      "date": "07-04-2026",
+      "time": "15:08:42",
+      "comment": "arved",
+      "value": -170.44
+    },
+    {
+      "date": "08-04-2026",
+      "time": "15:36:32",
+      "comment": "arved",
+      "value": -25.49
+    },
+    {
+      "date": "08-04-2026",
+      "time": "18:58:24",
+      "comment": "other",
+      "value": -5.06
+    },
+    {
+      "date": "08-04-2026",
+      "time": "18:58:27",
+      "comment": "catfood",
+      "value": -4
+    },
+    {
+      "date": "08-04-2026",
+      "time": "18:58:28",
+      "comment": "food",
+      "value": -8
+    },
+    {
+      "date": "08-04-2026",
+      "time": "18:58:33",
+      "comment": "catfood",
+      "value": -11.01
+    },
+    {
+      "date": "09-04-2026",
+      "time": "20:09:12",
+      "comment": "saun",
+      "value": -6
+    },
+    {
+      "date": "10-04-2026",
+      "time": "20:46:12",
+      "comment": "catfood",
+      "value": -1
+    },
+    {
+      "date": "10-04-2026",
+      "time": "20:46:14",
+      "comment": "other",
+      "value": -5
+    },
+    {
+      "date": "10-04-2026",
+      "time": "20:46:18",
+      "comment": "food",
+      "value": -11.55
+    },
+    {
+      "date": "10-04-2026",
+      "time": "20:46:22",
+      "comment": "food",
+      "value": -17.04
+    },
+    {
+      "date": "11-04-2026",
+      "time": "19:43:21",
+      "comment": "food",
+      "value": -9.45
+    },
+    {
+      "date": "11-04-2026",
+      "time": "19:43:29",
+      "comment": "other",
+      "value": -5
+    },
+    {
+      "date": "11-04-2026",
+      "time": "19:43:31",
+      "comment": "catfood",
+      "value": -1
+    },
+    {
+      "date": "11-04-2026",
+      "time": "19:43:35",
+      "comment": "food",
+      "value": -1.37
+    },
+    {
+      "date": "11-04-2026",
+      "time": "19:43:38",
+      "comment": "w",
+      "value": -26.5
+    },
+    {
+      "date": "12-04-2026",
+      "time": "19:13:42",
+      "comment": "food",
+      "value": -1
+    },
+    {
+      "date": "12-04-2026",
+      "time": "19:13:46",
+      "comment": "catfood",
+      "value": -5.05
+    },
+    {
+      "date": "12-04-2026",
+      "time": "19:13:49",
+      "comment": "saun",
+      "value": -6.5
+    },
+    {
+      "date": "12-04-2026",
+      "time": "19:13:53",
+      "comment": "food",
+      "value": -2.98
+    },
+    {
+      "date": "14-04-2026",
+      "time": "20:36:06",
+      "comment": "bensiin",
+      "value": -32.07
+    },
+    {
+      "date": "14-04-2026",
+      "time": "20:36:10",
+      "comment": "catfood",
+      "value": -1.1
+    },
+    {
+      "date": "14-04-2026",
+      "time": "20:36:12",
+      "comment": "food",
+      "value": -2.3
+    },
+    {
+      "date": "15-04-2026",
+      "time": "20:24:19",
+      "comment": "food",
+      "value": -3
+    },
+    {
+      "date": "15-04-2026",
+      "time": "20:24:21",
+      "comment": "catfood",
+      "value": -4.44
+    },
+    {
+      "date": "16-04-2026",
+      "time": "12:21:07",
+      "comment": "wolt",
+      "value": 189.1
+    },
+    {
+      "date": "16-04-2026",
+      "time": "17:56:53",
+      "comment": "catfood",
+      "value": -1.63
+    },
+    {
+      "date": "16-04-2026",
+      "time": "17:56:57",
+      "comment": "food",
+      "value": -30.5
+    },
+    {
+      "date": "16-04-2026",
+      "time": "17:56:59",
+      "comment": "saun",
+      "value": -6
+    },
+    {
+      "date": "17-04-2026",
+      "time": "20:43:07",
+      "comment": "catfood",
+      "value": -5.55
+    },
+    {
+      "date": "17-04-2026",
+      "time": "20:43:09",
+      "comment": "food",
+      "value": -16.75
+    },
+    {
+      "date": "18-04-2026",
+      "time": "21:02:00",
+      "comment": "bensiin",
+      "value": -55.93
+    },
+    {
+      "date": "18-04-2026",
+      "time": "21:02:05",
+      "comment": "catfood",
+      "value": -4.99
+    },
+    {
+      "date": "18-04-2026",
+      "time": "21:02:10",
+      "comment": "other",
+      "value": -3.56
+    },
+    {
+      "date": "18-04-2026",
+      "time": "21:02:16",
+      "comment": "catfood",
+      "value": -2.29
+    },
+    {
+      "date": "18-04-2026",
+      "time": "21:02:18",
+      "comment": "food",
+      "value": -10.7
+    },
+    {
+      "date": "19-04-2026",
+      "time": "19:28:34",
+      "comment": "catfood",
+      "value": -10.72
+    },
+    {
+      "date": "19-04-2026",
+      "time": "19:28:39",
+      "comment": "saun",
+      "value": -6.5
+    },
+    {
+      "date": "19-04-2026",
+      "time": "19:28:43",
+      "comment": "other",
+      "value": -3.64
+    },
+    {
+      "date": "19-04-2026",
+      "time": "19:28:45",
+      "comment": "food",
+      "value": -3
+    },
+    {
+      "date": "20-04-2026",
+      "time": "19:08:35",
+      "comment": "w",
+      "value": -20
+    },
+    {
+      "date": "20-04-2026",
+      "time": "19:08:38",
+      "comment": "food",
+      "value": -7.07
+    },
+    {
+      "date": "21-04-2026",
+      "time": "21:13:11",
+      "comment": "food",
+      "value": -15.73
+    },
+    {
+      "date": "21-04-2026",
+      "time": "21:13:15",
+      "comment": "catfood",
+      "value": -3.45
+    },
+    {
+      "date": "22-04-2026",
+      "time": "20:15:53",
+      "comment": "food",
+      "value": -5.1
+    },
+    {
+      "date": "23-04-2026",
+      "time": "13:21:41",
+      "comment": "wolt",
+      "value": 190.39
+    },
+    {
+      "date": "23-04-2026",
+      "time": "19:35:21",
+      "comment": "w",
+      "value": -25
+    },
+    {
+      "date": "23-04-2026",
+      "time": "19:35:26",
+      "comment": "catfood",
+      "value": -1.49
+    },
+    {
+      "date": "23-04-2026",
+      "time": "19:35:28",
+      "comment": "food",
+      "value": -24
+    },
+    {
+      "date": "23-04-2026",
+      "time": "19:35:30",
+      "comment": "saun",
+      "value": -6
+    },
+    {
+      "date": "24-04-2026",
+      "time": "21:09:25",
+      "comment": "bensiin",
+      "value": -55.48
+    },
+    {
+      "date": "24-04-2026",
+      "time": "21:09:31",
+      "comment": "food",
+      "value": -6
+    },
+    {
+      "date": "24-04-2026",
+      "time": "21:09:35",
+      "comment": "other",
+      "value": -5
+    },
+    {
+      "date": "24-04-2026",
+      "time": "21:09:38",
+      "comment": "catfood",
+      "value": -4.9
+    },
+    {
+      "date": "25-04-2026",
+      "time": "17:58:43",
+      "comment": "other",
+      "value": -5
+    },
+    {
+      "date": "25-04-2026",
+      "time": "17:58:48",
+      "comment": "catfood",
+      "value": -4.37
+    },
+    {
+      "date": "26-04-2026",
+      "time": "17:24:11",
+      "comment": "food",
+      "value": -12.48
+    },
+    {
+      "date": "26-04-2026",
+      "time": "17:24:16",
+      "comment": "saun",
+      "value": -6.5
+    }
+  ]
+}

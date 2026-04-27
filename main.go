@@ -1,28 +1,30 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"os"
 
 	"github.com/VkHyperNova/VK-FINANCE/pkg/cmd"
-	"github.com/VkHyperNova/VK-FINANCE/pkg/database"
+	"github.com/VkHyperNova/VK-FINANCE/pkg/config"
+	"github.com/VkHyperNova/VK-FINANCE/pkg/db"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
 func main() {
 
-	if err := util.CreateFilesAndFolders(); err != nil {
-		fmt.Println("Error creating files/folders:", err)
-		os.Exit(1)
-	}
-
-	db := database.Finance{}
-
-	err := db.ReadFromFile()
+	mounted, err := util.InitStorage()
 	if err != nil {
-		log.Fatalf("Fatal error: failed to load fastings database: %v", err)
+		log.Fatalf("init storage: %v", err)
 	}
 	
-	cmd.CommandLine(&db)
+	if mounted {
+		defer util.UnmountDrive()
+	}
+
+	f := &db.Finance{}
+
+	if err := f.LoadFromFile(config.LocalFile); err != nil {
+		log.Fatalf("load from file: %v", err)
+	}
+
+	cmd.Start(f)
 }

@@ -1,4 +1,4 @@
-package database
+package db
 
 import (
 	"encoding/json"
@@ -12,30 +12,31 @@ import (
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
-func (h *Finance) PrintCLI() {
+func (f *Finance) PrintDashboard() {
 
 	util.ClearScreen()
 
-	fmt.Print("\nVK FINANCE v1.4\n\n")
+	fmt.Print("\nVK FINANCE v1.5\n\n")
 
 	// Print month
 	currentMonth := time.Now().AddDate(0, -1, 0).Format("January 2006")
 	fmt.Println("\t" + currentMonth + "\n")
 
-	income, expenses, balance := h.Calculate()
+	income, expenses, balance := f.calculate()
 	fmt.Println(color.Green, "INCOME: "+"+"+strconv.FormatFloat(income, 'f', 2, 64)+" EUR", color.Reset)
 	fmt.Println(color.Red, "EXPENSES: "+strconv.FormatFloat(expenses, 'f', 2, 64)+" EUR", color.Reset)
 	fmt.Println(color.Bold, "BALANCE: "+strconv.FormatFloat(balance, 'f', 2, 64)+" EUR", color.Reset)
 	fmt.Println()
 
-	h.PrintItems(config.AllItems)
+	f.PrintItems(config.AllItems)
 
-	fmt.Print("\n\nhistory undo backup quit")
+	fmt.Print("\n\n< history, undo, import, backup, quit >")
+	fmt.Print("\n=> ")
 }
 
-func (h *Finance) PrintItems(items []string) {
+func (f *Finance) PrintItems(items []string) {
 	totals := make(map[string]float64)
-	for _, item := range h.Finance {
+	for _, item := range f.Finance {
 		totals[item.COMMENT] += item.VALUE
 	}
 
@@ -56,7 +57,7 @@ func (h *Finance) PrintItems(items []string) {
 
 }
 
-func (h *Finance) PrintHistory() {
+func (f *Finance) PrintHistory() {
 
 	util.ClearScreen()
 
@@ -64,7 +65,7 @@ func (h *Finance) PrintHistory() {
 
 	now := time.Now()
 
-	for _, value := range h.Finance {
+	for _, value := range f.Finance {
 		val, err := json.Marshal(value.VALUE)
 		if err != nil {
 			log.Fatal(err)

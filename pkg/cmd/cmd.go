@@ -2,59 +2,45 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
-	"github.com/VkHyperNova/VK-FINANCE/pkg/color"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/config"
-	"github.com/VkHyperNova/VK-FINANCE/pkg/database"
-	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
+	"github.com/VkHyperNova/VK-FINANCE/pkg/db"
 )
 
-func CommandLine(db *database.Finance) {
-
-	db.PrintCLI()
+func Start(f *db.Finance) {
 
 	for {
-		var comment string = ""
-		var sum float64 = 0.0
 
-		fmt.Print("\n=> ")
+		f.PrintDashboard()
 
-		fmt.Scanln(&comment, &sum)
+		var command string
+		var sum float64
 
-		if sum == 0.0 {
-			executeCommand(comment, db)
+		fmt.Scanln(&command, &sum)
+
+		switch command {
+		case "history", "h":
+			f.PrintHistory()
+		case "undo":
+			f.Undo()
+		case "backup":
+			err := f.Backup()
+			if err != nil {
+				fmt.Println(err)
+			}
+		case "import", "i":
+			if err := f.ImportDB(config.BackupFile); err != nil {
+				fmt.Println(err)
+			}
+		case "quit", "q":
+			return
+		default:
+			if command == "" || sum == 0.0 {
+				continue
+			}
+			config.LastAddedItemName = command
+			config.LastAddedItemSum = sum
+			f.Add(command, sum)
 		}
-
-		config.LastAddedItemName = comment
-		config.LastAddedItemSum = sum
-
-		db.Insert(comment, sum)
-
-		CommandLine(db)
-	}
-}
-
-func executeCommand(cmd string, db *database.Finance) {
-	switch cmd {
-	case "history", "h":
-		db.PrintHistory()
-		CommandLine(db)
-	case "undo":
-		db.Undo()
-		CommandLine(db)
-	case "backup":
-		err := db.Backup()
-		if err != nil {
-			fmt.Println(err)
-		}
-		CommandLine(db)
-	case "quit", "q":
-		util.ClearScreen()
-		os.Exit(0)
-	default:
-		fmt.Println(color.Red, "Command does not exist", color.Reset)
-		util.PressAnyKey()
-		CommandLine(db)
 	}
 }
