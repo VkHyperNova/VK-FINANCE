@@ -21,44 +21,43 @@ import (
 const (
 	driveLabel      = "VK DATA"
 	driveMountPoint = "/media/veikko/VK DATA"
-	driveDevice     = "/dev/sda2"
 )
 
-func InitStorage() (bool, error) {
+func InitStorage() error {
 
 	if err := ensureFile(config.LocalFile, config.DefaultContent); err != nil {
-		return false, err
+		return err
 	}
 
 	mounted, err := IsDriveMounted()
 	if err != nil {
-		return false, fmt.Errorf("mount check failed: %w", err)
+		return fmt.Errorf("mount check failed: %w", err)
 	}
 
 	if !mounted {
 		input, err := PromptWithSuggestion("Drive not mounted. Try to mount it? (y/n) ", "y")
 		if err != nil {
-			return false, err
+			return err
 		}
 		if strings.ToLower(strings.TrimSpace(input)) != "y" {
-			return false, nil
+			return nil
 		}
 		if err := unlockAndMount(); err != nil {
-			return false, fmt.Errorf("failed to mount drive: %w", err)
+			return fmt.Errorf("failed to mount drive: %w", err)
 		}
 		if mounted, err = IsDriveMounted(); err != nil || !mounted {
-			return false, fmt.Errorf("drive still not mounted after mount attempt")
+			return fmt.Errorf("drive still not mounted after mount attempt")
 		}
 		// Program did the mounting
-		return true, ensureFile(config.BackupFile, config.DefaultContent)
+		return ensureFile(config.BackupFile, config.DefaultContent)
 	}
 
 	// Drive was already mounted manually
 	if err := ensureFile(config.BackupFile, config.DefaultContent); err != nil {
-		return false, err
+		return err
 	}
 
-	return false, nil
+	return nil
 }
 
 func ensureFile(path string, content string) error {
@@ -77,24 +76,29 @@ func ensureFile(path string, content string) error {
 }
 
 func IsDriveMounted() (bool, error) {
-	if runtime.GOOS != "linux" {
-		return false, fmt.Errorf("unsupported OS: %s", runtime.GOOS)
-	}
+    if runtime.GOOS != "linux" {
+        return false, fmt.Errorf("unsupported OS: %s", runtime.GOOS)
+    }
 
-	file, err := os.Open("/proc/mounts")
-	if err != nil {
-		return false, fmt.Errorf("cannot open /proc/mounts: %w", err)
-	}
-	defer file.Close()
+    device, err := findDeviceByLabel(driveLabel)
+    if err != nil {
+        return false, fmt.Errorf("could not resolve device: %w", err)
+    }
 
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		parts := strings.SplitN(scanner.Text(), " ", 3)
-		if len(parts) >= 2 && parts[0] == driveDevice {
-			return true, nil
-		}
-	}
-	return false, scanner.Err()
+    file, err := os.Open("/proc/mounts")
+    if err != nil {
+        return false, fmt.Errorf("cannot open /proc/mounts: %w", err)
+    }
+    defer file.Close()
+
+    scanner := bufio.NewScanner(file)
+    for scanner.Scan() {
+        parts := strings.SplitN(scanner.Text(), " ", 3)
+        if len(parts) >= 2 && parts[0] == device {
+            return true, nil
+        }
+    }
+    return false, scanner.Err()
 }
 
 func unlockAndMount() error {
@@ -104,7 +108,7 @@ func unlockAndMount() error {
 	}
 	fmt.Printf("Found drive at %s\n", device)
 
-	if err := mountDevice(device, driveMountPoint); err != nil {
+	if err := mountDevice(device); err != nil {
 		return fmt.Errorf("mount failed: %w", err)
 	}
 	fmt.Printf("Drive mounted at %s\n", driveMountPoint)
@@ -135,23 +139,42 @@ func decodeLsblkLabel(s string) string {
 	).Replace(s)
 }
 
-func mountDevice(device, mountPoint string) error {
+func mountDevice(device string) error {
 	cmd := exec.Command("udisksctl", "mount", "-b", device)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
 }
 
-func UnmountDrive() {
-	fmt.Println("Unmounting drive...")
-	cmd := exec.Command("udisksctl", "unmount", "-b", driveDevice)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		fmt.Println("Warning: failed to unmount drive:", err)
-		return
-	}
-	fmt.Println("Drive unmounted successfully")
+func UnmountDrive() error {
+    device, err := findDeviceByLabel(driveLabel)
+    if err != nil {
+        return fmt.Errorf("could not find drive: %w", err)
+    }
+
+    prompt := fmt.Sprintf("Do you want to unmount drive: %s? (y/n) ", driveMountPoint)
+    input, err := PromptWithSuggestion(prompt, "n")
+    if err != nil {
+        return err
+    }
+
+    input = strings.ToLower(input)
+
+    if input == "y" || input == "yes" {
+        fmt.Println("Unmounting drive...")
+        cmd := exec.Command("udisksctl", "unmount", "-b", device)
+        cmd.Stdout = os.Stdout
+        cmd.Stderr = os.Stderr
+        if err := cmd.Run(); err != nil {
+            fmt.Println("Warning: failed to unmount drive:", err)
+            return err
+        }
+        fmt.Println("Drive unmounted successfully")
+    } else {
+        fmt.Println("Unmount canceled!")
+    }
+
+    return nil
 }
 
 /* Other Functions */

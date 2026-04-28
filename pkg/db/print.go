@@ -30,7 +30,7 @@ func (f *Finance) PrintDashboard() {
 
 	f.PrintItems(config.AllItems)
 
-	fmt.Print("\n\n< history, undo, import, backup, quit >")
+	fmt.Print("\n\n< history, undo, import, backup, unmount, quit >")
 	fmt.Print("\n=> ")
 }
 

@@ -100,7 +100,6 @@ func (f *Finance) Backup() error {
 	answer := util.Input("Did you take a picture?(y/n)")
 	if answer == "n" {
 		fmt.Println(color.Bold+color.Red, "\n\tBackup Canceled!\n", color.Reset)
-		util.PressAnyKey()
 		return nil
 	}
 
@@ -138,8 +137,6 @@ func (f *Finance) Backup() error {
 	f.Add("dept", oldBalance)
 
 	fmt.Println(color.Bold+color.Green, "\n\tBackup Done!\n", color.Reset)
-
-	util.PressAnyKey()
 
 	return nil
 }

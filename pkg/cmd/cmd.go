@@ -5,6 +5,7 @@ import (
 
 	"github.com/VkHyperNova/VK-FINANCE/pkg/config"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/db"
+	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
 func Start(f *db.Finance) {
@@ -28,10 +29,17 @@ func Start(f *db.Finance) {
 			if err != nil {
 				fmt.Println(err)
 			}
+			util.PressAnyKey()
 		case "import", "i":
 			if err := f.ImportDB(config.BackupFile); err != nil {
 				fmt.Println(err)
 			}
+			util.PressAnyKey()
+		case "unmount":
+			if err := util.UnmountDrive(); err != nil {
+				fmt.Println(err)
+			}
+			util.PressAnyKey()
 		case "quit", "q":
 			return
 		default:

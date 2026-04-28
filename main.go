@@ -11,13 +11,8 @@ import (
 
 func main() {
 
-	mounted, err := util.InitStorage()
-	if err != nil {
+	if err := util.InitStorage(); err != nil {
 		log.Fatalf("init storage: %v", err)
-	}
-	
-	if mounted {
-		defer util.UnmountDrive()
 	}
 
 	f := &db.Finance{}
