@@ -32,7 +32,7 @@ type Finance struct {
 
 func (f *Finance) Export() error {
 
-	input, err := util.PromptWithSuggestion("Do you want to export db to d drive? (y/n) ", "n")
+	input, err := util.PromptWithSuggestion("Export db to d drive? (y/n) ", "n")
 	if err != nil {
 		return err
 	}
@@ -47,9 +47,15 @@ func (f *Finance) Export() error {
 			return fmt.Errorf("load from file: %w", err)
 		}
 
-		if err := f.save(config.BackupFile); err != nil {
+		finance, err := json.MarshalIndent(f, "", "  ")
+		if err != nil {
 			return err
 		}
+
+		if err := os.WriteFile(config.BackupFile, finance, 0644); err != nil {
+			return err
+		}
+
 		fmt.Printf("Database exported to %s\nPress Enter!", config.BackupFile)
 		return nil
 	}
@@ -60,7 +66,7 @@ func (f *Finance) Export() error {
 
 func (f *Finance) Import() error {
 
-	input, err := util.PromptWithSuggestion("Do you want to import db from d drive? (y/n) ", "n")
+	input, err := util.PromptWithSuggestion("Import db from d drive? (y/n) ", "n")
 	if err != nil {
 		return err
 	}
@@ -75,9 +81,15 @@ func (f *Finance) Import() error {
 			return fmt.Errorf("load from file: %w", err)
 		}
 
-		if err := f.save(config.LocalFile); err != nil {
+		finance, err := json.MarshalIndent(f, "", "  ")
+		if err != nil {
 			return err
 		}
+
+		if err := os.WriteFile(config.LocalFile, finance, 0644); err != nil {
+			return err
+		}
+
 		fmt.Printf("Database imported from %s\nPress Enter!", config.BackupFile)
 		return nil
 	}
@@ -91,17 +103,14 @@ func (f *Finance) Add(item string, value float64) error {
 
 	comment := strings.ToLower(item)
 
-	// Check for random items
 	if !util.Contains(config.AllItems, comment) {
 		return errors.New("No such Item!")
 	}
 
-	// Assign +/- if it's not dept
 	if !util.Contains(config.IncomeItems, comment) && comment != "dept" {
 		value = -value
 	}
 
-	// Add time
 	now := time.Now()
 
 	NewItem := Item{
@@ -111,30 +120,9 @@ func (f *Finance) Add(item string, value float64) error {
 		VALUE:   value,
 	}
 
-	// Append New Item
 	f.Finance = append(f.Finance, NewItem)
 
-	// Local Save
-	err := f.save(config.LocalFile)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(color.Green + "Item saved to local json file!" + color.Reset)
-
-	// Backup save
-	if err := util.InitBackupStorage(); err != nil {
-		return err
-	}
-
-	err = f.save(config.BackupFile)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(color.Green + "Item saved to backup file!" + color.Reset)
-
-	return nil
+	return f.save()
 }
 
 func (f *Finance) Restart() error {
@@ -196,21 +184,7 @@ func (f *Finance) Undo() error {
 	config.LastAddedItemName = ""
 	config.LastAddedItemSum = 0.0
 
-	err := f.save(config.LocalFile)
-	if err != nil {
-		return err
-	}
-
-	if err := util.InitBackupStorage(); err != nil {
-		return err
-	}
-
-	err = f.save(config.BackupFile)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return f.save()
 }
 
 func (f *Finance) LoadFromFile(source string) error {
@@ -237,7 +211,8 @@ func (f *Finance) LoadFromFile(source string) error {
 
 /* Other */
 
-func (f *Finance) save(target string) error {
+func (f *Finance) save() error {
+
 	copySlice := make([]Item, len(f.Finance))
 	copy(copySlice, f.Finance)
 
@@ -248,7 +223,23 @@ func (f *Finance) save(target string) error {
 		return err
 	}
 
-	return os.WriteFile(target, finance, 0644)
+	if err := os.WriteFile(config.LocalFile, finance, 0644); err != nil {
+		return err
+	}
+
+	fmt.Println(color.Green + "Local save!" + color.Reset)
+
+	if err := util.InitBackupStorage(); err != nil {
+		return err
+	}
+
+	if err := os.WriteFile(config.BackupFile, finance, 0644); err != nil {
+		return err
+	}
+
+	fmt.Println(color.Green + "Backup save!" + color.Reset)
+
+	return nil
 }
 
 func (f *Finance) calculate() (float64, float64, float64) {
