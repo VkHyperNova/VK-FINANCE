@@ -23,12 +23,11 @@ const (
 	driveMountPoint = "/media/veikko/VK DATA"
 )
 
-func InitStorage() error {
+func InitLocalStorage() error {
+	return ensureFile(config.LocalFile, config.DefaultContent)
+}
 
-	if err := ensureFile(config.LocalFile, config.DefaultContent); err != nil {
-		return err
-	}
-
+func InitBackupStorage() error {
 	mounted, err := IsDriveMounted()
 	if err != nil {
 		return fmt.Errorf("mount check failed: %w", err)
@@ -53,11 +52,7 @@ func InitStorage() error {
 	}
 
 	// Drive was already mounted manually
-	if err := ensureFile(config.BackupFile, config.DefaultContent); err != nil {
-		return err
-	}
-
-	return nil
+	return ensureFile(config.BackupFile, config.DefaultContent)
 }
 
 func ensureFile(path string, content string) error {

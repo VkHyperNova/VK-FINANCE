@@ -24,14 +24,19 @@ func Start(f *db.Finance) {
 			f.PrintHistory()
 		case "undo":
 			f.Undo()
-		case "backup":
-			err := f.Backup()
+		case "restart":
+			err := f.Restart()
 			if err != nil {
 				fmt.Println(err)
 			}
 			util.PressAnyKey()
 		case "import", "i":
-			if err := f.ImportDB(config.BackupFile); err != nil {
+			if err := f.Import(); err != nil {
+				fmt.Println(err)
+			}
+			util.PressAnyKey()
+		case "export", "e":
+			if err := f.Export(); err != nil {
 				fmt.Println(err)
 			}
 			util.PressAnyKey()

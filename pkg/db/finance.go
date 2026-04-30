@@ -16,7 +16,7 @@ import (
 
 /* Database Functions */
 
-type FinanceItem struct {
+type Item struct {
 	DATE    string  `json:"date"`
 	TIME    string  `json:"time"`
 	COMMENT string  `json:"comment"`
@@ -25,12 +25,40 @@ type FinanceItem struct {
 
 // Slice containing multiple HistoryItem instances.
 type Finance struct {
-	Finance []FinanceItem `json:"finance"`
+	Finance []Item `json:"finance"`
 }
 
 /* Main */
 
-func (f *Finance) ImportDB(source string) error {
+func (f *Finance) Export() error {
+
+	input, err := util.PromptWithSuggestion("Do you want to export db to d drive? (y/n) ", "n")
+	if err != nil {
+		return err
+	}
+
+	if input == "y" || input == "yes" {
+
+		if err := util.InitBackupStorage(); err != nil {
+			return err
+		}
+
+		if err := f.LoadFromFile(config.LocalFile); err != nil {
+			return fmt.Errorf("load from file: %w", err)
+		}
+
+		if err := f.save(config.BackupFile); err != nil {
+			return err
+		}
+		fmt.Printf("Database exported to %s\nPress Enter!", config.BackupFile)
+		return nil
+	}
+
+	fmt.Println("Export canceled!")
+	return nil
+}
+
+func (f *Finance) Import() error {
 
 	input, err := util.PromptWithSuggestion("Do you want to import db from d drive? (y/n) ", "n")
 	if err != nil {
@@ -38,16 +66,23 @@ func (f *Finance) ImportDB(source string) error {
 	}
 
 	if input == "y" || input == "yes" {
-		if err := f.LoadFromFile(source); err != nil {
+
+		if err := util.InitBackupStorage(); err != nil {
+			return err
+		}
+
+		if err := f.LoadFromFile(config.BackupFile); err != nil {
 			return fmt.Errorf("load from file: %w", err)
 		}
 
 		if err := f.save(config.LocalFile); err != nil {
 			return err
 		}
+		fmt.Printf("Database imported from %s\nPress Enter!", config.BackupFile)
+		return nil
 	}
 
-	fmt.Printf("Database imported from %s\n", source)
+	fmt.Println("Import canceled!")
 
 	return nil
 }
@@ -69,7 +104,7 @@ func (f *Finance) Add(item string, value float64) error {
 	// Add time
 	now := time.Now()
 
-	NewItem := FinanceItem{
+	NewItem := Item{
 		DATE:    now.Format("02-01-2006"),
 		TIME:    now.Format("15:04:05"),
 		COMMENT: comment,
@@ -85,16 +120,24 @@ func (f *Finance) Add(item string, value float64) error {
 		return err
 	}
 
+	fmt.Println(color.Green + "Item saved to local json file!" + color.Reset)
+
 	// Backup save
+	if err := util.InitBackupStorage(); err != nil {
+		return err
+	}
+
 	err = f.save(config.BackupFile)
 	if err != nil {
 		return err
 	}
 
+	fmt.Println(color.Green + "Item saved to backup file!" + color.Reset)
+
 	return nil
 }
 
-func (f *Finance) Backup() error {
+func (f *Finance) Restart() error {
 
 	// Ask before backup start
 	answer := util.Input("Did you take a picture?(y/n)")
@@ -106,6 +149,10 @@ func (f *Finance) Backup() error {
 	// Convert to json
 	finance, err := json.MarshalIndent(f, "", "  ")
 	if err != nil {
+		return err
+	}
+
+	if err := util.InitBackupStorage(); err != nil {
 		return err
 	}
 
@@ -154,6 +201,10 @@ func (f *Finance) Undo() error {
 		return err
 	}
 
+	if err := util.InitBackupStorage(); err != nil {
+		return err
+	}
+
 	err = f.save(config.BackupFile)
 	if err != nil {
 		return err
@@ -187,18 +238,17 @@ func (f *Finance) LoadFromFile(source string) error {
 /* Other */
 
 func (f *Finance) save(target string) error {
+	copySlice := make([]Item, len(f.Finance))
+	copy(copySlice, f.Finance)
 
-	finance, err := json.MarshalIndent(f, "", "  ")
+	copyFinance := Finance{Finance: copySlice}
+
+	finance, err := json.MarshalIndent(copyFinance, "", "  ")
 	if err != nil {
 		return err
 	}
 
-	err = os.WriteFile(target, finance, 0644)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return os.WriteFile(target, finance, 0644)
 }
 
 func (f *Finance) calculate() (float64, float64, float64) {

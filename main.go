@@ -11,7 +11,7 @@ import (
 
 func main() {
 
-	if err := util.InitStorage(); err != nil {
+	if err := util.InitLocalStorage(); err != nil {
 		log.Fatalf("init storage: %v", err)
 	}
 
