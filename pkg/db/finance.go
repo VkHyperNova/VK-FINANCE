@@ -177,14 +177,13 @@ func (f *Finance) Restart() error {
 }
 
 func (f *Finance) Undo() error {
-
-	// Remove the last item
-	f.Finance = f.Finance[:len(f.Finance)-1]
-
-	config.LastAddedItemName = ""
-	config.LastAddedItemSum = 0.0
-
-	return f.save()
+    if len(f.Finance) == 0 {
+        return fmt.Errorf("nothing to undo")
+    }
+    f.Finance = f.Finance[:len(f.Finance)-1]
+    config.LastAddedItemName = ""
+    config.LastAddedItemSum = 0.0
+    return f.save()
 }
 
 func (f *Finance) LoadFromFile(source string) error {
@@ -212,34 +211,30 @@ func (f *Finance) LoadFromFile(source string) error {
 /* Other */
 
 func (f *Finance) save() error {
+    copySlice := make([]Item, len(f.Finance))
+    copy(copySlice, f.Finance)
+    copyFinance := Finance{Finance: copySlice}
 
-	copySlice := make([]Item, len(f.Finance))
-	copy(copySlice, f.Finance)
+    finance, err := json.MarshalIndent(copyFinance, "", "  ")
+    if err != nil {
+        return err
+    }
 
-	copyFinance := Finance{Finance: copySlice}
+    if err := os.WriteFile(config.LocalFile, finance, 0644); err != nil {
+        return err
+    }
+    fmt.Println(color.Green + "Local save!" + color.Reset)
 
-	finance, err := json.MarshalIndent(copyFinance, "", "  ")
-	if err != nil {
-		return err
-	}
-
-	if err := os.WriteFile(config.LocalFile, finance, 0644); err != nil {
-		return err
-	}
-
-	fmt.Println(color.Green + "Local save!" + color.Reset)
-
-	if err := util.InitBackupStorage(); err != nil {
-		return err
-	}
-
-	if err := os.WriteFile(config.BackupFile, finance, 0644); err != nil {
-		return err
-	}
-
-	fmt.Println(color.Green + "Backup save!" + color.Reset)
-
-	return nil
+    if err := util.InitBackupStorage(); err != nil {
+        fmt.Println(color.Yellow + "Backup init failed: " + err.Error() + color.Reset)
+        return nil // or return err, depending on your needs
+    }
+    if err := os.WriteFile(config.BackupFile, finance, 0644); err != nil {
+        fmt.Println(color.Yellow + "Backup write failed: " + err.Error() + color.Reset)
+        return nil // same decision here
+    }
+    fmt.Println(color.Green + "Backup save!" + color.Reset)
+    return nil
 }
 
 func (f *Finance) calculate() (float64, float64, float64) {
