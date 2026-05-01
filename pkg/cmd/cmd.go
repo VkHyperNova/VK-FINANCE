@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/VkHyperNova/VK-FINANCE/pkg/config"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/db"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
@@ -49,10 +48,11 @@ func Start(f *db.Finance) {
 			return
 		default:
 			if command == "" || sum == 0.0 {
+				fmt.Println("Add Expence: food -10")
+				fmt.Println("Add Income: wolt 10")
+				util.PressAnyKey()
 				continue
 			}
-			config.LastAddedItemName = command
-			config.LastAddedItemSum = sum
 			f.Add(command, sum)
 		}
 	}

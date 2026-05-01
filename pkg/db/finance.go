@@ -2,7 +2,6 @@ package db
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -103,14 +102,6 @@ func (f *Finance) Add(item string, value float64) error {
 
 	comment := strings.ToLower(item)
 
-	if !util.Contains(config.AllItems, comment) {
-		return errors.New("No such Item!")
-	}
-
-	if !util.Contains(config.IncomeItems, comment) && comment != "dept" {
-		value = -value
-	}
-
 	now := time.Now()
 
 	NewItem := Item{
@@ -181,8 +172,6 @@ func (f *Finance) Undo() error {
         return fmt.Errorf("nothing to undo")
     }
     f.Finance = f.Finance[:len(f.Finance)-1]
-    config.LastAddedItemName = ""
-    config.LastAddedItemSum = 0.0
     return f.save()
 }
 
@@ -211,29 +200,35 @@ func (f *Finance) LoadFromFile(source string) error {
 /* Other */
 
 func (f *Finance) save() error {
+
     copySlice := make([]Item, len(f.Finance))
     copy(copySlice, f.Finance)
-    copyFinance := Finance{Finance: copySlice}
 
+    copyFinance := Finance{Finance: copySlice}
     finance, err := json.MarshalIndent(copyFinance, "", "  ")
     if err != nil {
         return err
     }
 
+	// Save Local
     if err := os.WriteFile(config.LocalFile, finance, 0644); err != nil {
         return err
     }
     fmt.Println(color.Green + "Local save!" + color.Reset)
 
+	// Save Backup
     if err := util.InitBackupStorage(); err != nil {
         fmt.Println(color.Yellow + "Backup init failed: " + err.Error() + color.Reset)
         return nil // or return err, depending on your needs
     }
+
     if err := os.WriteFile(config.BackupFile, finance, 0644); err != nil {
         fmt.Println(color.Yellow + "Backup write failed: " + err.Error() + color.Reset)
         return nil // same decision here
     }
+
     fmt.Println(color.Green + "Backup save!" + color.Reset)
+
     return nil
 }
 

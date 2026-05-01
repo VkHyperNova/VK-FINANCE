@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"sort"
 	"strconv"
 	"time"
 
 	"github.com/VkHyperNova/VK-FINANCE/pkg/color"
-	"github.com/VkHyperNova/VK-FINANCE/pkg/config"
 	"github.com/VkHyperNova/VK-FINANCE/pkg/util"
 )
 
@@ -16,11 +16,11 @@ func (f *Finance) PrintDashboard() {
 
 	util.ClearScreen()
 
-	fmt.Print("\nVK FINANCE v1.5\n\n")
+	fmt.Print(color.Blue + color.Bold + "\nVK FINANCE v1.6\n\n" + color.Reset)
 
-	// Print month
+	// Print current month
 	currentMonth := time.Now().AddDate(0, -1, 0).Format("January 2006")
-	fmt.Println("\t" + currentMonth + "\n")
+	fmt.Println(color.Yellow + "\t" + currentMonth + "\n" + color.Reset)
 
 	income, expenses, balance := f.calculate()
 	fmt.Println(color.Green, "INCOME: "+"+"+strconv.FormatFloat(income, 'f', 2, 64)+" EUR", color.Reset)
@@ -28,33 +28,55 @@ func (f *Finance) PrintDashboard() {
 	fmt.Println(color.Bold, "BALANCE: "+strconv.FormatFloat(balance, 'f', 2, 64)+" EUR", color.Reset)
 	fmt.Println()
 
-	f.PrintItems(config.AllItems)
+	f.PrintItemsBySum()
 
-	fmt.Print("\n\n< history, undo, import, export, restart, unmount, quit >")
+	fmt.Print(color.Blue + "\n< history, undo, import, export, restart, unmount, quit >" + color.Reset)
 	fmt.Print("\n=> ")
 }
 
-func (f *Finance) PrintItems(items []string) {
-	totals := make(map[string]float64)
-	for _, item := range f.Finance {
-		totals[item.COMMENT] += item.VALUE
-	}
+func (f *Finance) PrintItemsBySum() {
 
-	for _, name := range items {
-		value := totals[name]
-		if value == 0 {
-			continue
-		}
+	// Guard against empty slice panic
+    if len(f.Finance) == 0 {
+        return
+    }
 
-		line := fmt.Sprintf("\t%s: %.2f EUR", name, value)
-		highlight := name == config.LastAddedItemName
-		if highlight {
-			line += " | " + strconv.FormatFloat(config.LastAddedItemSum, 'f', 2, 64)
-		}
+    // Group and Sum up Items
+    totals := make(map[string]float64)
+    for _, item := range f.Finance {
+        totals[item.COMMENT] += item.VALUE
+    }
 
-		fmt.Println(util.Colorize(line, value, highlight))
-	}
+    // Convert to sortable slice, skipping zero-sum entries
+    type itemSum struct {
+        name string
+        sum  float64
+    }
+    pairs := make([]itemSum, 0, len(totals))
+    for name, sum := range totals {
+        if sum != 0 {
+            pairs = append(pairs, itemSum{name, sum})
+        }
+    }
 
+    // Sort highest to lowest
+    sort.Slice(pairs, func(a, b int) bool {
+        return pairs[a].sum > pairs[b].sum
+    })
+
+    // Last added item is used for highlight
+    lastItem := f.Finance[len(f.Finance)-1]
+
+    for _, p := range pairs {
+        line := fmt.Sprintf("\t%s: %.2f EUR", p.name, p.sum)
+
+        if p.name == lastItem.COMMENT {
+            line += fmt.Sprintf(" | %.2f", lastItem.VALUE)
+        }
+
+        highlight := p.name == lastItem.COMMENT
+        fmt.Println(util.Colorize(line, p.sum, highlight))
+    }
 }
 
 func (f *Finance) PrintHistory() {

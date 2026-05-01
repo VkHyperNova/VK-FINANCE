@@ -467,6 +467,36 @@
       "time": "12:32:34",
       "comment": "bonus",
       "value": 40
+    },
+    {
+      "date": "30-04-2026",
+      "time": "17:56:27",
+      "comment": "food",
+      "value": -10.06
+    },
+    {
+      "date": "30-04-2026",
+      "time": "17:56:36",
+      "comment": "catfood",
+      "value": -3.59
+    },
+    {
+      "date": "30-04-2026",
+      "time": "17:56:40",
+      "comment": "saun",
+      "value": -6
+    },
+    {
+      "date": "30-04-2026",
+      "time": "17:56:45",
+      "comment": "food",
+      "value": -2.85
+    },
+    {
+      "date": "30-04-2026",
+      "time": "17:56:47",
+      "comment": "other",
+      "value": -33.5
     }
   ]
 }
