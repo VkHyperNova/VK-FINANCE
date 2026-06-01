@@ -23,8 +23,8 @@ func Start(f *db.Finance) {
 			f.PrintHistory()
 		case "undo":
 			f.Undo()
-		case "restart":
-			err := f.Restart()
+		case "backup":
+			err := f.Backup()
 			if err != nil {
 				fmt.Println(err)
 			}

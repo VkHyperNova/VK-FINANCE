@@ -30,7 +30,7 @@ func (f *Finance) PrintDashboard() {
 
 	f.PrintItemsBySum()
 
-	fmt.Print(color.Blue + "\n< history, undo, import, export, restart, unmount, quit >" + color.Reset)
+	fmt.Print(color.Blue + "\n< history, undo, import, export, backup, unmount, quit >" + color.Reset)
 	fmt.Print("\n=> ")
 }
 

@@ -116,7 +116,7 @@ func (f *Finance) Add(item string, value float64) error {
 	return f.save()
 }
 
-func (f *Finance) Restart() error {
+func (f *Finance) Backup() error {
 
 	// Ask before backup start
 	answer := util.Input("Did you take a picture?(y/n)")
@@ -125,42 +125,40 @@ func (f *Finance) Restart() error {
 		return nil
 	}
 
-	// Convert to json
-	finance, err := json.MarshalIndent(f, "", "  ")
-	if err != nil {
-		return err
-	}
+	// Serialize current state
+    finance, err := json.MarshalIndent(f, "", "  ")
+    if err != nil {
+        return fmt.Errorf("marshalling finance data: %w", err)
+    }
 
 	if err := util.InitBackupStorage(); err != nil {
-		return err
-	}
+        return fmt.Errorf("initialising backup storage: %w", err)
+    }
 
-	// Save a copy
-	err = os.WriteFile(config.BackupFileWithDate, finance, 0644)
-	if err != nil {
-		return err
-	}
+	 // Write backup copy
+    if err := os.WriteFile(config.BackupFileWithDate, finance, 0644); err != nil {
+        return fmt.Errorf("writing backup file: %w", err)
+    }
 
-	// Calculate old dept
-	_, _, oldBalance := f.calculate()
+	// Capture balance BEFORE resetting
+    _, _, oldBalance := f.calculate()
 
-	// Remove old file
-	err = os.Remove(config.LocalFile)
-	if err != nil {
-		return err
-	}
+	 // Write new empty DB first, THEN remove old — safer ordering
+    if err := os.WriteFile(config.LocalFile, []byte(config.DefaultContent), 0644); err != nil {
+        return fmt.Errorf("writing new local file: %w", err)
+    }
 
-	// New vk-finance.json
-	err = os.WriteFile(config.LocalFile, []byte(config.DefaultContent), 0644)
-	if err != nil {
-		return err
-	}
-
-	// Open new Empty DB
-	f.LoadFromFile(config.LocalFile)
+	 // Load the fresh empty DB
+    if err := f.LoadFromFile(config.LocalFile); err != nil {
+        return fmt.Errorf("loading new local file: %w", err)
+    }
 
 	// Append old balance
-	f.Add("dept", oldBalance)
+	if oldBalance >= 0 {
+		f.Add("profit", oldBalance)
+	} else {
+		f.Add("dept", oldBalance)
+	}
 
 	fmt.Println(color.Bold+color.Green, "\n\tBackup Done!\n", color.Reset)
 
@@ -168,11 +166,11 @@ func (f *Finance) Restart() error {
 }
 
 func (f *Finance) Undo() error {
-    if len(f.Finance) == 0 {
-        return fmt.Errorf("nothing to undo")
-    }
-    f.Finance = f.Finance[:len(f.Finance)-1]
-    return f.save()
+	if len(f.Finance) == 0 {
+		return fmt.Errorf("nothing to undo")
+	}
+	f.Finance = f.Finance[:len(f.Finance)-1]
+	return f.save()
 }
 
 func (f *Finance) LoadFromFile(source string) error {
@@ -201,35 +199,35 @@ func (f *Finance) LoadFromFile(source string) error {
 
 func (f *Finance) save() error {
 
-    copySlice := make([]Item, len(f.Finance))
-    copy(copySlice, f.Finance)
+	copySlice := make([]Item, len(f.Finance))
+	copy(copySlice, f.Finance)
 
-    copyFinance := Finance{Finance: copySlice}
-    finance, err := json.MarshalIndent(copyFinance, "", "  ")
-    if err != nil {
-        return err
-    }
+	copyFinance := Finance{Finance: copySlice}
+	finance, err := json.MarshalIndent(copyFinance, "", "  ")
+	if err != nil {
+		return err
+	}
 
 	// Save Local
-    if err := os.WriteFile(config.LocalFile, finance, 0644); err != nil {
-        return err
-    }
-    fmt.Println(color.Green + "Local save!" + color.Reset)
+	if err := os.WriteFile(config.LocalFile, finance, 0644); err != nil {
+		return err
+	}
+	fmt.Println(color.Green + "Local save!" + color.Reset)
 
 	// Save Backup
-    if err := util.InitBackupStorage(); err != nil {
-        fmt.Println(color.Yellow + "Backup init failed: " + err.Error() + color.Reset)
-        return nil // or return err, depending on your needs
-    }
+	if err := util.InitBackupStorage(); err != nil {
+		fmt.Println(color.Yellow + "Backup init failed: " + err.Error() + color.Reset)
+		return nil // or return err, depending on your needs
+	}
 
-    if err := os.WriteFile(config.BackupFile, finance, 0644); err != nil {
-        fmt.Println(color.Yellow + "Backup write failed: " + err.Error() + color.Reset)
-        return nil // same decision here
-    }
+	if err := os.WriteFile(config.BackupFile, finance, 0644); err != nil {
+		fmt.Println(color.Yellow + "Backup write failed: " + err.Error() + color.Reset)
+		return nil // same decision here
+	}
 
-    fmt.Println(color.Green + "Backup save!" + color.Reset)
+	fmt.Println(color.Green + "Backup save!" + color.Reset)
 
-    return nil
+	return nil
 }
 
 func (f *Finance) calculate() (float64, float64, float64) {
